@@ -10,8 +10,8 @@ final class AACStore: ObservableObject {
         didSet { saveSettings() }
     }
 
-    private let wordsKey = "myechoaac.words.v1"
-    private let settingsKey = "myechoaac.settings.v1"
+    private let wordsKey = "vani.words.v1"
+    private let settingsKey = "vani.settings.v1"
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 

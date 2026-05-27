@@ -36,8 +36,13 @@ struct KidModeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("My Echo")
-                        .font(.system(.title3, design: .rounded, weight: .bold))
+                    VStack(spacing: 0) {
+                        Text("वाणी")
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                        Text("Vani")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {

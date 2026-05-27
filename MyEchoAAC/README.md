@@ -1,6 +1,6 @@
-# My Echo AAC
+# वाणी (Vani)
 
-My Echo AAC is a native SwiftUI AAC starter app for a child-first communication board.
+Vani is a native SwiftUI AAC starter app for a child-first communication board.
 
 ## Current app
 
