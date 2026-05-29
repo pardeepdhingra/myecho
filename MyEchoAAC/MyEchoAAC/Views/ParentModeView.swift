@@ -67,8 +67,19 @@ private struct PhraseEditSheet: View {
                             Text(mode.label).tag(mode)
                         }
                     }
+
+                    if phrase.mode == .regulation {
+                        Picker("Style", selection: Binding(
+                            get: { phrase.regulationKind ?? .help },
+                            set: { phrase.regulationKind = $0 }
+                        )) {
+                            Label("Calm (teal)", systemImage: "leaf.fill").tag(RegulationKind.calm)
+                            Label("Help (yellow)", systemImage: "questionmark.bubble.fill").tag(RegulationKind.help)
+                            Label("Stop (red)", systemImage: "hand.raised.fill").tag(RegulationKind.stop)
+                        }
+                    }
                 } footer: {
-                    Text("\"Speak immediately\" says the phrase out loud. \"Add to message bar\" treats it as a sentence starter that the child can extend before tapping Speak.")
+                    Text("• Speak immediately — says the phrase out loud.\n• Add to message bar — sentence starter the child extends before tapping Speak.\n• Pinned regulation button — appears at the very top of the kid screen as a colored emergency button (Break / Help / Stop style).")
                 }
             }
             .navigationTitle("Edit Phrase")
@@ -79,6 +90,9 @@ private struct PhraseEditSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
+                        if phrase.mode == .regulation, phrase.regulationKind == nil {
+                            phrase.regulationKind = .help
+                        }
                         onSave(phrase)
                         dismiss()
                     }
@@ -200,6 +214,7 @@ struct ParentModeView: View {
                 Toggle("Show categories on kid screen", isOn: $store.settings.showCategoryFilter)
                 Toggle("Show quick phrases", isOn: $store.settings.showQuickPhrases)
                 Toggle("Show symbols in message bar", isOn: $store.settings.showSymbolsInMessageBar)
+                Toggle("Show regulation bar (Break / Help / Stop)", isOn: $store.settings.showRegulationBar)
             }
 
             Section {
@@ -284,6 +299,14 @@ struct ParentModeView: View {
                 Text("Backup")
             } footer: {
                 Text("Export a single .vaniboard file with every word, phrase, setting, and photo. Save it to Files, email it, or AirDrop it — then import on another device.")
+            }
+
+            Section {
+                NavigationLink {
+                    AboutView()
+                } label: {
+                    Label("About Vani", systemImage: "info.circle")
+                }
             }
 
             Section {

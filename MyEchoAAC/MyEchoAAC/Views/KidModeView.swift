@@ -13,6 +13,7 @@ struct KidModeView: View {
     @AppStorage("vani.welcomeSeen") private var welcomeSeen: Bool = false
     @State private var showingWelcome = false
     @State private var showingSentenceHistory = false
+    @State private var showingAbout = false
 
     private var phrase: String {
         message.map(\.phrase).joined(separator: " ")
@@ -62,6 +63,7 @@ struct KidModeView: View {
     var body: some View {
         VStack(spacing: 12) {
             header
+            regulationBar
             quickPhraseStrip
             messageBar
             categoryFilter
@@ -74,11 +76,13 @@ struct KidModeView: View {
                 PINGateView {
                     showingParentMode = true
                 }
+                .presentationDetents([.large])
             }
             .sheet(isPresented: $showingWelcome, onDismiss: {
                 welcomeSeen = true
             }) {
                 WelcomeView()
+                    .presentationDetents([.large])
             }
             .sheet(isPresented: $showingSentenceHistory) {
                 SentenceHistorySheet { sentence in
@@ -86,6 +90,13 @@ struct KidModeView: View {
                     Haptics.actionTap()
                 }
                 .environmentObject(history)
+                .presentationDetents([.large])
+            }
+            .sheet(isPresented: $showingAbout) {
+                NavigationStack {
+                    AboutView()
+                }
+                .presentationDetents([.large])
             }
             .task {
                 if !welcomeSeen {
@@ -104,6 +115,7 @@ struct KidModeView: View {
                     .environmentObject(store)
                     .environmentObject(speech)
                     .environmentObject(history)
+                    .presentationDetents([.large])
             }
             .onChange(of: store.words) { _, _ in
                 guard let selectedCategory, store.categories.contains(selectedCategory) else {
@@ -143,6 +155,22 @@ struct KidModeView: View {
                     .font(.system(.caption2, design: .rounded, weight: .semibold))
                     .foregroundStyle(Color.black.opacity(0.55))
             }
+
+            Button {
+                showingAbout = true
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.system(.body, weight: .semibold))
+                    .foregroundStyle(Color.black.opacity(0.75))
+                    .frame(width: 36, height: 36)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .overlay {
+                        Circle().stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("About Vani")
 
             Button {
                 showingParentGate = true
@@ -203,33 +231,83 @@ struct KidModeView: View {
     }
 
     @ViewBuilder
-    private var quickPhraseStrip: some View {
-        if store.settings.showQuickPhrases && !store.quickPhrases.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
+    private var regulationBar: some View {
+        if store.settings.showRegulationBar {
+            let buttons = store.quickPhrases
+                .filter { $0.mode == .regulation }
+                .sorted { ($0.regulationKind?.rawValue ?? "") < ($1.regulationKind?.rawValue ?? "") }
+            if !buttons.isEmpty {
                 HStack(spacing: 8) {
-                    ForEach(store.quickPhrases.sorted { $0.position < $1.position }) { phrase in
+                    ForEach(buttons) { phrase in
                         Button {
-                            handleQuickPhrase(phrase)
+                            Haptics.actionTap()
+                            speech.speak(phrase.text, settings: store.settings)
+                            history.recordSentence(phrase.text, enabled: store.settings.trackUsageHistory)
                         } label: {
                             HStack(spacing: 6) {
-                                if phrase.mode == .startSentence {
-                                    Image(systemName: "text.bubble")
-                                        .font(.caption.weight(.bold))
-                                }
+                                Image(systemName: phrase.regulationKind?.systemImage ?? "exclamationmark.circle.fill")
+                                    .font(.system(.title3, weight: .bold))
                                 Text(phrase.text)
-                                    .font(.system(.callout, design: .rounded, weight: .semibold))
+                                    .font(.system(.callout, design: .rounded, weight: .bold))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
                             }
-                            .foregroundStyle(Color.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .background(phrase.mode == .speak ? Color.accentColor : Color.accentColor.opacity(0.78))
-                            .clipShape(Capsule())
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(regulationColor(phrase.regulationKind))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
                         .buttonStyle(PressableTileStyle())
                         .accessibilityLabel(phrase.text)
                     }
                 }
-                .padding(.horizontal, 2)
+            }
+        }
+    }
+
+    private func regulationColor(_ kind: RegulationKind?) -> Color {
+        switch kind {
+        case .calm: Color(red: 0.13, green: 0.66, blue: 0.55)
+        case .help: Color(red: 0.95, green: 0.72, blue: 0.15)
+        case .stop: Color(red: 0.85, green: 0.27, blue: 0.27)
+        case nil: Color.accentColor
+        }
+    }
+
+    @ViewBuilder
+    private var quickPhraseStrip: some View {
+        if store.settings.showQuickPhrases {
+            let nonRegulation = store.quickPhrases
+                .filter { $0.mode != .regulation }
+                .sorted { $0.position < $1.position }
+            if !nonRegulation.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(nonRegulation) { phrase in
+                            Button {
+                                handleQuickPhrase(phrase)
+                            } label: {
+                                HStack(spacing: 6) {
+                                    if phrase.mode == .startSentence {
+                                        Image(systemName: "text.bubble")
+                                            .font(.caption.weight(.bold))
+                                    }
+                                    Text(phrase.text)
+                                        .font(.system(.callout, design: .rounded, weight: .semibold))
+                                }
+                                .foregroundStyle(Color.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .background(phrase.mode == .speak ? Color.accentColor : Color.accentColor.opacity(0.78))
+                                .clipShape(Capsule())
+                            }
+                            .buttonStyle(PressableTileStyle())
+                            .accessibilityLabel(phrase.text)
+                        }
+                    }
+                    .padding(.horizontal, 2)
+                }
             }
         }
     }
@@ -381,7 +459,7 @@ struct KidModeView: View {
     private func handleQuickPhrase(_ phrase: QuickPhrase) {
         Haptics.actionTap()
         switch phrase.mode {
-        case .speak:
+        case .speak, .regulation:
             speech.speak(phrase.text, settings: store.settings)
             history.recordSentence(phrase.text, enabled: store.settings.trackUsageHistory)
         case .startSentence:

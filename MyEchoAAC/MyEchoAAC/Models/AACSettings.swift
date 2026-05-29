@@ -13,6 +13,7 @@ struct AACSettings: Codable, Equatable {
     var naturalVoiceId: String?
     var showAllVoiceQualities: Bool
     var tileScale: Double
+    var showRegulationBar: Bool
 
     static let `default` = AACSettings(
         gridColumns: 4,
@@ -26,14 +27,15 @@ struct AACSettings: Codable, Equatable {
         useNaturalVoice: false,
         naturalVoiceId: "EXAVITQu4vr4xnSDxMaL",
         showAllVoiceQualities: false,
-        tileScale: 1.0
+        tileScale: 1.0,
+        showRegulationBar: true
     )
 
     enum CodingKeys: String, CodingKey {
         case gridColumns, voiceIdentifier, speechRate, pitchMultiplier
         case showCategoryFilter, showQuickPhrases, trackUsageHistory
         case showSymbolsInMessageBar, useNaturalVoice, naturalVoiceId
-        case showAllVoiceQualities, tileScale
+        case showAllVoiceQualities, tileScale, showRegulationBar
     }
 
     init(
@@ -48,7 +50,8 @@ struct AACSettings: Codable, Equatable {
         useNaturalVoice: Bool = false,
         naturalVoiceId: String? = "EXAVITQu4vr4xnSDxMaL",
         showAllVoiceQualities: Bool = false,
-        tileScale: Double = 1.0
+        tileScale: Double = 1.0,
+        showRegulationBar: Bool = true
     ) {
         self.gridColumns = gridColumns
         self.voiceIdentifier = voiceIdentifier
@@ -62,6 +65,7 @@ struct AACSettings: Codable, Equatable {
         self.naturalVoiceId = naturalVoiceId
         self.showAllVoiceQualities = showAllVoiceQualities
         self.tileScale = tileScale
+        self.showRegulationBar = showRegulationBar
     }
 
     init(from decoder: Decoder) throws {
@@ -78,5 +82,6 @@ struct AACSettings: Codable, Equatable {
         naturalVoiceId = try c.decodeIfPresent(String.self, forKey: .naturalVoiceId) ?? "EXAVITQu4vr4xnSDxMaL"
         showAllVoiceQualities = try c.decodeIfPresent(Bool.self, forKey: .showAllVoiceQualities) ?? false
         tileScale = try c.decodeIfPresent(Double.self, forKey: .tileScale) ?? 1.0
+        showRegulationBar = try c.decodeIfPresent(Bool.self, forKey: .showRegulationBar) ?? true
     }
 }

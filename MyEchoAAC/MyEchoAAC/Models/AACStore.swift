@@ -274,12 +274,30 @@ final class AACStore: ObservableObject {
     }
 
     static let defaultQuickPhrases: [QuickPhrase] = [
-        QuickPhrase(text: "I want water", position: 1),
-        QuickPhrase(text: "I need toilet", position: 2),
-        QuickPhrase(text: "I am hungry", position: 3),
-        QuickPhrase(text: "I love you", position: 4),
-        QuickPhrase(text: "Help me please", position: 5)
+        QuickPhrase(text: "I need a break", position: 1, mode: .regulation, regulationKind: .calm),
+        QuickPhrase(text: "I need help", position: 2, mode: .regulation, regulationKind: .help),
+        QuickPhrase(text: "Please stop", position: 3, mode: .regulation, regulationKind: .stop),
+        QuickPhrase(text: "I want water", position: 4),
+        QuickPhrase(text: "I need toilet", position: 5),
+        QuickPhrase(text: "I am hungry", position: 6),
+        QuickPhrase(text: "I love you", position: 7)
     ]
+
+    func ensureRegulationDefaults() {
+        var nextPos = (quickPhrases.map(\.position).max() ?? 0) + 1
+        for kind in RegulationKind.allCases {
+            if !quickPhrases.contains(where: { $0.mode == .regulation && $0.regulationKind == kind }) {
+                let defaultText: String
+                switch kind {
+                case .calm: defaultText = "I need a break"
+                case .help: defaultText = "I need help"
+                case .stop: defaultText = "Please stop"
+                }
+                quickPhrases.append(QuickPhrase(text: defaultText, position: nextPos, mode: .regulation, regulationKind: kind))
+                nextPos += 1
+            }
+        }
+    }
 
     static let defaultWords: [AACWord] = [
         AACWord(label: "I", symbol: "👤", category: "Home", colorName: .blue, position: 1),
