@@ -1,0 +1,61 @@
+import Foundation
+import UIKit
+import os
+
+enum ImageStore {
+    private static let directoryName = "word-images"
+    private static let logger = Logger(subsystem: "com.pardeepdhingra.vani", category: "ImageStore")
+
+    private static var directoryURL: URL {
+        let base = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = base.appendingPathComponent(directoryName, isDirectory: true)
+        if !FileManager.default.fileExists(atPath: url.path) {
+            try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        }
+        return url
+    }
+
+    static func save(_ image: UIImage) -> String? {
+        let resized = resize(image, maxDimension: 800)
+        guard let data = resized.jpegData(compressionQuality: 0.85) else {
+            logger.error("Failed to encode image as JPEG")
+            return nil
+        }
+        let filename = "\(UUID().uuidString).jpg"
+        let url = directoryURL.appendingPathComponent(filename)
+        do {
+            try data.write(to: url, options: .atomic)
+            return filename
+        } catch {
+            logger.error("Failed to write image: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    static func load(_ filename: String) -> UIImage? {
+        let url = directoryURL.appendingPathComponent(filename)
+        return UIImage(contentsOfFile: url.path)
+    }
+
+    static func delete(_ filename: String) {
+        let url = directoryURL.appendingPathComponent(filename)
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    static func purgeAll() {
+        let url = directoryURL
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    private static func resize(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
+        let size = image.size
+        let longest = max(size.width, size.height)
+        guard longest > maxDimension else { return image }
+        let scale = maxDimension / longest
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+}

@@ -16,6 +16,21 @@
 		0A1000070000000000000001 /* ParentModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000070000000000000001 /* ParentModeView.swift */; };
 		0A1000080000000000000001 /* WordTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000080000000000000001 /* WordTileView.swift */; };
 		0A1000090000000000000001 /* EditWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000090000000000000001 /* EditWordView.swift */; };
+		0A10000C0000000000000001 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20000D0000000000000001 /* ImageStore.swift */; };
+		0A10000D0000000000000001 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20000E0000000000000001 /* CameraPicker.swift */; };
+		0A10000E0000000000000001 /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20000F0000000000000001 /* EmojiPickerView.swift */; };
+		0A10000F0000000000000001 /* PINStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000100000000000000001 /* PINStore.swift */; };
+		0A1000100000000000000001 /* PINGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000110000000000000001 /* PINGateView.swift */; };
+		0A1000110000000000000001 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000120000000000000001 /* Haptics.swift */; };
+		0A1000120000000000000001 /* QuickPhrase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000130000000000000001 /* QuickPhrase.swift */; };
+		0A1000130000000000000001 /* BoardBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000140000000000000001 /* BoardBackup.swift */; };
+		0A1000140000000000000001 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000150000000000000001 /* ShareSheet.swift */; };
+		0A1000150000000000000001 /* UsageHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000160000000000000001 /* UsageHistory.swift */; };
+		0A1000160000000000000001 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000170000000000000001 /* Secrets.swift */; };
+		0A1000170000000000000001 /* NaturalSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000180000000000000001 /* NaturalSpeechService.swift */; };
+		0A1000180000000000000001 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000190000000000000001 /* WelcomeView.swift */; };
+		0A1000190000000000000001 /* SentenceHistorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001A0000000000000001 /* SentenceHistorySheet.swift */; };
+		0A10001A0000000000000001 /* RoutinePacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001B0000000000000001 /* RoutinePacks.swift */; };
 		0A10000A0000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000A0000000000000001 /* Assets.xcassets */; };
 		0A10000B0000000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000B0000000000000001 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -30,6 +45,21 @@
 		0A2000070000000000000001 /* ParentModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentModeView.swift; sourceTree = "<group>"; };
 		0A2000080000000000000001 /* WordTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordTileView.swift; sourceTree = "<group>"; };
 		0A2000090000000000000001 /* EditWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWordView.swift; sourceTree = "<group>"; };
+		0A20000D0000000000000001 /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
+		0A20000E0000000000000001 /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
+		0A20000F0000000000000001 /* EmojiPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPickerView.swift; sourceTree = "<group>"; };
+		0A2000100000000000000001 /* PINStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINStore.swift; sourceTree = "<group>"; };
+		0A2000110000000000000001 /* PINGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINGateView.swift; sourceTree = "<group>"; };
+		0A2000120000000000000001 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		0A2000130000000000000001 /* QuickPhrase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickPhrase.swift; sourceTree = "<group>"; };
+		0A2000140000000000000001 /* BoardBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardBackup.swift; sourceTree = "<group>"; };
+		0A2000150000000000000001 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		0A2000160000000000000001 /* UsageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageHistory.swift; sourceTree = "<group>"; };
+		0A2000170000000000000001 /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
+		0A2000180000000000000001 /* NaturalSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaturalSpeechService.swift; sourceTree = "<group>"; };
+		0A2000190000000000000001 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		0A20001A0000000000000001 /* SentenceHistorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceHistorySheet.swift; sourceTree = "<group>"; };
+		0A20001B0000000000000001 /* RoutinePacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutinePacks.swift; sourceTree = "<group>"; };
 		0A20000A0000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A20000B0000000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0A20000C0000000000000001 /* MyEchoAAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyEchoAAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,6 +103,7 @@
 				0A2000020000000000000001 /* AACWord.swift */,
 				0A2000030000000000000001 /* AACSettings.swift */,
 				0A2000040000000000000001 /* AACStore.swift */,
+				0A2000130000000000000001 /* QuickPhrase.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -81,6 +112,14 @@
 			isa = PBXGroup;
 			children = (
 				0A2000050000000000000001 /* SpeechService.swift */,
+				0A20000D0000000000000001 /* ImageStore.swift */,
+				0A2000100000000000000001 /* PINStore.swift */,
+				0A2000120000000000000001 /* Haptics.swift */,
+				0A2000140000000000000001 /* BoardBackup.swift */,
+				0A2000160000000000000001 /* UsageHistory.swift */,
+				0A2000170000000000000001 /* Secrets.swift */,
+				0A2000180000000000000001 /* NaturalSpeechService.swift */,
+				0A20001B0000000000000001 /* RoutinePacks.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -92,6 +131,12 @@
 				0A2000070000000000000001 /* ParentModeView.swift */,
 				0A2000080000000000000001 /* WordTileView.swift */,
 				0A2000090000000000000001 /* EditWordView.swift */,
+				0A20000E0000000000000001 /* CameraPicker.swift */,
+				0A20000F0000000000000001 /* EmojiPickerView.swift */,
+				0A2000110000000000000001 /* PINGateView.swift */,
+				0A2000150000000000000001 /* ShareSheet.swift */,
+				0A2000190000000000000001 /* WelcomeView.swift */,
+				0A20001A0000000000000001 /* SentenceHistorySheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -191,6 +236,21 @@
 				0A1000070000000000000001 /* ParentModeView.swift in Sources */,
 				0A1000080000000000000001 /* WordTileView.swift in Sources */,
 				0A1000090000000000000001 /* EditWordView.swift in Sources */,
+				0A10000C0000000000000001 /* ImageStore.swift in Sources */,
+				0A10000D0000000000000001 /* CameraPicker.swift in Sources */,
+				0A10000E0000000000000001 /* EmojiPickerView.swift in Sources */,
+				0A10000F0000000000000001 /* PINStore.swift in Sources */,
+				0A1000100000000000000001 /* PINGateView.swift in Sources */,
+				0A1000110000000000000001 /* Haptics.swift in Sources */,
+				0A1000120000000000000001 /* QuickPhrase.swift in Sources */,
+				0A1000130000000000000001 /* BoardBackup.swift in Sources */,
+				0A1000140000000000000001 /* ShareSheet.swift in Sources */,
+				0A1000150000000000000001 /* UsageHistory.swift in Sources */,
+				0A1000160000000000000001 /* Secrets.swift in Sources */,
+				0A1000170000000000000001 /* NaturalSpeechService.swift in Sources */,
+				0A1000180000000000000001 /* WelcomeView.swift in Sources */,
+				0A1000190000000000000001 /* SentenceHistorySheet.swift in Sources */,
+				0A10001A0000000000000001 /* RoutinePacks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,14 +375,17 @@
 		0A9000050000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MyEchoAAC/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ZM63VS564M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "वाणी";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo to use on a communication tile.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -334,6 +397,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pardeepdhingra.vani;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -343,14 +407,17 @@
 		0A9000060000000000000001 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MyEchoAAC/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ZM63VS564M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "वाणी";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo to use on a communication tile.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -362,6 +429,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pardeepdhingra.vani;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

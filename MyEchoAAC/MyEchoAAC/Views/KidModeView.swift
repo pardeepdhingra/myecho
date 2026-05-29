@@ -1,65 +1,109 @@
 import SwiftUI
+import UIKit
 
 struct KidModeView: View {
     @EnvironmentObject private var store: AACStore
     @EnvironmentObject private var speech: SpeechService
+    @EnvironmentObject private var history: UsageHistory
 
     @State private var message: [AACWord] = []
     @State private var selectedCategory: String?
     @State private var showingParentGate = false
     @State private var showingParentMode = false
+    @AppStorage("vani.welcomeSeen") private var welcomeSeen: Bool = false
+    @State private var showingWelcome = false
+    @State private var showingSentenceHistory = false
 
     private var phrase: String {
         message.map(\.phrase).joined(separator: " ")
     }
 
     private var columns: [GridItem] {
-        Array(
+        let maxAllowed = UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6
+        return Array(
             repeating: GridItem(.flexible(minimum: 68), spacing: 10),
-            count: max(2, min(store.settings.gridColumns, 6))
+            count: max(2, min(store.settings.gridColumns, maxAllowed))
         )
     }
 
+    private static let recentCategoryToken = "__recent__"
+    private static let favoritesCategoryToken = "__favorites__"
+
     private var categories: [String?] {
-        [nil] + store.categories.map(Optional.some)
+        var list: [String?] = [nil]
+        if store.words.contains(where: { $0.isFavorite && $0.isVisible }) {
+            list.append(Self.favoritesCategoryToken)
+        }
+        if store.settings.trackUsageHistory && !history.recentWordIds(limit: 1).isEmpty {
+            list.append(Self.recentCategoryToken)
+        }
+        list.append(contentsOf: store.categories.map(Optional.some))
+        return list
+    }
+
+    private func categoryLabel(_ category: String?) -> String {
+        if category == Self.recentCategoryToken { return "Recent" }
+        if category == Self.favoritesCategoryToken { return "★ Favorites" }
+        return category ?? "All"
+    }
+
+    private func visibleWordsForSelectedCategory() -> [AACWord] {
+        if selectedCategory == Self.recentCategoryToken {
+            let recentIds = history.recentWordIds(limit: 12)
+            let byId = Dictionary(uniqueKeysWithValues: store.words.filter { $0.isVisible }.map { ($0.id, $0) })
+            return recentIds.compactMap { byId[$0] }
+        }
+        if selectedCategory == Self.favoritesCategoryToken {
+            return store.favoritesOrdered.filter { $0.isVisible }
+        }
+        return store.visibleWords(in: selectedCategory)
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 12) {
-                messageBar
-                categoryFilter
-                wordGrid
-            }
-            .padding(14)
-            .background(Color(red: 0.97, green: 0.98, blue: 1.0))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    VStack(spacing: 0) {
-                        Text("वाणी")
-                            .font(.system(.title3, design: .rounded, weight: .bold))
-                        Text("Vani")
-                            .font(.system(.caption2, design: .rounded, weight: .semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingParentGate = true
-                    } label: {
-                        Label("Parent settings", systemImage: "slider.horizontal.3")
-                    }
-                }
-            }
+        VStack(spacing: 12) {
+            header
+            quickPhraseStrip
+            messageBar
+            categoryFilter
+            wordGrid
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 8)
+        .background(appBackground.ignoresSafeArea())
             .sheet(isPresented: $showingParentGate) {
-                parentGate
+                PINGateView {
+                    showingParentMode = true
+                }
+            }
+            .sheet(isPresented: $showingWelcome, onDismiss: {
+                welcomeSeen = true
+            }) {
+                WelcomeView()
+            }
+            .sheet(isPresented: $showingSentenceHistory) {
+                SentenceHistorySheet { sentence in
+                    speech.speak(sentence, settings: store.settings)
+                    Haptics.actionTap()
+                }
+                .environmentObject(history)
+            }
+            .task {
+                if !welcomeSeen {
+                    try? await Task.sleep(nanoseconds: 400_000_000)
+                    showingWelcome = true
+                }
+            }
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
             }
             .sheet(isPresented: $showingParentMode) {
                 ParentModeView()
                     .environmentObject(store)
                     .environmentObject(speech)
+                    .environmentObject(history)
             }
             .onChange(of: store.words) { _, _ in
                 guard let selectedCategory, store.categories.contains(selectedCategory) else {
@@ -67,42 +111,127 @@ struct KidModeView: View {
                     return
                 }
             }
+    }
+
+    private var appBackground: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(red: 0.98, green: 0.99, blue: 1.0),
+                Color(red: 0.94, green: 0.99, blue: 0.97),
+                Color(red: 1.0, green: 0.98, blue: 0.94)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            Image("Logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 92, height: 36)
+                .accessibilityHidden(true)
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 0) {
+                Text("वाणी")
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(Color.black.opacity(0.85))
+                Text("Vani")
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Color.black.opacity(0.55))
+            }
+
+            Button {
+                showingParentGate = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(.body, weight: .semibold))
+                    .foregroundStyle(Color.black.opacity(0.75))
+                    .frame(width: 36, height: 36)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .overlay {
+                        Circle().stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Parent settings")
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(.white.opacity(0.74))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(.white, lineWidth: 1)
         }
     }
 
-    private var parentGate: some View {
-        VStack(spacing: 18) {
-            Image(systemName: "lock.shield")
-                .font(.system(size: 48))
-                .foregroundStyle(.indigo)
-
-            Text("Parent Mode")
-                .font(.system(.title2, design: .rounded, weight: .bold))
-
-            Text("Press and hold to edit words, grid, and voice.")
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            Text("Hold to Open")
-                .font(.system(.headline, design: .rounded, weight: .bold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.indigo)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .onLongPressGesture(minimumDuration: 1.2) {
-                    showingParentGate = false
-                    showingParentMode = true
-                }
-
-            Button("Cancel") {
-                showingParentGate = false
+    @ViewBuilder
+    private func messageChip(for word: AACWord) -> some View {
+        HStack(spacing: 8) {
+            if store.settings.showSymbolsInMessageBar {
+                chipSymbol(for: word)
             }
-            .buttonStyle(.bordered)
+            Text(word.label)
+                .font(.system(.title3, design: .rounded, weight: .semibold))
+                .foregroundStyle(Color.black.opacity(0.85))
         }
-        .padding(28)
-        .presentationDetents([.height(320)])
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(word.colorName.color.opacity(0.68))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(word.label)
+    }
+
+    @ViewBuilder
+    private func chipSymbol(for word: AACWord) -> some View {
+        if let filename = word.imagePath, let image = ImageStore.load(filename) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 32, height: 32)
+                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        } else {
+            Text(word.symbol)
+                .font(.system(size: 24))
+        }
+    }
+
+    @ViewBuilder
+    private var quickPhraseStrip: some View {
+        if store.settings.showQuickPhrases && !store.quickPhrases.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(store.quickPhrases.sorted { $0.position < $1.position }) { phrase in
+                        Button {
+                            handleQuickPhrase(phrase)
+                        } label: {
+                            HStack(spacing: 6) {
+                                if phrase.mode == .startSentence {
+                                    Image(systemName: "text.bubble")
+                                        .font(.caption.weight(.bold))
+                                }
+                                Text(phrase.text)
+                                    .font(.system(.callout, design: .rounded, weight: .semibold))
+                            }
+                            .foregroundStyle(Color.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(phrase.mode == .speak ? Color.accentColor : Color.accentColor.opacity(0.78))
+                            .clipShape(Capsule())
+                        }
+                        .buttonStyle(PressableTileStyle())
+                        .accessibilityLabel(phrase.text)
+                    }
+                }
+                .padding(.horizontal, 2)
+            }
+        }
     }
 
     private var messageBar: some View {
@@ -111,18 +240,13 @@ struct KidModeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         if message.isEmpty {
-                            Text("Tap words to build a message")
+                            Text("Ready to talk")
                                 .font(.system(.title3, design: .rounded, weight: .medium))
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.black.opacity(0.5))
                                 .padding(.horizontal, 4)
                         } else {
                             ForEach(message) { word in
-                                Text(word.label)
-                                    .font(.system(.title3, design: .rounded, weight: .semibold))
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                messageChip(for: word)
                             }
                         }
                     }
@@ -139,6 +263,7 @@ struct KidModeView: View {
                         .frame(width: 54, height: 54)
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(Color.accentColor)
                 .disabled(message.isEmpty)
             }
 
@@ -150,6 +275,7 @@ struct KidModeView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
+                .tint(Color.accentColor)
                 .disabled(message.isEmpty)
 
                 Button {
@@ -159,14 +285,29 @@ struct KidModeView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
+                .tint(Color.accentColor)
                 .disabled(message.isEmpty)
+
+                Button {
+                    showingSentenceHistory = true
+                } label: {
+                    Label("Recent", systemImage: "clock.arrow.circlepath")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(Color.accentColor)
+                .disabled(history.spokenSentences.isEmpty)
             }
             .font(.system(.body, design: .rounded, weight: .semibold))
         }
         .padding(12)
-        .background(Color.white)
+        .background(.white.opacity(0.92))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(.black.opacity(0.06), lineWidth: 1)
+        }
+        .shadow(color: .black.opacity(0.06), radius: 10, y: 3)
     }
 
     @ViewBuilder
@@ -178,13 +319,17 @@ struct KidModeView: View {
                         Button {
                             selectedCategory = category
                         } label: {
-                            Text(category ?? "All")
+                            Text(categoryLabel(category))
                                 .font(.system(.callout, design: .rounded, weight: .semibold))
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 9)
-                                .background(selectedCategory == category ? Color.indigo : Color.white)
-                                .foregroundStyle(selectedCategory == category ? .white : .primary)
+                                .background(selectedCategory == category ? Color.accentColor : Color.white.opacity(0.9))
+                                .foregroundStyle(selectedCategory == category ? Color.white : Color.black.opacity(0.82))
                                 .clipShape(Capsule())
+                                .overlay {
+                                    Capsule()
+                                        .stroke(.black.opacity(selectedCategory == category ? 0 : 0.08), lineWidth: 1)
+                                }
                         }
                         .buttonStyle(.plain)
                     }
@@ -197,9 +342,29 @@ struct KidModeView: View {
     private var wordGrid: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(store.visibleWords(in: selectedCategory)) { word in
-                    WordTileView(word: word) {
+                ForEach(visibleWordsForSelectedCategory()) { word in
+                    WordTileView(word: word, action: {
                         addWord(word)
+                    }, scale: store.settings.tileScale)
+                    .contextMenu {
+                        Button {
+                            speech.speak(word.phrase, settings: store.settings)
+                        } label: {
+                            Label("Speak", systemImage: "speaker.wave.2")
+                        }
+                        Button {
+                            store.toggleFavorite(for: word)
+                            Haptics.success()
+                        } label: {
+                            Label(word.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                                  systemImage: word.isFavorite ? "star.slash" : "star")
+                        }
+                        Button {
+                            store.addQuickPhrase(word.phrase)
+                            Haptics.success()
+                        } label: {
+                            Label("Add to Quick Phrases", systemImage: "quote.bubble")
+                        }
                     }
                 }
             }
@@ -210,10 +375,40 @@ struct KidModeView: View {
     private func addWord(_ word: AACWord) {
         message.append(word)
         speech.speak(word.phrase, settings: store.settings)
+        history.record(wordId: word.id, label: word.label, enabled: store.settings.trackUsageHistory)
+    }
+
+    private func handleQuickPhrase(_ phrase: QuickPhrase) {
+        Haptics.actionTap()
+        switch phrase.mode {
+        case .speak:
+            speech.speak(phrase.text, settings: store.settings)
+            history.recordSentence(phrase.text, enabled: store.settings.trackUsageHistory)
+        case .startSentence:
+            let starterWord = AACWord(
+                label: phrase.text,
+                phrase: phrase.text,
+                symbol: "💬",
+                category: "Phrase",
+                colorName: .purple,
+                position: 0
+            )
+            message.append(starterWord)
+        }
     }
 
     private func speakMessage() {
-        speech.speak(phrase, settings: store.settings)
+        let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        Haptics.actionTap()
+        let polished: String
+        if let last = trimmed.last, ".?!".contains(last) {
+            polished = trimmed
+        } else {
+            polished = trimmed + "."
+        }
+        speech.speak(polished, settings: store.settings)
+        history.recordSentence(polished, enabled: store.settings.trackUsageHistory)
     }
 
     private func removeLastWord() {

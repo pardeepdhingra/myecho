@@ -10,8 +10,13 @@ final class AACStore: ObservableObject {
         didSet { saveSettings() }
     }
 
+    @Published var quickPhrases: [QuickPhrase] {
+        didSet { saveQuickPhrases() }
+    }
+
     private let wordsKey = "vani.words.v1"
     private let settingsKey = "vani.settings.v1"
+    private let phrasesKey = "vani.phrases.v1"
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
 
@@ -31,6 +36,13 @@ final class AACStore: ObservableObject {
             settings = storedSettings
         } else {
             settings = .default
+        }
+
+        if let data = defaults.data(forKey: phrasesKey),
+           let stored = try? decoder.decode([QuickPhrase].self, from: data) {
+            quickPhrases = stored
+        } else {
+            quickPhrases = Self.defaultQuickPhrases
         }
     }
 
@@ -72,13 +84,174 @@ final class AACStore: ObservableObject {
         words[index].isVisible.toggle()
     }
 
+    func toggleFavorite(for word: AACWord) {
+        guard let index = words.firstIndex(where: { $0.id == word.id }) else { return }
+        words[index].isFavorite.toggle()
+        if words[index].isFavorite {
+            let nextFavPos = (words.compactMap(\.favoritePosition).max() ?? 0) + 1
+            words[index].favoritePosition = nextFavPos
+        } else {
+            words[index].favoritePosition = nil
+        }
+    }
+
+    var favoritesOrdered: [AACWord] {
+        words
+            .filter { $0.isFavorite }
+            .sorted { lhs, rhs in
+                let l = lhs.favoritePosition ?? Int.max
+                let r = rhs.favoritePosition ?? Int.max
+                if l != r { return l < r }
+                return lhs.position < rhs.position
+            }
+    }
+
+    func moveFavorites(from offsets: IndexSet, to destination: Int) {
+        var ordered = favoritesOrdered
+        ordered.move(fromOffsets: offsets, toOffset: destination)
+        for (index, word) in ordered.enumerated() {
+            if let storeIndex = words.firstIndex(where: { $0.id == word.id }) {
+                words[storeIndex].favoritePosition = index + 1
+            }
+        }
+    }
+
+    func move(from offsets: IndexSet, to destination: Int) {
+        var ordered = words.sorted { $0.position < $1.position }
+        ordered.move(fromOffsets: offsets, toOffset: destination)
+        for (index, word) in ordered.enumerated() {
+            if let storeIndex = words.firstIndex(where: { $0.id == word.id }) {
+                words[storeIndex].position = index + 1
+            }
+        }
+    }
+
+    func moveWords(ids: [UUID], from offsets: IndexSet, to destination: Int) {
+        var ids = ids
+        ids.move(fromOffsets: offsets, toOffset: destination)
+        for (index, id) in ids.enumerated() {
+            if let storeIndex = words.firstIndex(where: { $0.id == id }) {
+                words[storeIndex].position = index + 1
+            }
+        }
+    }
+
     func delete(_ word: AACWord) {
+        if let filename = word.imagePath {
+            ImageStore.delete(filename)
+        }
         words.removeAll { $0.id == word.id }
     }
 
+    struct PackMergeResult {
+        let wordsAdded: Int
+        let wordsSkipped: Int
+        let phrasesAdded: Int
+        let phrasesSkipped: Int
+    }
+
+    @discardableResult
+    func mergePack(_ pack: RoutinePack) -> PackMergeResult {
+        var addedWords = 0
+        var skippedWords = 0
+        let existingLabels = Set(words.map { $0.label.lowercased() })
+        var nextPos = nextPosition()
+        for var word in pack.words {
+            if existingLabels.contains(word.label.lowercased()) {
+                skippedWords += 1
+                continue
+            }
+            word.position = nextPos
+            word.sourcePackId = pack.id
+            nextPos += 1
+            words.append(word)
+            addedWords += 1
+        }
+        var addedPhrases = 0
+        var skippedPhrases = 0
+        let existingPhrases = Set(quickPhrases.map { $0.text.lowercased() })
+        var nextPhrasePos = (quickPhrases.map(\.position).max() ?? 0) + 1
+        for var phrase in pack.phrases {
+            if existingPhrases.contains(phrase.text.lowercased()) {
+                skippedPhrases += 1
+                continue
+            }
+            phrase.position = nextPhrasePos
+            phrase.sourcePackId = pack.id
+            nextPhrasePos += 1
+            quickPhrases.append(phrase)
+            addedPhrases += 1
+        }
+        return PackMergeResult(
+            wordsAdded: addedWords,
+            wordsSkipped: skippedWords,
+            phrasesAdded: addedPhrases,
+            phrasesSkipped: skippedPhrases
+        )
+    }
+
+    @discardableResult
+    func removePack(_ pack: RoutinePack) -> (wordsRemoved: Int, phrasesRemoved: Int) {
+        var removedWords = 0
+        var removedPhrases = 0
+        let wordsToRemove = words.filter { $0.sourcePackId == pack.id }
+        for word in wordsToRemove {
+            if let filename = word.imagePath {
+                ImageStore.delete(filename)
+            }
+            removedWords += 1
+        }
+        words.removeAll { $0.sourcePackId == pack.id }
+        removedPhrases = quickPhrases.filter { $0.sourcePackId == pack.id }.count
+        quickPhrases.removeAll { $0.sourcePackId == pack.id }
+        return (removedWords, removedPhrases)
+    }
+
+    func packStatus(_ pack: RoutinePack) -> (addedWords: Int, addedPhrases: Int) {
+        let addedWords = words.filter { $0.sourcePackId == pack.id }.count
+        let addedPhrases = quickPhrases.filter { $0.sourcePackId == pack.id }.count
+        return (addedWords, addedPhrases)
+    }
+
+    func packCoverage(_ pack: RoutinePack) -> (wordsMissing: Int, phrasesMissing: Int) {
+        let existingLabels = Set(words.map { $0.label.lowercased() })
+        let existingPhrases = Set(quickPhrases.map { $0.text.lowercased() })
+        let wordsMissing = pack.words.reduce(0) { existingLabels.contains($1.label.lowercased()) ? $0 : $0 + 1 }
+        let phrasesMissing = pack.phrases.reduce(0) { existingPhrases.contains($1.text.lowercased()) ? $0 : $0 + 1 }
+        return (wordsMissing, phrasesMissing)
+    }
+
     func resetStarterBoard() {
+        ImageStore.purgeAll()
         words = Self.defaultWords
         settings = .default
+        quickPhrases = Self.defaultQuickPhrases
+    }
+
+    func addQuickPhrase(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let next = (quickPhrases.map(\.position).max() ?? 0) + 1
+        quickPhrases.append(QuickPhrase(text: trimmed, position: next))
+    }
+
+    func updateQuickPhrase(_ phrase: QuickPhrase) {
+        guard let index = quickPhrases.firstIndex(where: { $0.id == phrase.id }) else { return }
+        quickPhrases[index] = phrase
+    }
+
+    func deleteQuickPhrase(_ phrase: QuickPhrase) {
+        quickPhrases.removeAll { $0.id == phrase.id }
+    }
+
+    func moveQuickPhrase(from offsets: IndexSet, to destination: Int) {
+        var ordered = quickPhrases.sorted { $0.position < $1.position }
+        ordered.move(fromOffsets: offsets, toOffset: destination)
+        for (index, phrase) in ordered.enumerated() {
+            if let storeIndex = quickPhrases.firstIndex(where: { $0.id == phrase.id }) {
+                quickPhrases[storeIndex].position = index + 1
+            }
+        }
     }
 
     private func nextPosition() -> Int {
@@ -94,6 +267,19 @@ final class AACStore: ObservableObject {
         guard let data = try? encoder.encode(settings) else { return }
         UserDefaults.standard.set(data, forKey: settingsKey)
     }
+
+    private func saveQuickPhrases() {
+        guard let data = try? encoder.encode(quickPhrases) else { return }
+        UserDefaults.standard.set(data, forKey: phrasesKey)
+    }
+
+    static let defaultQuickPhrases: [QuickPhrase] = [
+        QuickPhrase(text: "I want water", position: 1),
+        QuickPhrase(text: "I need toilet", position: 2),
+        QuickPhrase(text: "I am hungry", position: 3),
+        QuickPhrase(text: "I love you", position: 4),
+        QuickPhrase(text: "Help me please", position: 5)
+    ]
 
     static let defaultWords: [AACWord] = [
         AACWord(label: "I", symbol: "👤", category: "Home", colorName: .blue, position: 1),

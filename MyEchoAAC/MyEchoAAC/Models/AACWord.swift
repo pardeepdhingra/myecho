@@ -9,6 +9,14 @@ struct AACWord: Identifiable, Codable, Equatable {
     var colorName: TileColorName
     var position: Int
     var isVisible: Bool
+    var imagePath: String?
+    var isFavorite: Bool
+    var sourcePackId: String?
+    var favoritePosition: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition
+    }
 
     init(
         id: UUID = UUID(),
@@ -18,7 +26,11 @@ struct AACWord: Identifiable, Codable, Equatable {
         category: String,
         colorName: TileColorName,
         position: Int,
-        isVisible: Bool = true
+        isVisible: Bool = true,
+        imagePath: String? = nil,
+        isFavorite: Bool = false,
+        sourcePackId: String? = nil,
+        favoritePosition: Int? = nil
     ) {
         self.id = id
         self.label = label
@@ -28,6 +40,26 @@ struct AACWord: Identifiable, Codable, Equatable {
         self.colorName = colorName
         self.position = position
         self.isVisible = isVisible
+        self.imagePath = imagePath
+        self.isFavorite = isFavorite
+        self.sourcePackId = sourcePackId
+        self.favoritePosition = favoritePosition
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        label = try c.decode(String.self, forKey: .label)
+        phrase = try c.decode(String.self, forKey: .phrase)
+        symbol = try c.decode(String.self, forKey: .symbol)
+        category = try c.decode(String.self, forKey: .category)
+        colorName = try c.decode(TileColorName.self, forKey: .colorName)
+        position = try c.decode(Int.self, forKey: .position)
+        isVisible = try c.decode(Bool.self, forKey: .isVisible)
+        imagePath = try c.decodeIfPresent(String.self, forKey: .imagePath)
+        isFavorite = try c.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
+        sourcePackId = try c.decodeIfPresent(String.self, forKey: .sourcePackId)
+        favoritePosition = try c.decodeIfPresent(Int.self, forKey: .favoritePosition)
     }
 }
 

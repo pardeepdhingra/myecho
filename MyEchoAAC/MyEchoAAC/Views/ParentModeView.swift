@@ -1,12 +1,126 @@
 import SwiftUI
+import UIKit
+
+private struct ElevenLabsKeyView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var speech: SpeechService
+    @State private var keyInput: String = ""
+    @State private var status: String?
+
+    var body: some View {
+        Form {
+            Section {
+                SecureField("sk_…", text: $keyInput)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+            } header: {
+                Text("ElevenLabs API key")
+            } footer: {
+                Text("Stored only in this device's Keychain. Never synced or uploaded. Sign up at elevenlabs.io to get a key.")
+            }
+
+            Section {
+                Button("Save") {
+                    Secrets.setElevenLabsAPIKey(keyInput)
+                    speech.natural.refreshAvailability()
+                    status = "Saved. Natural voice options now available."
+                    keyInput = ""
+                }
+                .disabled(keyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                Button("Remove key", role: .destructive) {
+                    Secrets.setElevenLabsAPIKey(nil)
+                    speech.natural.refreshAvailability()
+                    status = "Key removed. The app will use the system voice only."
+                }
+            }
+
+            if let status {
+                Section {
+                    Text(status)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .navigationTitle("Natural voice")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct PhraseEditSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State var phrase: QuickPhrase
+    let onSave: (QuickPhrase) -> Void
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Phrase") {
+                    TextField("Text", text: $phrase.text, axis: .vertical)
+                        .lineLimit(2...4)
+                }
+
+                Section {
+                    Picker("When tapped", selection: $phrase.mode) {
+                        ForEach(QuickPhraseMode.allCases, id: \.self) { mode in
+                            Text(mode.label).tag(mode)
+                        }
+                    }
+                } footer: {
+                    Text("\"Speak immediately\" says the phrase out loud. \"Add to message bar\" treats it as a sentence starter that the child can extend before tapping Speak.")
+                }
+            }
+            .navigationTitle("Edit Phrase")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        onSave(phrase)
+                        dismiss()
+                    }
+                    .disabled(phrase.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+    }
+}
 
 struct ParentModeView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: AACStore
     @EnvironmentObject private var speech: SpeechService
+    @EnvironmentObject private var history: UsageHistory
 
     @State private var editedWord: AACWord?
+    @State private var editedPhrase: QuickPhrase?
+    @State private var newPhraseText: String = ""
     @State private var showingResetAlert = false
+    @State private var wordSearch: String = ""
+    @State private var visibilityFilter: VisibilityFilter = .all
+
+    private enum VisibilityFilter: String, CaseIterable {
+        case all, visible, hidden
+        var label: String {
+            switch self {
+            case .all: "All"
+            case .visible: "Visible"
+            case .hidden: "Hidden"
+            }
+        }
+    }
+    @State private var exportURL: IdentifiableURL?
+    @State private var showingImporter = false
+    @State private var importAlert: ImportAlert?
+
+    private struct ImportAlert: Identifiable {
+        let id = UUID()
+        let title: String
+        let message: String
+    }
 
     var body: some View {
         NavigationStack {
@@ -19,6 +133,16 @@ struct ParentModeView: View {
                 wordList
                     .tabItem {
                         Label("Words", systemImage: "text.badge.plus")
+                    }
+
+                phraseList
+                    .tabItem {
+                        Label("Phrases", systemImage: "quote.bubble")
+                    }
+
+                statsView
+                    .tabItem {
+                        Label("Stats", systemImage: "chart.bar")
                     }
 
                 voiceSettings
@@ -66,10 +190,75 @@ struct ParentModeView: View {
                     Text("4").tag(4)
                     Text("5").tag(5)
                     Text("6").tag(6)
+                    if UIDevice.current.userInterfaceIdiom == .pad {
+                        Text("7").tag(7)
+                        Text("8").tag(8)
+                    }
                 }
                 .pickerStyle(.segmented)
 
                 Toggle("Show categories on kid screen", isOn: $store.settings.showCategoryFilter)
+                Toggle("Show quick phrases", isOn: $store.settings.showQuickPhrases)
+                Toggle("Show symbols in message bar", isOn: $store.settings.showSymbolsInMessageBar)
+            }
+
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Tile size")
+                        Spacer()
+                        Text(tileScaleLabel)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    Slider(value: $store.settings.tileScale, in: 0.7...1.8, step: 0.05) {
+                        Text("Tile size")
+                    } minimumValueLabel: {
+                        Image(systemName: "textformat.size.smaller")
+                    } maximumValueLabel: {
+                        Image(systemName: "textformat.size.larger")
+                    }
+                }
+
+                HStack {
+                    Button("Small") { store.settings.tileScale = 0.8 }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    Button("Medium") { store.settings.tileScale = 1.0 }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    Button("Large") { store.settings.tileScale = 1.3 }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    Button("XL") { store.settings.tileScale = 1.6 }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                }
+            } header: {
+                Text("Tile size")
+            } footer: {
+                Text("Scales the whole tile — text, emoji, photo, and padding — together. Try a smaller grid (3 or 4 columns) with larger tiles for younger or motor-skill-developing kids.")
+            }
+
+            Section {
+                NavigationLink {
+                    routinePacksView
+                } label: {
+                    Label("Add routine pack", systemImage: "square.stack.3d.up")
+                }
+                NavigationLink {
+                    favoritesOrderView
+                } label: {
+                    HStack {
+                        Label("Order favorites", systemImage: "star")
+                        Spacer()
+                        Text("\(store.favoritesOrdered.count)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } footer: {
+                Text("Add curated word + phrase sets, or drag-reorder the words that appear in the ★ Favorites category on the kid screen.")
             }
 
             Section("Learning") {
@@ -78,26 +267,140 @@ struct ParentModeView: View {
             }
 
             Section {
+                Button {
+                    if let url = BoardBackup.exportToTempFile(store: store) {
+                        exportURL = IdentifiableURL(url: url)
+                    }
+                } label: {
+                    Label("Export board", systemImage: "square.and.arrow.up")
+                }
+
+                Button {
+                    showingImporter = true
+                } label: {
+                    Label("Import board", systemImage: "square.and.arrow.down")
+                }
+            } header: {
+                Text("Backup")
+            } footer: {
+                Text("Export a single .vaniboard file with every word, phrase, setting, and photo. Save it to Files, email it, or AirDrop it — then import on another device.")
+            }
+
+            Section {
                 Button("Reset starter board", role: .destructive) {
                     showingResetAlert = true
                 }
             }
         }
+        .sheet(item: $exportURL) { wrapper in
+            ShareSheet(items: [wrapper.url])
+        }
+        .fileImporter(
+            isPresented: $showingImporter,
+            allowedContentTypes: [.json, .data],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                if BoardBackup.importFromFile(url, into: store) {
+                    Haptics.success()
+                    importAlert = ImportAlert(title: "Imported", message: "Your board has been replaced from the file.")
+                } else {
+                    importAlert = ImportAlert(title: "Import failed", message: "Could not read that file as a Vani backup.")
+                }
+            case .failure(let error):
+                importAlert = ImportAlert(title: "Import failed", message: error.localizedDescription)
+            }
+        }
+        .alert(item: $importAlert) { alert in
+            Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(Text("OK")))
+        }
+    }
+
+    @ViewBuilder
+    private func wordRowThumbnail(for word: AACWord) -> some View {
+        if let filename = word.imagePath, let image = ImageStore.load(filename) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+        } else {
+            Text(word.symbol)
+                .font(.largeTitle)
+        }
+    }
+
+    private var tileScaleLabel: String {
+        let s = store.settings.tileScale
+        if s < 0.9 { return "Small" }
+        if s < 1.15 { return "Medium" }
+        if s < 1.45 { return "Large" }
+        return "Extra Large"
+    }
+
+    private var filteredWords: [AACWord] {
+        let term = wordSearch.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return store.words
+            .sorted { $0.position < $1.position }
+            .filter { word in
+                switch visibilityFilter {
+                case .all: true
+                case .visible: word.isVisible
+                case .hidden: !word.isVisible
+                }
+            }
+            .filter { word in
+                guard !term.isEmpty else { return true }
+                return word.label.lowercased().contains(term)
+                    || word.category.lowercased().contains(term)
+                    || word.phrase.lowercased().contains(term)
+            }
     }
 
     private var wordList: some View {
         List {
-            ForEach(store.words.sorted { $0.position < $1.position }) { word in
+            Section {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    TextField("Search words", text: $wordSearch)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    if !wordSearch.isEmpty {
+                        Button {
+                            wordSearch = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
+                Picker("Show", selection: $visibilityFilter) {
+                    ForEach(VisibilityFilter.allCases, id: \.self) { filter in
+                        Text(filter.label).tag(filter)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+
+            ForEach(filteredWords) { word in
                 HStack(spacing: 12) {
-                    Text(word.symbol)
-                        .font(.largeTitle)
+                    wordRowThumbnail(for: word)
                         .frame(width: 46, height: 46)
                         .background(word.colorName.color)
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(word.label)
-                            .font(.headline)
+                        HStack(spacing: 4) {
+                            Text(word.label)
+                                .font(.headline)
+                            if word.isFavorite {
+                                Image(systemName: "star.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.yellow)
+                            }
+                        }
                         Text(word.category)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -118,28 +421,359 @@ struct ParentModeView: View {
                     editedWord = word
                 }
             }
+            .onMove { offsets, destination in
+                let visibleIds = filteredWords.map(\.id)
+                if visibleIds.count == store.words.count {
+                    store.moveWords(ids: visibleIds, from: offsets, to: destination)
+                }
+            }
             .onDelete { offsets in
-                let sorted = store.words.sorted { $0.position < $1.position }
-                offsets.map { sorted[$0] }.forEach(store.delete)
+                offsets.map { filteredWords[$0] }.forEach(store.delete)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                EditButton()
+            }
+        }
+    }
+
+    private var phraseList: some View {
+        List {
+            Section {
+                HStack {
+                    TextField("Add a quick phrase", text: $newPhraseText)
+                        .submitLabel(.done)
+                        .onSubmit { addPhrase() }
+                    Button {
+                        addPhrase()
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                    }
+                    .disabled(newPhraseText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            } footer: {
+                Text("Phrases appear as one-tap chips above the message bar on the kid screen.")
+            }
+
+            Section("Phrases") {
+                ForEach(store.quickPhrases.sorted { $0.position < $1.position }) { phrase in
+                    HStack {
+                        Text(phrase.text)
+                        Spacer()
+                        Button {
+                            speech.speak(phrase.text, settings: store.settings)
+                        } label: {
+                            Image(systemName: "play.circle")
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel("Preview phrase")
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        editedPhrase = phrase
+                    }
+                }
+                .onMove { offsets, destination in
+                    store.moveQuickPhrase(from: offsets, to: destination)
+                }
+                .onDelete { offsets in
+                    let sorted = store.quickPhrases.sorted { $0.position < $1.position }
+                    offsets.map { sorted[$0] }.forEach(store.deleteQuickPhrase)
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                EditButton()
+            }
+        }
+        .sheet(item: $editedPhrase) { phrase in
+            PhraseEditSheet(phrase: phrase) { updated in
+                store.updateQuickPhrase(updated)
+            }
+        }
+    }
+
+    private func addPhrase() {
+        store.addQuickPhrase(newPhraseText)
+        newPhraseText = ""
+    }
+
+    private var favoritesOrderView: some View {
+        List {
+            if store.favoritesOrdered.isEmpty {
+                Text("No favorites yet. Long-press a tile on the kid screen → Add to Favorites, or toggle Favorite in Edit Word.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(store.favoritesOrdered) { word in
+                    HStack(spacing: 12) {
+                        wordRowThumbnail(for: word)
+                            .frame(width: 38, height: 38)
+                            .background(word.colorName.color)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        Text(word.label)
+                            .font(.headline)
+                        Spacer()
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                    }
+                }
+                .onMove { offsets, destination in
+                    store.moveFavorites(from: offsets, to: destination)
+                }
+            }
+        }
+        .navigationTitle("Order favorites")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                EditButton()
+            }
+        }
+    }
+
+    private var routinePacksView: some View {
+        List(RoutinePacks.all) { pack in
+            packRow(for: pack)
+        }
+        .navigationTitle("Routine packs")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private func packRow(for pack: RoutinePack) -> some View {
+        let status = store.packStatus(pack)
+        let isAdded = status.addedWords > 0 || status.addedPhrases > 0
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Text(pack.symbol)
+                    .font(.title2)
+                VStack(alignment: .leading) {
+                    Text(pack.title)
+                        .font(.headline)
+                    Text(pack.subtitle)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if isAdded {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+            }
+
+            if isAdded {
+                Text("Currently in your board from this pack: \(status.addedWords) words, \(status.addedPhrases) phrases.")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+            } else {
+                Text("Adds \(pack.words.count) words and \(pack.phrases.count) phrases. Duplicates (already in your board) are skipped.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if isAdded {
+                Button(role: .destructive) {
+                    store.removePack(pack)
+                    Haptics.actionTap()
+                } label: {
+                    Label("Remove pack", systemImage: "minus.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            } else {
+                Button {
+                    store.mergePack(pack)
+                    Haptics.success()
+                } label: {
+                    Label("Add to board", systemImage: "plus.circle.fill")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var statsView: some View {
+        Form {
+            Section {
+                Toggle("Track tile taps on this device", isOn: $store.settings.trackUsageHistory)
+                Text("All data stays on this iPhone. Nothing is uploaded.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Today") {
+                let today = history.countsInLast(hours: 24)
+                if today.isEmpty {
+                    Text("No taps tracked today.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(today.prefix(10), id: \.label) { row in
+                        HStack {
+                            Text(row.label)
+                            Spacer()
+                            Text("\(row.count)")
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            Section("This week") {
+                let week = history.countsInLast(hours: 24 * 7)
+                if week.isEmpty {
+                    Text("No taps tracked this week.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(week.prefix(10), id: \.label) { row in
+                        HStack {
+                            Text(row.label)
+                            Spacer()
+                            Text("\(row.count)")
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            Section("Recent sentences") {
+                if history.spokenSentences.isEmpty {
+                    Text("No sentences spoken yet.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(history.spokenSentences.prefix(10), id: \.self) { sentence in
+                        Text(sentence)
+                            .font(.body)
+                    }
+                }
+            }
+
+            Section {
+                Button("Clear tap history", role: .destructive) {
+                    history.clear()
+                }
+                Button("Clear sentence history", role: .destructive) {
+                    history.clearSentences()
+                }
             }
         }
     }
 
     private var voiceSettings: some View {
         Form {
-            Section("Voice") {
+            Section {
+                NavigationLink {
+                    ElevenLabsKeyView()
+                } label: {
+                    HStack {
+                        Image(systemName: "key.fill")
+                        Text("ElevenLabs API key")
+                        Spacer()
+                        Text(speech.natural.isAvailable ? "Saved" : "Not set")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } footer: {
+                Text("Optional. With a key, the app can use ElevenLabs natural voices. The key stays in this iPhone's Keychain. Get a key at elevenlabs.io.")
+            }
+
+            if speech.natural.isAvailable {
+                Section {
+                    Toggle("Use natural voice (ElevenLabs)", isOn: $store.settings.useNaturalVoice)
+
+                    if store.settings.useNaturalVoice {
+                        TextField("Voice ID", text: Binding(
+                            get: { store.settings.naturalVoiceId ?? "" },
+                            set: { store.settings.naturalVoiceId = $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        ))
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .font(.system(.callout, design: .monospaced))
+
+                        Menu {
+                            ForEach(speech.natural.voices) { voice in
+                                Button(voice.displayName) {
+                                    store.settings.naturalVoiceId = voice.id
+                                }
+                            }
+                        } label: {
+                            Label("Pick from curated list", systemImage: "list.bullet")
+                        }
+
+                        Button {
+                            Task {
+                                await speech.natural.loadVoices()
+                            }
+                        } label: {
+                            Label("Refresh from my account", systemImage: "arrow.clockwise")
+                        }
+
+                        Button {
+                            Task {
+                                guard let voiceId = store.settings.naturalVoiceId, !voiceId.isEmpty else { return }
+                                _ = await speech.natural.speak("Hello, I am ready to talk.", voiceId: voiceId)
+                            }
+                        } label: {
+                            Label("Test natural voice", systemImage: "play.circle")
+                        }
+                        .disabled((store.settings.naturalVoiceId ?? "").isEmpty)
+
+                        if let error = speech.natural.lastError {
+                            Text(error)
+                                .font(.footnote)
+                                .foregroundStyle(.red)
+                        }
+                    }
+                } header: {
+                    Text("Natural voice")
+                } footer: {
+                    Text("Free ElevenLabs accounts can't use the curated library voices via the API. Open elevenlabs.io → Voice Library → Add a voice → copy its Voice ID → paste it above. Or clone your own voice in Voice Lab. Audio is cached locally after the first play.")
+                }
+            }
+
+            Section {
+                let filteredVoices = speech.voiceOptions(includeCompact: store.settings.showAllVoiceQualities)
+
                 Picker("Voice", selection: $store.settings.voiceIdentifier) {
-                    Text("Default friendly voice").tag(String?.none)
-                    ForEach(speech.voiceOptions) { voice in
+                    Text("Best available").tag(String?.none)
+                    ForEach(filteredVoices) { voice in
                         Text(voice.displayName).tag(Optional(voice.id))
                     }
                 }
+
+                if !speech.hasAnyEnhancedOrPremiumVoice {
+                    Text("No Premium or Enhanced voices are downloaded on this iPhone yet. The default voice will sound robotic until you download one. See instructions below.")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                }
+
+                Toggle("Show robotic (compact) voices too", isOn: $store.settings.showAllVoiceQualities)
+                    .font(.footnote)
 
                 Button {
                     speech.previewVoice(settings: store.settings)
                 } label: {
                     Label("Preview voice", systemImage: "play.circle")
                 }
+
+                Button {
+                    if let url = URL(string: "App-prefs:ACCESSIBILITY&path=SPEECH/Voices") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Label("Download Premium voices", systemImage: "arrow.down.circle")
+                }
+            } header: {
+                Text("System voice")
+            } footer: {
+                Text("By default this picker only shows voices marked Premium or Enhanced — the natural-sounding ones. The rest of iOS's voices are \"Compact\" — small files that sound robotic.\n\nTo unlock more natural voices:\n1. iPhone Settings → Accessibility → Spoken Content → Voices → English\n2. Pick a voice (e.g. Ava, Evan, Karen, Joelle, Daniel, Serena)\n3. Tap the cloud icon next to Premium (~100 MB) or Enhanced (~50 MB)\n4. Come back here — the new voice will appear in the picker.\n\nFor true human-sounding speech on iPhone, Premium beats Enhanced beats Compact.")
             }
 
             Section("Sound") {
@@ -154,9 +788,15 @@ struct ParentModeView: View {
                 }
             }
 
-            Section("ElevenLabs") {
-                Text("For a future online voice option, the API key should live on a small backend, not inside the iOS app. The app can call that backend to receive generated audio while keeping the key private.")
-                    .foregroundStyle(.secondary)
+            Section {
+                Button("Clear natural voice cache", role: .destructive) {
+                    speech.natural.clearCache()
+                }
+            }
+        }
+        .task {
+            if speech.natural.isAvailable && speech.natural.voices.isEmpty {
+                await speech.natural.loadVoices()
             }
         }
     }
