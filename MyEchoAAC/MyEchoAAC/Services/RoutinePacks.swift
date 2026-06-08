@@ -10,7 +10,9 @@ struct RoutinePack: Identifiable {
 }
 
 enum RoutinePacks {
-    static let all: [RoutinePack] = [
+    static let all: [RoutinePack] = [food, bathroom, play, school, bedtime, feelings, pain]
+
+    static let food: RoutinePack =
         RoutinePack(
             id: "food",
             title: "Food & Meals",
@@ -35,7 +37,9 @@ enum RoutinePacks {
                 QuickPhrase(text: "I want water", position: 0),
                 QuickPhrase(text: "I am full", position: 0)
             ]
-        ),
+        )
+
+    static let bathroom: RoutinePack =
         RoutinePack(
             id: "bathroom",
             title: "Bathroom",
@@ -53,7 +57,9 @@ enum RoutinePacks {
                 QuickPhrase(text: "I need toilet", position: 0),
                 QuickPhrase(text: "I need bath", position: 0)
             ]
-        ),
+        )
+
+    static let play: RoutinePack =
         RoutinePack(
             id: "play",
             title: "Play",
@@ -73,7 +79,9 @@ enum RoutinePacks {
                 QuickPhrase(text: "Let's play", position: 0),
                 QuickPhrase(text: "Read a book", position: 0)
             ]
-        ),
+        )
+
+    static let school: RoutinePack =
         RoutinePack(
             id: "school",
             title: "School",
@@ -91,7 +99,9 @@ enum RoutinePacks {
                 QuickPhrase(text: "I need help", position: 0),
                 QuickPhrase(text: "I am done", position: 0)
             ]
-        ),
+        )
+
+    static let bedtime: RoutinePack =
         RoutinePack(
             id: "bedtime",
             title: "Bedtime",
@@ -109,7 +119,9 @@ enum RoutinePacks {
                 QuickPhrase(text: "Good night", position: 0),
                 QuickPhrase(text: "I am sleepy", position: 0)
             ]
-        ),
+        )
+
+    static let feelings: RoutinePack =
         RoutinePack(
             id: "feelings",
             title: "Feelings & Body",
@@ -134,5 +146,35 @@ enum RoutinePacks {
                 QuickPhrase(text: "I love you", position: 0)
             ]
         )
-    ]
+
+    static let pain: RoutinePack =
+        RoutinePack(
+            id: "pain",
+            title: "Pain & Body",
+            subtitle: "Show where it hurts and how it feels.",
+            symbol: "🩹",
+            words: [
+                AACWord(label: "hurt", symbol: "🤕", category: "Pain & Body", colorName: .pink, position: 0),
+                AACWord(label: "a little", symbol: "🤏", category: "Pain & Body", colorName: .yellow, position: 0),
+                AACWord(label: "a lot", symbol: "🔴", category: "Pain & Body", colorName: .orange, position: 0),
+                AACWord(label: "head", symbol: "🧠", category: "Pain & Body", colorName: .gray, position: 0),
+                AACWord(label: "tummy", symbol: "🤰", category: "Pain & Body", colorName: .pink, position: 0),
+                AACWord(label: "ear", symbol: "👂", category: "Pain & Body", colorName: .gray, position: 0),
+                AACWord(label: "tooth", symbol: "🦷", category: "Pain & Body", colorName: .blue, position: 0),
+                AACWord(label: "throat", symbol: "😮", category: "Pain & Body", colorName: .teal, position: 0),
+                AACWord(label: "leg", symbol: "🦵", category: "Pain & Body", colorName: .gray, position: 0),
+                AACWord(label: "arm", symbol: "💪", category: "Pain & Body", colorName: .gray, position: 0),
+                AACWord(label: "hot", symbol: "🥵", category: "Pain & Body", colorName: .orange, position: 0),
+                AACWord(label: "itchy", symbol: "🐛", category: "Pain & Body", colorName: .green, position: 0),
+                AACWord(label: "sick", symbol: "🤢", category: "Pain & Body", colorName: .green, position: 0),
+                AACWord(label: "medicine", symbol: "💊", category: "Pain & Body", colorName: .purple, position: 0),
+                AACWord(label: "doctor", symbol: "🩺", category: "Pain & Body", colorName: .blue, position: 0),
+                AACWord(label: "help", symbol: "🆘", category: "Pain & Body", colorName: .orange, position: 0)
+            ],
+            phrases: [
+                QuickPhrase(text: "It hurts here", position: 0),
+                QuickPhrase(text: "I feel sick", position: 0),
+                QuickPhrase(text: "I need medicine", position: 0)
+            ]
+        )
 }
