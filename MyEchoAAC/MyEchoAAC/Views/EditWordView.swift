@@ -45,7 +45,7 @@ struct EditWordView: View {
                 Section("Word") {
                     TextField("Label", text: $draft.label)
                     TextField("Spoken phrase", text: $draft.phrase)
-                    pronunciationSuggestionRow
+                    pronunciationRow
                     symbolRow
                     if showCustomSymbol {
                         TextField("Custom symbol", text: $draft.symbol)
@@ -135,9 +135,31 @@ struct EditWordView: View {
     }
 
     @ViewBuilder
-    private var pronunciationSuggestionRow: some View {
-        if let suggestion = pronunciationSuggestion {
-            VStack(alignment: .leading, spacing: 10) {
+    private var pronunciationRow: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Pronunciation")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Hear how this word will sound.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button {
+                    let spoken = draft.phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !spoken.isEmpty else { return }
+                    speech.speak(spoken, settings: store.settings)
+                } label: {
+                    Label("Hear", systemImage: "speaker.wave.2.fill")
+                }
+                .buttonStyle(.bordered)
+                .disabled(draft.phrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel("Hear how this word will sound")
+            }
+
+            if let suggestion = pronunciationSuggestion {
+                Divider()
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Suggested pronunciation")
@@ -167,6 +189,7 @@ struct EditWordView: View {
                 .buttonStyle(.borderedProminent)
             }
         }
+        .padding(.vertical, 4)
     }
 
     private var existingCategories: [String] {
