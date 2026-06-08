@@ -184,6 +184,7 @@ struct ParentModeView: View {
             .sheet(item: $editedWord) { word in
                 EditWordView(word: word)
                     .environmentObject(store)
+                    .environmentObject(speech)
             }
             .alert("Reset starter board?", isPresented: $showingResetAlert) {
                 Button("Cancel", role: .cancel) {}
@@ -347,6 +348,9 @@ struct ParentModeView: View {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
+        } else if let signFilename = word.signVideoPath, SignVideoStore.exists(signFilename) {
+            SignVideoView(url: SignVideoStore.fileURL(for: signFilename), videoGravity: .resizeAspectFill)
+                .allowsHitTesting(false)
         } else {
             Text(word.symbol)
                 .font(.largeTitle)

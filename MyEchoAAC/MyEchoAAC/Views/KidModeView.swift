@@ -72,6 +72,7 @@ struct KidModeView: View {
         .padding(.horizontal, 14)
         .padding(.top, 8)
         .background(appBackground.ignoresSafeArea())
+        .preferredColorScheme(.light)
             .sheet(isPresented: $showingParentGate) {
                 PINGateView {
                     showingParentMode = true
@@ -92,11 +93,10 @@ struct KidModeView: View {
                 .environmentObject(history)
                 .presentationDetents([.large])
             }
-            .sheet(isPresented: $showingAbout) {
+            .fullScreenCover(isPresented: $showingAbout) {
                 NavigationStack {
                     AboutView()
                 }
-                .presentationDetents([.large])
             }
             .task {
                 if !welcomeSeen {

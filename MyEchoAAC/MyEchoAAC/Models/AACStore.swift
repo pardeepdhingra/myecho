@@ -44,6 +44,8 @@ final class AACStore: ObservableObject {
         } else {
             quickPhrases = Self.defaultQuickPhrases
         }
+
+        applyPronunciationDefaultsIfNeeded()
     }
 
     var categories: [String] {
@@ -69,9 +71,10 @@ final class AACStore: ObservableObject {
     }
 
     func addBlankWord() -> AACWord {
-        AACWord(
-            label: "New word",
-            phrase: "New word",
+        let label = "New word"
+        return AACWord(
+            label: label,
+            phrase: PronunciationService.bestSpokenPhrase(for: label),
             symbol: "💬",
             category: "Home",
             colorName: .gray,
@@ -140,6 +143,9 @@ final class AACStore: ObservableObject {
         if let filename = word.imagePath {
             ImageStore.delete(filename)
         }
+        if let signFilename = word.signVideoPath {
+            SignVideoStore.delete(signFilename)
+        }
         words.removeAll { $0.id == word.id }
     }
 
@@ -199,6 +205,9 @@ final class AACStore: ObservableObject {
             if let filename = word.imagePath {
                 ImageStore.delete(filename)
             }
+            if let signFilename = word.signVideoPath {
+                SignVideoStore.delete(signFilename)
+            }
             removedWords += 1
         }
         words.removeAll { $0.sourcePackId == pack.id }
@@ -223,6 +232,7 @@ final class AACStore: ObservableObject {
 
     func resetStarterBoard() {
         ImageStore.purgeAll()
+        SignVideoStore.purgeAll()
         words = Self.defaultWords
         settings = .default
         quickPhrases = Self.defaultQuickPhrases
@@ -256,6 +266,17 @@ final class AACStore: ObservableObject {
 
     private func nextPosition() -> Int {
         (words.map(\.position).max() ?? 0) + 1
+    }
+
+    private func applyPronunciationDefaultsIfNeeded() {
+        for index in words.indices {
+            let label = words[index].label.trimmingCharacters(in: .whitespacesAndNewlines)
+            let phrase = words[index].phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard phrase.isEmpty || phrase.caseInsensitiveCompare(label) == .orderedSame else { continue }
+            if let suggestion = PronunciationService.suggestion(for: label) {
+                words[index].phrase = suggestion
+            }
+        }
     }
 
     private func saveWords() {
@@ -303,15 +324,15 @@ final class AACStore: ObservableObject {
         AACWord(label: "I", symbol: "👤", category: "Home", colorName: .blue, position: 1),
         AACWord(label: "want", symbol: "👉", category: "Home", colorName: .green, position: 2),
         AACWord(label: "more", symbol: "➕", category: "Home", colorName: .green, position: 3),
-        AACWord(label: "all done", symbol: "✅", category: "Home", colorName: .orange, position: 4),
+        AACWord(label: "all done", phrase: "all dun", symbol: "✅", category: "Home", colorName: .orange, position: 4),
         AACWord(label: "yes", symbol: "👍", category: "Home", colorName: .teal, position: 5),
         AACWord(label: "no", symbol: "✋", category: "Home", colorName: .pink, position: 6),
         AACWord(label: "help", symbol: "🫶", category: "Home", colorName: .yellow, position: 7),
         AACWord(label: "stop", symbol: "🛑", category: "Home", colorName: .orange, position: 8),
         AACWord(label: "go", symbol: "➡️", category: "Home", colorName: .green, position: 9),
         AACWord(label: "look", symbol: "👀", category: "Home", colorName: .blue, position: 10),
-        AACWord(label: "like", symbol: "💛", category: "Home", colorName: .yellow, position: 11),
-        AACWord(label: "not like", symbol: "💔", category: "Home", colorName: .pink, position: 12),
+        AACWord(label: "like", phrase: "lyke", symbol: "💛", category: "Home", colorName: .yellow, position: 11),
+        AACWord(label: "not like", phrase: "not lyke", symbol: "💔", category: "Home", colorName: .pink, position: 12),
         AACWord(label: "happy", symbol: "😊", category: "Feelings", colorName: .yellow, position: 13),
         AACWord(label: "sad", symbol: "😢", category: "Feelings", colorName: .blue, position: 14),
         AACWord(label: "angry", symbol: "😠", category: "Feelings", colorName: .orange, position: 15),
@@ -320,14 +341,14 @@ final class AACStore: ObservableObject {
         AACWord(label: "tired", symbol: "😴", category: "Feelings", colorName: .gray, position: 18),
         AACWord(label: "eat", symbol: "🍽️", category: "Needs", colorName: .green, position: 19),
         AACWord(label: "drink", symbol: "🥤", category: "Needs", colorName: .teal, position: 20),
-        AACWord(label: "toilet", symbol: "🚽", category: "Needs", colorName: .blue, position: 21),
+        AACWord(label: "toilet", phrase: "toy lit", symbol: "🚽", category: "Needs", colorName: .blue, position: 21),
         AACWord(label: "break", symbol: "🧘", category: "Needs", colorName: .purple, position: 22),
         AACWord(label: "play", symbol: "🧸", category: "Play", colorName: .yellow, position: 23),
         AACWord(label: "music", symbol: "🎵", category: "Play", colorName: .pink, position: 24),
         AACWord(label: "outside", symbol: "🌳", category: "Play", colorName: .green, position: 25),
         AACWord(label: "book", symbol: "📖", category: "Play", colorName: .orange, position: 26),
-        AACWord(label: "mum", symbol: "❤️", category: "People", colorName: .pink, position: 27),
-        AACWord(label: "dad", symbol: "⭐️", category: "People", colorName: .blue, position: 28),
+        AACWord(label: "mum", phrase: "mumm", symbol: "❤️", category: "People", colorName: .pink, position: 27),
+        AACWord(label: "dad", phrase: "dadd", symbol: "⭐️", category: "People", colorName: .blue, position: 28),
         AACWord(label: "home", symbol: "🏠", category: "Places", colorName: .teal, position: 29),
         AACWord(label: "school", symbol: "🏫", category: "Places", colorName: .orange, position: 30)
     ]

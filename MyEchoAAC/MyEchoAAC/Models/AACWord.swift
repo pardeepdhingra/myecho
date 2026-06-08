@@ -13,9 +13,11 @@ struct AACWord: Identifiable, Codable, Equatable {
     var isFavorite: Bool
     var sourcePackId: String?
     var favoritePosition: Int?
+    var signVideoPath: String?
+    var signLanguage: SignLanguage?
 
     enum CodingKeys: String, CodingKey {
-        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition
+        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage
     }
 
     init(
@@ -30,7 +32,9 @@ struct AACWord: Identifiable, Codable, Equatable {
         imagePath: String? = nil,
         isFavorite: Bool = false,
         sourcePackId: String? = nil,
-        favoritePosition: Int? = nil
+        favoritePosition: Int? = nil,
+        signVideoPath: String? = nil,
+        signLanguage: SignLanguage? = nil
     ) {
         self.id = id
         self.label = label
@@ -44,6 +48,8 @@ struct AACWord: Identifiable, Codable, Equatable {
         self.isFavorite = isFavorite
         self.sourcePackId = sourcePackId
         self.favoritePosition = favoritePosition
+        self.signVideoPath = signVideoPath
+        self.signLanguage = signLanguage
     }
 
     init(from decoder: Decoder) throws {
@@ -60,6 +66,8 @@ struct AACWord: Identifiable, Codable, Equatable {
         isFavorite = try c.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
         sourcePackId = try c.decodeIfPresent(String.self, forKey: .sourcePackId)
         favoritePosition = try c.decodeIfPresent(Int.self, forKey: .favoritePosition)
+        signVideoPath = try c.decodeIfPresent(String.self, forKey: .signVideoPath)
+        signLanguage = try c.decodeIfPresent(SignLanguage.self, forKey: .signLanguage)
     }
 }
 

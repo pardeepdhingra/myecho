@@ -5,23 +5,38 @@ import UIKit
 struct EditWordView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: AACStore
+    @EnvironmentObject private var speech: SpeechService
 
     @State private var draft: AACWord
     @State private var originalImagePath: String?
+    @State private var originalSignVideoPath: String?
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var showingCamera = false
     @State private var showingEmojiPicker = false
+    @State private var showingSignPicker = false
     @State private var showCustomSymbol = false
     @State private var isAddingNewCategory = false
     @State private var newCategoryText: String = ""
+    @State private var phraseFollowsLabel: Bool
 
     init(word: AACWord) {
         _draft = State(initialValue: word)
         _originalImagePath = State(initialValue: word.imagePath)
+        _originalSignVideoPath = State(initialValue: word.signVideoPath)
+        let labelMatchesPhrase = word.label
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .caseInsensitiveCompare(word.phrase.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
+        _phraseFollowsLabel = State(initialValue: labelMatchesPhrase)
     }
 
     private var cameraAvailable: Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
+
+    private var pronunciationSuggestion: String? {
+        guard let suggestion = PronunciationService.suggestion(for: draft.label) else { return nil }
+        let current = draft.phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+        return suggestion.caseInsensitiveCompare(current) == .orderedSame ? nil : suggestion
     }
 
     var body: some View {
@@ -30,6 +45,7 @@ struct EditWordView: View {
                 Section("Word") {
                     TextField("Label", text: $draft.label)
                     TextField("Spoken phrase", text: $draft.phrase)
+                    pronunciationSuggestionRow
                     symbolRow
                     if showCustomSymbol {
                         TextField("Custom symbol", text: $draft.symbol)
@@ -38,6 +54,8 @@ struct EditWordView: View {
                 }
 
                 photoSection
+
+                signSection
 
                 Section("Board") {
                     Picker("Color", selection: $draft.colorName) {
@@ -82,6 +100,20 @@ struct EditWordView: View {
                 guard let newItem else { return }
                 Task { await loadPhotoPickerItem(newItem) }
             }
+            .onChange(of: draft.label) { _, newValue in
+                if phraseFollowsLabel {
+                    draft.phrase = PronunciationService.bestSpokenPhrase(for: newValue)
+                }
+            }
+            .onChange(of: draft.phrase) { _, newValue in
+                let trimmedLabel = draft.label.trimmingCharacters(in: .whitespacesAndNewlines)
+                let trimmedPhrase = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmedPhrase.caseInsensitiveCompare(trimmedLabel) != .orderedSame {
+                    phraseFollowsLabel = false
+                } else if trimmedPhrase == trimmedLabel {
+                    phraseFollowsLabel = true
+                }
+            }
             .sheet(isPresented: $showingCamera) {
                 CameraPicker { image in
                     handlePicked(image: image)
@@ -92,6 +124,47 @@ struct EditWordView: View {
                 EmojiPickerView { emoji in
                     draft.symbol = emoji
                 }
+            }
+            .sheet(isPresented: $showingSignPicker) {
+                SignPickerView(initialWord: draft.label) { selection in
+                    handlePickedSign(selection)
+                }
+                .presentationDetents([.large])
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var pronunciationSuggestionRow: some View {
+        if let suggestion = pronunciationSuggestion {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Suggested pronunciation")
+                            .font(.subheadline.weight(.semibold))
+                        Text(suggestion)
+                            .font(.system(.body, design: .rounded, weight: .medium))
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button {
+                        speech.speak(suggestion, settings: store.settings)
+                    } label: {
+                        Image(systemName: "speaker.wave.2.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityLabel("Preview suggested pronunciation")
+                }
+
+                Button {
+                    draft.phrase = suggestion
+                    phraseFollowsLabel = false
+                    Haptics.success()
+                } label: {
+                    Label("Use suggestion", systemImage: "text.bubble")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
             }
         }
     }
@@ -217,6 +290,66 @@ struct EditWordView: View {
     }
 
     @ViewBuilder
+    private var signSection: some View {
+        Section {
+            HStack(spacing: 14) {
+                signThumbnail
+                VStack(alignment: .leading, spacing: 4) {
+                    if let language = draft.signLanguage, draft.signVideoPath != nil {
+                        Text("\(language.label) sign attached")
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                    } else {
+                        Text("No sign attached")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("A sign-language video plays on the tile when no photo is set.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+
+            Button {
+                showingSignPicker = true
+            } label: {
+                Label(draft.signVideoPath == nil ? "Choose a sign (Auslan / ASL)" : "Change sign", systemImage: "hand.raised")
+            }
+
+            if draft.signVideoPath != nil {
+                Button(role: .destructive) {
+                    removeSign()
+                } label: {
+                    Label("Remove sign", systemImage: "trash")
+                }
+            }
+        } header: {
+            Text("Sign language")
+        } footer: {
+            Text("Videos are downloaded once from public dictionaries and stored on this device.")
+        }
+    }
+
+    @ViewBuilder
+    private var signThumbnail: some View {
+        if let filename = draft.signVideoPath, SignVideoStore.exists(filename) {
+            SignVideoView(url: SignVideoStore.fileURL(for: filename), videoGravity: .resizeAspectFill)
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .allowsHitTesting(false)
+        } else {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.gray.opacity(0.18))
+                Image(systemName: "hand.raised")
+                    .foregroundStyle(.secondary)
+            }
+            .frame(width: 64, height: 64)
+        }
+    }
+
+    @ViewBuilder
     private var photoThumbnail: some View {
         if let filename = draft.imagePath, let image = ImageStore.load(filename) {
             Image(uiImage: image)
@@ -260,9 +393,29 @@ struct EditWordView: View {
         draft.imagePath = nil
     }
 
+    private func handlePickedSign(_ selection: SignPickerSelection) {
+        let previousDuringEdit = draft.signVideoPath
+        draft.signVideoPath = selection.filename
+        draft.signLanguage = selection.language
+        if let previousDuringEdit, previousDuringEdit != originalSignVideoPath {
+            SignVideoStore.delete(previousDuringEdit)
+        }
+    }
+
+    private func removeSign() {
+        if let filename = draft.signVideoPath, filename != originalSignVideoPath {
+            SignVideoStore.delete(filename)
+        }
+        draft.signVideoPath = nil
+        draft.signLanguage = nil
+    }
+
     private func cancel() {
         if let current = draft.imagePath, current != originalImagePath {
             ImageStore.delete(current)
+        }
+        if let currentSign = draft.signVideoPath, currentSign != originalSignVideoPath {
+            SignVideoStore.delete(currentSign)
         }
         dismiss()
     }
@@ -287,6 +440,9 @@ struct EditWordView: View {
 
         if let original = originalImagePath, original != draft.imagePath {
             ImageStore.delete(original)
+        }
+        if let originalSign = originalSignVideoPath, originalSign != draft.signVideoPath {
+            SignVideoStore.delete(originalSign)
         }
 
         store.upsert(draft)

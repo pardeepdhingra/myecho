@@ -32,6 +32,12 @@
 		0A1000190000000000000001 /* SentenceHistorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001A0000000000000001 /* SentenceHistorySheet.swift */; };
 		0A10001A0000000000000001 /* RoutinePacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001B0000000000000001 /* RoutinePacks.swift */; };
 		0A10001B0000000000000001 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001C0000000000000001 /* AboutView.swift */; };
+		0A10001D0000000000000001 /* SignLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001D0000000000000001 /* SignLanguage.swift */; };
+		0A10001E0000000000000001 /* SignVideoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001E0000000000000001 /* SignVideoStore.swift */; };
+		0A10001F0000000000000001 /* SignSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001F0000000000000001 /* SignSearchService.swift */; };
+		0A1000200000000000000001 /* SignVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000200000000000000001 /* SignVideoView.swift */; };
+		0A1000210000000000000001 /* SignPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000210000000000000001 /* SignPickerView.swift */; };
+		0A1000220000000000000001 /* PronunciationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000220000000000000001 /* PronunciationService.swift */; };
 		0A10000A0000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000A0000000000000001 /* Assets.xcassets */; };
 		0A10000B0000000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000B0000000000000001 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -62,6 +68,12 @@
 		0A20001A0000000000000001 /* SentenceHistorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceHistorySheet.swift; sourceTree = "<group>"; };
 		0A20001B0000000000000001 /* RoutinePacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutinePacks.swift; sourceTree = "<group>"; };
 		0A20001C0000000000000001 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		0A20001D0000000000000001 /* SignLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignLanguage.swift; sourceTree = "<group>"; };
+		0A20001E0000000000000001 /* SignVideoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignVideoStore.swift; sourceTree = "<group>"; };
+		0A20001F0000000000000001 /* SignSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignSearchService.swift; sourceTree = "<group>"; };
+		0A2000200000000000000001 /* SignVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignVideoView.swift; sourceTree = "<group>"; };
+		0A2000210000000000000001 /* SignPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignPickerView.swift; sourceTree = "<group>"; };
+		0A2000220000000000000001 /* PronunciationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PronunciationService.swift; sourceTree = "<group>"; };
 		0A20000A0000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A20000B0000000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0A20000C0000000000000001 /* MyEchoAAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyEchoAAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,6 +118,7 @@
 				0A2000030000000000000001 /* AACSettings.swift */,
 				0A2000040000000000000001 /* AACStore.swift */,
 				0A2000130000000000000001 /* QuickPhrase.swift */,
+				0A20001D0000000000000001 /* SignLanguage.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -122,6 +135,9 @@
 				0A2000170000000000000001 /* Secrets.swift */,
 				0A2000180000000000000001 /* NaturalSpeechService.swift */,
 				0A20001B0000000000000001 /* RoutinePacks.swift */,
+				0A20001E0000000000000001 /* SignVideoStore.swift */,
+				0A20001F0000000000000001 /* SignSearchService.swift */,
+				0A2000220000000000000001 /* PronunciationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -140,6 +156,8 @@
 				0A2000190000000000000001 /* WelcomeView.swift */,
 				0A20001A0000000000000001 /* SentenceHistorySheet.swift */,
 				0A20001C0000000000000001 /* AboutView.swift */,
+				0A2000200000000000000001 /* SignVideoView.swift */,
+				0A2000210000000000000001 /* SignPickerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -255,6 +273,12 @@
 				0A1000190000000000000001 /* SentenceHistorySheet.swift in Sources */,
 				0A10001A0000000000000001 /* RoutinePacks.swift in Sources */,
 				0A10001B0000000000000001 /* AboutView.swift in Sources */,
+				0A10001D0000000000000001 /* SignLanguage.swift in Sources */,
+				0A10001E0000000000000001 /* SignVideoStore.swift in Sources */,
+				0A10001F0000000000000001 /* SignSearchService.swift in Sources */,
+				0A1000200000000000000001 /* SignVideoView.swift in Sources */,
+				0A1000210000000000000001 /* SignPickerView.swift in Sources */,
+				0A1000220000000000000001 /* PronunciationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -62,6 +62,11 @@ struct WordTileView: View {
                 .scaledToFill()
                 .frame(width: 56 * clampedScale, height: 56 * clampedScale)
                 .clipShape(RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous))
+        } else if let signFilename = word.signVideoPath, SignVideoStore.exists(signFilename) {
+            SignVideoView(url: SignVideoStore.fileURL(for: signFilename), videoGravity: .resizeAspectFill)
+                .frame(width: 56 * clampedScale, height: 56 * clampedScale)
+                .clipShape(RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous))
+                .allowsHitTesting(false)
         } else {
             Text(word.symbol)
                 .font(.system(size: 42 * clampedScale))
