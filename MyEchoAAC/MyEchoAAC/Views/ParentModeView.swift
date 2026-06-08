@@ -1,53 +1,6 @@
 import SwiftUI
 import UIKit
 
-private struct ElevenLabsKeyView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var speech: SpeechService
-    @State private var keyInput: String = ""
-    @State private var status: String?
-
-    var body: some View {
-        Form {
-            Section {
-                SecureField("sk_…", text: $keyInput)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-            } header: {
-                Text("ElevenLabs API key")
-            } footer: {
-                Text("Stored only in this device's Keychain. Never synced or uploaded. Sign up at elevenlabs.io to get a key.")
-            }
-
-            Section {
-                Button("Save") {
-                    Secrets.setElevenLabsAPIKey(keyInput)
-                    speech.natural.refreshAvailability()
-                    status = "Saved. Natural voice options now available."
-                    keyInput = ""
-                }
-                .disabled(keyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-                Button("Remove key", role: .destructive) {
-                    Secrets.setElevenLabsAPIKey(nil)
-                    speech.natural.refreshAvailability()
-                    status = "Key removed. The app will use the system voice only."
-                }
-            }
-
-            if let status {
-                Section {
-                    Text(status)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-        .navigationTitle("Natural voice")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 private struct PhraseEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State var phrase: QuickPhrase
@@ -695,77 +648,6 @@ struct ParentModeView: View {
     private var voiceSettings: some View {
         Form {
             Section {
-                NavigationLink {
-                    ElevenLabsKeyView()
-                } label: {
-                    HStack {
-                        Image(systemName: "key.fill")
-                        Text("ElevenLabs API key")
-                        Spacer()
-                        Text(speech.natural.isAvailable ? "Saved" : "Not set")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            } footer: {
-                Text("Optional. With a key, the app can use ElevenLabs natural voices. The key stays in this iPhone's Keychain. Get a key at elevenlabs.io.")
-            }
-
-            if speech.natural.isAvailable {
-                Section {
-                    Toggle("Use natural voice (ElevenLabs)", isOn: $store.settings.useNaturalVoice)
-
-                    if store.settings.useNaturalVoice {
-                        TextField("Voice ID", text: Binding(
-                            get: { store.settings.naturalVoiceId ?? "" },
-                            set: { store.settings.naturalVoiceId = $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                        ))
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .font(.system(.callout, design: .monospaced))
-
-                        Menu {
-                            ForEach(speech.natural.voices) { voice in
-                                Button(voice.displayName) {
-                                    store.settings.naturalVoiceId = voice.id
-                                }
-                            }
-                        } label: {
-                            Label("Pick from curated list", systemImage: "list.bullet")
-                        }
-
-                        Button {
-                            Task {
-                                await speech.natural.loadVoices()
-                            }
-                        } label: {
-                            Label("Refresh from my account", systemImage: "arrow.clockwise")
-                        }
-
-                        Button {
-                            Task {
-                                guard let voiceId = store.settings.naturalVoiceId, !voiceId.isEmpty else { return }
-                                _ = await speech.natural.speak("Hello, I am ready to talk.", voiceId: voiceId)
-                            }
-                        } label: {
-                            Label("Test natural voice", systemImage: "play.circle")
-                        }
-                        .disabled((store.settings.naturalVoiceId ?? "").isEmpty)
-
-                        if let error = speech.natural.lastError {
-                            Text(error)
-                                .font(.footnote)
-                                .foregroundStyle(.red)
-                        }
-                    }
-                } header: {
-                    Text("Natural voice")
-                } footer: {
-                    Text("Free ElevenLabs accounts can't use the curated library voices via the API. Open elevenlabs.io → Voice Library → Add a voice → copy its Voice ID → paste it above. Or clone your own voice in Voice Lab. Audio is cached locally after the first play.")
-                }
-            }
-
-            Section {
                 let filteredVoices = speech.voiceOptions(includeCompact: store.settings.showAllVoiceQualities)
 
                 Picker("Voice", selection: $store.settings.voiceIdentifier) {
@@ -813,17 +695,6 @@ struct ParentModeView: View {
                     Text("Pitch")
                     Slider(value: $store.settings.pitchMultiplier, in: 0.85...1.25)
                 }
-            }
-
-            Section {
-                Button("Clear natural voice cache", role: .destructive) {
-                    speech.natural.clearCache()
-                }
-            }
-        }
-        .task {
-            if speech.natural.isAvailable && speech.natural.voices.isEmpty {
-                await speech.natural.loadVoices()
             }
         }
     }

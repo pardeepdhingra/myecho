@@ -9,8 +9,6 @@ struct AACSettings: Codable, Equatable {
     var showQuickPhrases: Bool
     var trackUsageHistory: Bool
     var showSymbolsInMessageBar: Bool
-    var useNaturalVoice: Bool
-    var naturalVoiceId: String?
     var showAllVoiceQualities: Bool
     var tileScale: Double
     var showRegulationBar: Bool
@@ -24,8 +22,6 @@ struct AACSettings: Codable, Equatable {
         showQuickPhrases: true,
         trackUsageHistory: true,
         showSymbolsInMessageBar: true,
-        useNaturalVoice: false,
-        naturalVoiceId: "EXAVITQu4vr4xnSDxMaL",
         showAllVoiceQualities: false,
         tileScale: 1.0,
         showRegulationBar: true
@@ -34,7 +30,7 @@ struct AACSettings: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case gridColumns, voiceIdentifier, speechRate, pitchMultiplier
         case showCategoryFilter, showQuickPhrases, trackUsageHistory
-        case showSymbolsInMessageBar, useNaturalVoice, naturalVoiceId
+        case showSymbolsInMessageBar
         case showAllVoiceQualities, tileScale, showRegulationBar
     }
 
@@ -47,8 +43,6 @@ struct AACSettings: Codable, Equatable {
         showQuickPhrases: Bool = true,
         trackUsageHistory: Bool = true,
         showSymbolsInMessageBar: Bool = true,
-        useNaturalVoice: Bool = false,
-        naturalVoiceId: String? = "EXAVITQu4vr4xnSDxMaL",
         showAllVoiceQualities: Bool = false,
         tileScale: Double = 1.0,
         showRegulationBar: Bool = true
@@ -61,8 +55,6 @@ struct AACSettings: Codable, Equatable {
         self.showQuickPhrases = showQuickPhrases
         self.trackUsageHistory = trackUsageHistory
         self.showSymbolsInMessageBar = showSymbolsInMessageBar
-        self.useNaturalVoice = useNaturalVoice
-        self.naturalVoiceId = naturalVoiceId
         self.showAllVoiceQualities = showAllVoiceQualities
         self.tileScale = tileScale
         self.showRegulationBar = showRegulationBar
@@ -78,8 +70,6 @@ struct AACSettings: Codable, Equatable {
         showQuickPhrases = try c.decodeIfPresent(Bool.self, forKey: .showQuickPhrases) ?? true
         trackUsageHistory = try c.decodeIfPresent(Bool.self, forKey: .trackUsageHistory) ?? true
         showSymbolsInMessageBar = try c.decodeIfPresent(Bool.self, forKey: .showSymbolsInMessageBar) ?? true
-        useNaturalVoice = try c.decodeIfPresent(Bool.self, forKey: .useNaturalVoice) ?? false
-        naturalVoiceId = try c.decodeIfPresent(String.self, forKey: .naturalVoiceId) ?? "EXAVITQu4vr4xnSDxMaL"
         showAllVoiceQualities = try c.decodeIfPresent(Bool.self, forKey: .showAllVoiceQualities) ?? false
         tileScale = try c.decodeIfPresent(Double.self, forKey: .tileScale) ?? 1.0
         showRegulationBar = try c.decodeIfPresent(Bool.self, forKey: .showRegulationBar) ?? true

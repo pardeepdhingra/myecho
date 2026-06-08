@@ -26,7 +26,6 @@ final class SpeechService: ObservableObject {
 
     private let synthesizer = AVSpeechSynthesizer()
     private let logger = Logger(subsystem: "com.pardeepdhingra.vani", category: "SpeechService")
-    let natural = NaturalSpeechService()
 
     init() {
         configureAudioSession()
@@ -79,18 +78,6 @@ final class SpeechService: ObservableObject {
     func speak(_ text: String, settings: AACSettings) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-
-        if settings.useNaturalVoice,
-           natural.isAvailable,
-           let voiceId = settings.naturalVoiceId, !voiceId.isEmpty {
-            Task {
-                let ok = await natural.speak(trimmed, voiceId: voiceId)
-                if !ok {
-                    speakSystem(trimmed, settings: settings)
-                }
-            }
-            return
-        }
 
         speakSystem(trimmed, settings: settings)
     }

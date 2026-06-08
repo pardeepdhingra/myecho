@@ -26,8 +26,6 @@
 		0A1000130000000000000001 /* BoardBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000140000000000000001 /* BoardBackup.swift */; };
 		0A1000140000000000000001 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000150000000000000001 /* ShareSheet.swift */; };
 		0A1000150000000000000001 /* UsageHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000160000000000000001 /* UsageHistory.swift */; };
-		0A1000160000000000000001 /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000170000000000000001 /* Secrets.swift */; };
-		0A1000170000000000000001 /* NaturalSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000180000000000000001 /* NaturalSpeechService.swift */; };
 		0A1000180000000000000001 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000190000000000000001 /* WelcomeView.swift */; };
 		0A1000190000000000000001 /* SentenceHistorySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001A0000000000000001 /* SentenceHistorySheet.swift */; };
 		0A10001A0000000000000001 /* RoutinePacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20001B0000000000000001 /* RoutinePacks.swift */; };
@@ -62,8 +60,6 @@
 		0A2000140000000000000001 /* BoardBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardBackup.swift; sourceTree = "<group>"; };
 		0A2000150000000000000001 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		0A2000160000000000000001 /* UsageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageHistory.swift; sourceTree = "<group>"; };
-		0A2000170000000000000001 /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
-		0A2000180000000000000001 /* NaturalSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaturalSpeechService.swift; sourceTree = "<group>"; };
 		0A2000190000000000000001 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		0A20001A0000000000000001 /* SentenceHistorySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceHistorySheet.swift; sourceTree = "<group>"; };
 		0A20001B0000000000000001 /* RoutinePacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutinePacks.swift; sourceTree = "<group>"; };
@@ -132,8 +128,6 @@
 				0A2000120000000000000001 /* Haptics.swift */,
 				0A2000140000000000000001 /* BoardBackup.swift */,
 				0A2000160000000000000001 /* UsageHistory.swift */,
-				0A2000170000000000000001 /* Secrets.swift */,
-				0A2000180000000000000001 /* NaturalSpeechService.swift */,
 				0A20001B0000000000000001 /* RoutinePacks.swift */,
 				0A20001E0000000000000001 /* SignVideoStore.swift */,
 				0A20001F0000000000000001 /* SignSearchService.swift */,
@@ -267,8 +261,6 @@
 				0A1000130000000000000001 /* BoardBackup.swift in Sources */,
 				0A1000140000000000000001 /* ShareSheet.swift in Sources */,
 				0A1000150000000000000001 /* UsageHistory.swift in Sources */,
-				0A1000160000000000000001 /* Secrets.swift in Sources */,
-				0A1000170000000000000001 /* NaturalSpeechService.swift in Sources */,
 				0A1000180000000000000001 /* WelcomeView.swift in Sources */,
 				0A1000190000000000000001 /* SentenceHistorySheet.swift in Sources */,
 				0A10001A0000000000000001 /* RoutinePacks.swift in Sources */,
