@@ -349,18 +349,22 @@ struct KidModeView: View {
                 Button {
                     removeLastWord()
                 } label: {
-                    Label("Backspace", systemImage: "delete.left")
-                        .frame(maxWidth: .infinity)
+                    Label("Delete", systemImage: "delete.left.fill")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
-                .buttonStyle(.bordered)
-                .tint(Color.accentColor)
+                .buttonStyle(.borderedProminent)
+                .tint(Color.accentColor.opacity(0.85))
                 .disabled(message.isEmpty)
 
                 Button {
                     clearMessage()
                 } label: {
                     Label("Clear", systemImage: "xmark.circle")
-                        .frame(maxWidth: .infinity)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 .buttonStyle(.bordered)
                 .tint(Color.accentColor)
@@ -370,7 +374,9 @@ struct KidModeView: View {
                     showingSentenceHistory = true
                 } label: {
                     Label("Recent", systemImage: "clock.arrow.circlepath")
-                        .frame(maxWidth: .infinity)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
                 .buttonStyle(.bordered)
                 .tint(Color.accentColor)
