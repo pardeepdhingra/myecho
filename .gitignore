@@ -4,7 +4,6 @@ DerivedData*/
 build/
 SourcePackages/
 **/SourcePackages/
-GoogleService-Info.plist
 *.xcuserstate
 xcuserdata/
 .DS_Store
