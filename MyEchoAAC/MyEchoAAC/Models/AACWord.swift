@@ -109,3 +109,77 @@ enum TileColorName: String, CaseIterable, Codable, Identifiable {
         }
     }
 }
+
+// MARK: - Category styling (speech-therapist feedback: per-category color + icon)
+
+/// Explicit, parent-customized look for a category. Categories themselves are derived from the
+/// `category` string on each `AACWord`; this only carries the *style* (color + icon). When no
+/// explicit style exists, `CategoryDefaults` provides a stable, distinct default so every category
+/// always has a colour and icon identity. Persisted inside `AACSettings` so it rides the existing
+/// local-save / backup / cloud-sync paths with no contract changes.
+struct CategoryStyle: Identifiable, Codable, Equatable {
+    var id: UUID
+    var name: String
+    var colorName: TileColorName
+    var icon: String
+
+    init(id: UUID = UUID(), name: String, colorName: TileColorName, icon: String) {
+        self.id = id
+        self.name = name
+        self.colorName = colorName
+        self.icon = icon
+    }
+}
+
+/// A category's resolved look — either parent-customized or the deterministic default.
+struct ResolvedCategoryStyle: Equatable {
+    var colorName: TileColorName
+    var icon: String
+    var color: Color { colorName.color }
+}
+
+enum CategoryDefaults {
+    /// Palette used for auto-assigned category colors (gray is reserved for "no strong identity").
+    static let palette: [TileColorName] = [.blue, .green, .orange, .pink, .purple, .teal, .yellow]
+
+    /// Distinct default look for the built-in starter categories, plus sensible matches for common
+    /// custom names. Keyed by a lowercased keyword that the category name contains.
+    private static let known: [(keyword: String, colorName: TileColorName, icon: String)] = [
+        ("home", .blue, "🏠"),
+        ("feel", .yellow, "😊"),
+        ("need", .green, "🙋"),
+        ("play", .pink, "🧸"),
+        ("people", .purple, "👪"),
+        ("person", .purple, "👪"),
+        ("family", .purple, "👪"),
+        ("place", .teal, "📍"),
+        ("food", .orange, "🍎"),
+        ("eat", .orange, "🍎"),
+        ("drink", .teal, "🥤"),
+        ("school", .orange, "🏫"),
+        ("toy", .pink, "🧸"),
+        ("animal", .green, "🐶"),
+        ("body", .pink, "🧍"),
+        ("phrase", .purple, "💬")
+    ]
+
+    static func defaultStyle(for name: String) -> ResolvedCategoryStyle {
+        let key = name.lowercased()
+        if let match = known.first(where: { key.contains($0.keyword) }) {
+            return ResolvedCategoryStyle(colorName: match.colorName, icon: match.icon)
+        }
+        let color = palette[stableIndex(key, modulo: palette.count)]
+        return ResolvedCategoryStyle(colorName: color, icon: "🗂️")
+    }
+
+    /// Deterministic, hash-stable index (Swift's `Hashable` is per-process randomized, which would make
+    /// a category's default color flip between launches — this stays put).
+    private static func stableIndex(_ string: String, modulo: Int) -> Int {
+        guard modulo > 0 else { return 0 }
+        var hash = 5381
+        for scalar in string.unicodeScalars {
+            hash = (hash &* 33) &+ Int(scalar.value)
+        }
+        return abs(hash) % modulo
+    }
+}

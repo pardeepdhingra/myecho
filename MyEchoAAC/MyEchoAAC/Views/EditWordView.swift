@@ -33,6 +33,12 @@ struct EditWordView: View {
         UIImagePickerController.isSourceTypeAvailable(.camera)
     }
 
+    private var previewTileColor: Color {
+        store.settings.colorTilesByCategory
+            ? store.resolvedCategoryStyle(for: draft.category).color
+            : draft.colorName.color
+    }
+
     private var pronunciationSuggestion: String? {
         guard let suggestion = PronunciationService.suggestion(for: draft.label) else { return nil }
         let current = draft.phrase.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -57,7 +63,7 @@ struct EditWordView: View {
 
                 signSection
 
-                Section("Board") {
+                Section {
                     Picker("Color", selection: $draft.colorName) {
                         ForEach(TileColorName.allCases) { color in
                             HStack {
@@ -69,13 +75,20 @@ struct EditWordView: View {
                             .tag(color)
                         }
                     }
+                    .disabled(store.settings.colorTilesByCategory)
 
                     Toggle("Visible on kid screen", isOn: $draft.isVisible)
                     Toggle("Favorite (shows in ★ Favorites)", isOn: $draft.isFavorite)
+                } header: {
+                    Text("Board")
+                } footer: {
+                    if store.settings.colorTilesByCategory {
+                        Text("Tiles are currently colored by category, so this card uses the “\(draft.category)” color. Turn off “Color tiles by category” in Parent → Board to set tile colors individually.")
+                    }
                 }
 
                 Section("Preview") {
-                    WordTileView(word: draft, action: {}, scale: store.settings.tileScale)
+                    WordTileView(word: draft, action: {}, scale: store.settings.tileScale, backgroundColor: previewTileColor)
                         .frame(maxWidth: 220)
                         .disabled(true)
                 }

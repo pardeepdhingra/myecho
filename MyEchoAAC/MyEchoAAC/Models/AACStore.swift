@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 @MainActor
 final class AACStore: ObservableObject {
@@ -53,6 +54,45 @@ final class AACStore: ObservableObject {
             .sorted { $0.position < $1.position }
             .map(\.category)
         return Array(NSOrderedSet(array: ordered)) as? [String] ?? []
+    }
+
+    /// The parent-customized style for a category, if one exists.
+    func explicitCategoryStyle(for name: String) -> CategoryStyle? {
+        settings.categoryStyles.first { $0.name.caseInsensitiveCompare(name) == .orderedSame }
+    }
+
+    /// Resolved color + icon for a category — the parent's choice if set, otherwise a stable default.
+    func resolvedCategoryStyle(for name: String) -> ResolvedCategoryStyle {
+        if let explicit = explicitCategoryStyle(for: name) {
+            return ResolvedCategoryStyle(colorName: explicit.colorName, icon: explicit.icon)
+        }
+        return CategoryDefaults.defaultStyle(for: name)
+    }
+
+    /// The background color a tile should render with, honoring the "color tiles by category" setting.
+    func tileColor(for word: AACWord) -> Color {
+        settings.colorTilesByCategory
+            ? resolvedCategoryStyle(for: word.category).color
+            : word.colorName.color
+    }
+
+    /// Upsert a parent-customized style for a category.
+    func setCategoryStyle(name: String, colorName: TileColorName, icon: String) {
+        let trimmedIcon = icon.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedIcon = trimmedIcon.isEmpty ? resolvedCategoryStyle(for: name).icon : trimmedIcon
+        if let index = settings.categoryStyles.firstIndex(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
+            settings.categoryStyles[index].colorName = colorName
+            settings.categoryStyles[index].icon = resolvedIcon
+        } else {
+            settings.categoryStyles.append(
+                CategoryStyle(name: name, colorName: colorName, icon: resolvedIcon)
+            )
+        }
+    }
+
+    /// Remove a parent-customized style so the category reverts to its deterministic default.
+    func clearCategoryStyle(name: String) {
+        settings.categoryStyles.removeAll { $0.name.caseInsensitiveCompare(name) == .orderedSame }
     }
 
     func visibleWords(in category: String?) -> [AACWord] {

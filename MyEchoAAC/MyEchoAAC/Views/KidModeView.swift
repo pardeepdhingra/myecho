@@ -1,6 +1,20 @@
 import SwiftUI
 import UIKit
 
+/// One cell of the kid board when "Freeze button positions" is active: either a real word tile or a
+/// blank placeholder that holds the slot a non-matching word occupies in the "All" layout.
+private enum BoardSlot: Identifiable {
+    case word(AACWord)
+    case blank(Int)
+
+    var id: AnyHashable {
+        switch self {
+        case .word(let w): return w.id
+        case .blank(let i): return "__blank__\(i)"
+        }
+    }
+}
+
 struct KidModeView: View {
     @EnvironmentObject private var store: AACStore
     @EnvironmentObject private var speech: SpeechService
@@ -20,10 +34,9 @@ struct KidModeView: View {
     }
 
     private var columns: [GridItem] {
-        let maxAllowed = UIDevice.current.userInterfaceIdiom == .pad ? 8 : 6
         return Array(
-            repeating: GridItem(.flexible(minimum: 68), spacing: 10),
-            count: max(2, min(store.settings.gridColumns, maxAllowed))
+            repeating: GridItem(.flexible(minimum: 56), spacing: 10),
+            count: max(2, min(store.settings.gridColumns, AACSettings.maxGridColumns))
         )
     }
 
@@ -44,8 +57,24 @@ struct KidModeView: View {
 
     private func categoryLabel(_ category: String?) -> String {
         if category == Self.recentCategoryToken { return "Recent" }
-        if category == Self.favoritesCategoryToken { return "★ Favorites" }
+        if category == Self.favoritesCategoryToken { return "Favorites" }
         return category ?? "All"
+    }
+
+    /// Icon + tint for a category chip. The special "All / Recent / Favorites" buckets get their own
+    /// look; real categories use the parent-customized or default style.
+    private func categoryChipStyle(_ category: String?) -> (icon: String, tint: Color) {
+        guard let name = category else {
+            return ("◎", Color.accentColor)
+        }
+        if name == Self.recentCategoryToken {
+            return ("🕒", Color(red: 0.45, green: 0.55, blue: 0.75))
+        }
+        if name == Self.favoritesCategoryToken {
+            return ("⭐️", Color(red: 0.95, green: 0.72, blue: 0.15))
+        }
+        let style = store.resolvedCategoryStyle(for: name)
+        return (style.icon, style.color)
     }
 
     private func visibleWordsForSelectedCategory() -> [AACWord] {
@@ -58,6 +87,29 @@ struct KidModeView: View {
             return store.favoritesOrdered.filter { $0.isVisible }
         }
         return store.visibleWords(in: selectedCategory)
+    }
+
+    /// True when the board should hold buttons in their "All" position for the selected category.
+    /// Only applies to real categories — All, Recent, and Favorites keep their normal behavior.
+    private var isFreezeActive: Bool {
+        guard store.settings.freezeButtonPositions, let selectedCategory else { return false }
+        return selectedCategory != Self.recentCategoryToken
+            && selectedCategory != Self.favoritesCategoryToken
+    }
+
+    /// The full "All" grid with non-matching cells blanked out, so matching tiles keep their exact
+    /// slot. Trailing blanks (after the last matching tile) are trimmed to avoid empty rows.
+    private func freezeSlotsForSelectedCategory() -> [BoardSlot] {
+        guard let category = selectedCategory else { return [] }
+        let all = store.visibleWords(in: nil)
+        let slots: [BoardSlot] = all.enumerated().map { index, word in
+            word.category == category ? .word(word) : .blank(index)
+        }
+        guard let lastWordIdx = slots.lastIndex(where: {
+            if case .word = $0 { return true }
+            return false
+        }) else { return [] }
+        return Array(slots[0...lastWordIdx])
     }
 
     var body: some View {
@@ -142,7 +194,7 @@ struct KidModeView: View {
             Image("Logo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 92, height: 36)
+                .frame(height: 56)
                 .accessibilityHidden(true)
 
             Spacer()
@@ -210,7 +262,7 @@ struct KidModeView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(word.colorName.color.opacity(0.68))
+        .background(store.tileColor(for: word).opacity(0.68))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(word.label)
@@ -400,59 +452,87 @@ struct KidModeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(categories, id: \.self) { category in
-                        Button {
-                            selectedCategory = category
-                        } label: {
-                            Text(categoryLabel(category))
-                                .font(.system(.callout, design: .rounded, weight: .semibold))
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 9)
-                                .background(selectedCategory == category ? Color.accentColor : Color.white.opacity(0.9))
-                                .foregroundStyle(selectedCategory == category ? Color.white : Color.black.opacity(0.82))
-                                .clipShape(Capsule())
-                                .overlay {
-                                    Capsule()
-                                        .stroke(.black.opacity(selectedCategory == category ? 0 : 0.08), lineWidth: 1)
-                                }
-                        }
-                        .buttonStyle(.plain)
+                        categoryChip(category)
                     }
                 }
                 .padding(.horizontal, 2)
+                .padding(.vertical, 2)
             }
         }
+    }
+
+    @ViewBuilder
+    private func categoryChip(_ category: String?) -> some View {
+        let style = categoryChipStyle(category)
+        let isSelected = selectedCategory == category
+        Button {
+            selectedCategory = category
+            Haptics.actionTap()
+        } label: {
+            HStack(spacing: 6) {
+                Text(style.icon)
+                    .font(.system(size: 17))
+                Text(categoryLabel(category))
+                    .font(.system(.callout, design: .rounded, weight: .semibold))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .background(isSelected ? style.tint : style.tint.opacity(0.20))
+            .foregroundStyle(isSelected ? Color.white : Color.black.opacity(0.82))
+            .clipShape(Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(isSelected ? Color.clear : style.tint.opacity(0.55), lineWidth: 1.5)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(categoryLabel(category))
     }
 
     private var wordGrid: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 10) {
-                ForEach(visibleWordsForSelectedCategory()) { word in
-                    WordTileView(word: word, action: {
-                        addWord(word)
-                    }, scale: store.settings.tileScale)
-                    .contextMenu {
-                        Button {
-                            speech.speak(word.phrase, settings: store.settings)
-                        } label: {
-                            Label("Speak", systemImage: "speaker.wave.2")
+                if isFreezeActive {
+                    ForEach(freezeSlotsForSelectedCategory()) { slot in
+                        switch slot {
+                        case .word(let word): wordTile(word)
+                        case .blank: BlankTileView()
                         }
-                        Button {
-                            store.toggleFavorite(for: word)
-                            Haptics.success()
-                        } label: {
-                            Label(word.isFavorite ? "Remove from Favorites" : "Add to Favorites",
-                                  systemImage: word.isFavorite ? "star.slash" : "star")
-                        }
-                        Button {
-                            store.addQuickPhrase(word.phrase)
-                            Haptics.success()
-                        } label: {
-                            Label("Add to Quick Phrases", systemImage: "quote.bubble")
-                        }
+                    }
+                } else {
+                    ForEach(visibleWordsForSelectedCategory()) { word in
+                        wordTile(word)
                     }
                 }
             }
             .padding(.bottom, 18)
+        }
+    }
+
+    @ViewBuilder
+    private func wordTile(_ word: AACWord) -> some View {
+        WordTileView(word: word, action: {
+            addWord(word)
+        }, scale: store.settings.tileScale, backgroundColor: store.tileColor(for: word))
+        .contextMenu {
+            Button {
+                speech.speak(word.phrase, settings: store.settings)
+            } label: {
+                Label("Speak", systemImage: "speaker.wave.2")
+            }
+            Button {
+                store.toggleFavorite(for: word)
+                Haptics.success()
+            } label: {
+                Label(word.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                      systemImage: word.isFavorite ? "star.slash" : "star")
+            }
+            Button {
+                store.addQuickPhrase(word.phrase)
+                Haptics.success()
+            } label: {
+                Label("Add to Quick Phrases", systemImage: "quote.bubble")
+            }
         }
     }
 

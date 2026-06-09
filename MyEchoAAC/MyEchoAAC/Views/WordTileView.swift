@@ -5,8 +5,11 @@ struct WordTileView: View {
     let word: AACWord
     let action: () -> Void
     var scale: Double = 1.0
+    /// Optional background override (e.g. the word's category color). Falls back to the word's own color.
+    var backgroundColor: Color? = nil
 
     private var clampedScale: Double { min(max(scale, 0.7), 1.8) }
+    private var tileColor: Color { backgroundColor ?? word.colorName.color }
 
     var body: some View {
         Button {
@@ -23,13 +26,13 @@ struct WordTileView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.55)
             }
-            .frame(maxWidth: .infinity, minHeight: 104 * clampedScale)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(8 * clampedScale)
             .background(
                 LinearGradient(
                     colors: [
-                        word.colorName.color,
-                        word.colorName.color.opacity(0.78)
+                        tileColor,
+                        tileColor.opacity(0.78)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -49,6 +52,9 @@ struct WordTileView: View {
                 }
             }
             .shadow(color: .black.opacity(0.08), radius: 5, y: 2)
+            // Keep tiles square at every column count: height follows the column width
+            // instead of a fixed value, so 9–12 columns no longer turn into tall rectangles.
+            .aspectRatio(1, contentMode: .fit)
         }
         .buttonStyle(PressableTileStyle())
         .accessibilityLabel(word.phrase)
@@ -72,6 +78,23 @@ struct WordTileView: View {
                 .font(.system(size: 42 * clampedScale))
                 .minimumScaleFactor(0.5)
         }
+    }
+}
+
+/// An empty grid cell shown when "Freeze button positions" is on and a tile's word isn't in the
+/// selected category. Matches `WordTileView`'s square footprint exactly so the grid stays aligned.
+struct BlankTileView: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .fill(Color.black.opacity(0.035))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.black.opacity(0.05), lineWidth: 1)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .aspectRatio(1, contentMode: .fit)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }
 

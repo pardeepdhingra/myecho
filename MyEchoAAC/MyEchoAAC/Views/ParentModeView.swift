@@ -1,6 +1,118 @@
 import SwiftUI
 import UIKit
 
+struct IdentifiableString: Identifiable {
+    let id = UUID()
+    let value: String
+}
+
+/// Sheet for customizing a single category's color + icon. Categories are derived from words, so this
+/// edits the style only; an unset category falls back to `CategoryDefaults`.
+private struct CategoryStyleEditor: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var store: AACStore
+
+    let categoryName: String
+
+    @State private var colorName: TileColorName = .blue
+    @State private var icon: String = "🗂️"
+    @State private var showingEmojiPicker = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    HStack {
+                        Spacer()
+                        VStack(spacing: 10) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(colorName.color)
+                                Text(icon)
+                                    .font(.system(size: 48))
+                            }
+                            .frame(width: 96, height: 96)
+                            Text(categoryName)
+                                .font(.headline)
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                Section("Icon") {
+                    Button {
+                        showingEmojiPicker = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            Text(icon)
+                                .font(.system(size: 32))
+                                .frame(width: 52, height: 52)
+                                .background(Color.gray.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            Text("Choose an icon")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Section("Color") {
+                    Picker("Color", selection: $colorName) {
+                        ForEach(TileColorName.allCases) { color in
+                            HStack {
+                                Circle()
+                                    .fill(color.color)
+                                    .frame(width: 16, height: 16)
+                                Text(color.label)
+                            }
+                            .tag(color)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+
+                if store.explicitCategoryStyle(for: categoryName) != nil {
+                    Section {
+                        Button("Reset to default", role: .destructive) {
+                            store.clearCategoryStyle(name: categoryName)
+                            dismiss()
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Category")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        store.setCategoryStyle(name: categoryName, colorName: colorName, icon: icon)
+                        dismiss()
+                    }
+                }
+            }
+            .sheet(isPresented: $showingEmojiPicker) {
+                EmojiPickerView { emoji in
+                    icon = emoji
+                }
+            }
+            .onAppear {
+                let resolved = store.resolvedCategoryStyle(for: categoryName)
+                colorName = resolved.colorName
+                icon = resolved.icon
+            }
+        }
+    }
+}
+
 private struct PhraseEditSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State var phrase: QuickPhrase
@@ -64,6 +176,7 @@ struct ParentModeView: View {
 
     @State private var editedWord: AACWord?
     @State private var editedPhrase: QuickPhrase?
+    @State private var editedCategory: IdentifiableString?
     @State private var newPhraseText: String = ""
     @State private var showingResetAlert = false
     @State private var wordSearch: String = ""
@@ -157,23 +270,52 @@ struct ParentModeView: View {
 
     private var boardSettings: some View {
         Form {
-            Section("Grid") {
-                Picker("Columns", selection: $store.settings.gridColumns) {
-                    Text("3").tag(3)
-                    Text("4").tag(4)
-                    Text("5").tag(5)
-                    Text("6").tag(6)
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        Text("7").tag(7)
-                        Text("8").tag(8)
+            Section {
+                Stepper(value: gridColumnsBinding, in: AACSettings.minGridColumns...AACSettings.maxGridColumns) {
+                    HStack {
+                        Text("Columns")
+                        Spacer()
+                        Text("\(clampedGridColumns) × \(clampedGridColumns)")
+                            .font(.body.monospacedDigit())
+                            .foregroundStyle(.secondary)
                     }
                 }
-                .pickerStyle(.segmented)
 
                 Toggle("Show categories on kid screen", isOn: $store.settings.showCategoryFilter)
                 Toggle("Show quick phrases", isOn: $store.settings.showQuickPhrases)
                 Toggle("Show symbols in message bar", isOn: $store.settings.showSymbolsInMessageBar)
                 Toggle("Show regulation bar (Break / Help / Stop)", isOn: $store.settings.showRegulationBar)
+            } header: {
+                Text("Grid")
+            } footer: {
+                Text("Up to \(AACSettings.maxGridColumns) columns on this device — iPad in landscape fits the most. Larger grids show more words at once; smaller grids make each tile bigger.")
+            }
+
+            Section {
+                Toggle("Freeze button positions", isOn: $store.settings.freezeButtonPositions)
+            } header: {
+                Text("Layout")
+            } footer: {
+                Text("Keeps each button in the same spot when you filter by a category, so it's easier to find by muscle memory. Empty spaces appear where words from other categories would be.")
+            }
+
+            Section {
+                Toggle("Color tiles by category", isOn: $store.settings.colorTilesByCategory)
+                NavigationLink {
+                    categoryStyleList
+                } label: {
+                    HStack {
+                        Label("Categories", systemImage: "square.grid.2x2")
+                        Spacer()
+                        Text("\(store.categories.count)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } header: {
+                Text("Categories")
+            } footer: {
+                Text("Each category has its own color and icon to help kids recognize it. With \"Color tiles by category\" on, every card in a category shares that color — turn it off to color each tile individually in Edit Word.")
             }
 
             Section {
@@ -298,6 +440,72 @@ struct ParentModeView: View {
         .alert(item: $importAlert) { alert in
             Alert(title: Text(alert.title), message: Text(alert.message), dismissButton: .default(Text("OK")))
         }
+        .sheet(item: $editedCategory) { wrapper in
+            CategoryStyleEditor(categoryName: wrapper.value)
+                .environmentObject(store)
+        }
+    }
+
+    private var clampedGridColumns: Int {
+        min(max(store.settings.gridColumns, AACSettings.minGridColumns), AACSettings.maxGridColumns)
+    }
+
+    /// Stepper binding that keeps the stored column count within this device's allowed range (a board
+    /// synced from an iPad could carry 12 columns into an iPhone, where the max is lower).
+    private var gridColumnsBinding: Binding<Int> {
+        Binding(
+            get: { clampedGridColumns },
+            set: { store.settings.gridColumns = $0 }
+        )
+    }
+
+    private var categoryStyleList: some View {
+        List {
+            Section {
+                ForEach(store.categories, id: \.self) { category in
+                    let style = store.resolvedCategoryStyle(for: category)
+                    let count = store.words.filter { $0.category == category }.count
+                    Button {
+                        editedCategory = IdentifiableString(value: category)
+                    } label: {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(style.color)
+                                Text(style.icon)
+                                    .font(.system(size: 24))
+                            }
+                            .frame(width: 46, height: 46)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(category)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                Text("\(count) word\(count == 1 ? "" : "s")")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            if store.explicitCategoryStyle(for: category) != nil {
+                                Text("Custom")
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            } footer: {
+                Text("Tap a category to change its color and icon. Categories are created when you assign words to them in Edit Word.")
+            }
+        }
+        .navigationTitle("Categories")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
@@ -373,7 +581,7 @@ struct ParentModeView: View {
                 HStack(spacing: 12) {
                     wordRowThumbnail(for: word)
                         .frame(width: 46, height: 46)
-                        .background(word.colorName.color)
+                        .background(store.tileColor(for: word))
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 3) {
@@ -496,7 +704,7 @@ struct ParentModeView: View {
                     HStack(spacing: 12) {
                         wordRowThumbnail(for: word)
                             .frame(width: 38, height: 38)
-                            .background(word.colorName.color)
+                            .background(store.tileColor(for: word))
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         Text(word.label)
                             .font(.headline)

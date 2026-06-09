@@ -1,6 +1,15 @@
 import Foundation
+import UIKit
 
 struct AACSettings: Codable, Equatable {
+    /// Smallest column count the board allows.
+    static let minGridColumns = 3
+    /// Largest column count, device-aware. iPad (the primary horizontal device) goes up to 12×12 per
+    /// speech-therapist feedback; iPhone caps at 6 so tiles stay big enough to tap.
+    static var maxGridColumns: Int {
+        UIDevice.current.userInterfaceIdiom == .pad ? 12 : 6
+    }
+
     var gridColumns: Int
     var voiceIdentifier: String?
     var speechRate: Float
@@ -12,9 +21,19 @@ struct AACSettings: Codable, Equatable {
     var showAllVoiceQualities: Bool
     var tileScale: Double
     var showRegulationBar: Bool
+    /// When true, every tile uses its category's color (the speech-therapist default: cards of a
+    /// category share one sample color). When false, each tile uses its own per-word color.
+    var colorTilesByCategory: Bool
+    /// Parent-customized per-category colors + icons. Categories without an entry fall back to
+    /// `CategoryDefaults`. Stored here so it persists, exports, and cloud-syncs with the rest of the board.
+    var categoryStyles: [CategoryStyle]
+    /// When true, filtering to a category keeps every button in the exact grid slot it occupies in
+    /// the "All" view (non-matching cells become blank placeholders) so buttons never move — easier
+    /// motor planning for kids. Opt-in; only affects real categories (not All/Recent/Favorites).
+    var freezeButtonPositions: Bool
 
     static let `default` = AACSettings(
-        gridColumns: 4,
+        gridColumns: 8,
         voiceIdentifier: nil,
         speechRate: 0.43,
         pitchMultiplier: 1.03,
@@ -24,7 +43,10 @@ struct AACSettings: Codable, Equatable {
         showSymbolsInMessageBar: true,
         showAllVoiceQualities: false,
         tileScale: 1.0,
-        showRegulationBar: true
+        showRegulationBar: true,
+        colorTilesByCategory: true,
+        categoryStyles: [],
+        freezeButtonPositions: false
     )
 
     enum CodingKeys: String, CodingKey {
@@ -32,6 +54,8 @@ struct AACSettings: Codable, Equatable {
         case showCategoryFilter, showQuickPhrases, trackUsageHistory
         case showSymbolsInMessageBar
         case showAllVoiceQualities, tileScale, showRegulationBar
+        case colorTilesByCategory, categoryStyles
+        case freezeButtonPositions
     }
 
     init(
@@ -45,7 +69,10 @@ struct AACSettings: Codable, Equatable {
         showSymbolsInMessageBar: Bool = true,
         showAllVoiceQualities: Bool = false,
         tileScale: Double = 1.0,
-        showRegulationBar: Bool = true
+        showRegulationBar: Bool = true,
+        colorTilesByCategory: Bool = true,
+        categoryStyles: [CategoryStyle] = [],
+        freezeButtonPositions: Bool = false
     ) {
         self.gridColumns = gridColumns
         self.voiceIdentifier = voiceIdentifier
@@ -58,6 +85,9 @@ struct AACSettings: Codable, Equatable {
         self.showAllVoiceQualities = showAllVoiceQualities
         self.tileScale = tileScale
         self.showRegulationBar = showRegulationBar
+        self.colorTilesByCategory = colorTilesByCategory
+        self.categoryStyles = categoryStyles
+        self.freezeButtonPositions = freezeButtonPositions
     }
 
     init(from decoder: Decoder) throws {
@@ -73,5 +103,8 @@ struct AACSettings: Codable, Equatable {
         showAllVoiceQualities = try c.decodeIfPresent(Bool.self, forKey: .showAllVoiceQualities) ?? false
         tileScale = try c.decodeIfPresent(Double.self, forKey: .tileScale) ?? 1.0
         showRegulationBar = try c.decodeIfPresent(Bool.self, forKey: .showRegulationBar) ?? true
+        colorTilesByCategory = try c.decodeIfPresent(Bool.self, forKey: .colorTilesByCategory) ?? true
+        categoryStyles = try c.decodeIfPresent([CategoryStyle].self, forKey: .categoryStyles) ?? []
+        freezeButtonPositions = try c.decodeIfPresent(Bool.self, forKey: .freezeButtonPositions) ?? false
     }
 }
