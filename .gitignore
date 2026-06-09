@@ -2,6 +2,8 @@ DerivedData/
 DerivedData*/
 **/DerivedData*/
 build/
+SourcePackages/
+**/SourcePackages/
 GoogleService-Info.plist
 *.xcuserstate
 xcuserdata/
