@@ -45,6 +45,14 @@ final class UsageHistory: ObservableObject {
         save()
     }
 
+    /// Replace usage stats wholesale (used when restoring a cloud snapshot).
+    func importAll(entries: [Entry], spokenSentences: [String]) {
+        self.entries = entries
+        self.spokenSentences = spokenSentences
+        save()
+        saveSentences()
+    }
+
     func recordSentence(_ text: String, enabled: Bool) {
         guard enabled else { return }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)

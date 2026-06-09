@@ -36,6 +36,14 @@
 		0A1000200000000000000001 /* SignVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000200000000000000001 /* SignVideoView.swift */; };
 		0A1000210000000000000001 /* SignPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000210000000000000001 /* SignPickerView.swift */; };
 		0A1000220000000000000001 /* PronunciationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000220000000000000001 /* PronunciationService.swift */; };
+		0A1000300000000000000001 /* DeviceID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000300000000000000001 /* DeviceID.swift */; };
+		0A1000310000000000000001 /* CloudModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000310000000000000001 /* CloudModels.swift */; };
+		0A1000320000000000000001 /* CloudBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000320000000000000001 /* CloudBackend.swift */; };
+		0A1000330000000000000001 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000330000000000000001 /* AuthService.swift */; };
+		0A1000340000000000000001 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000340000000000000001 /* CloudSyncService.swift */; };
+		0A1000350000000000000001 /* FirebaseBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000350000000000000001 /* FirebaseBackend.swift */; };
+		0A1000360000000000000001 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000360000000000000001 /* AccountView.swift */; };
+		0A1000370000000000000001 /* AuthSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000370000000000000001 /* AuthSheet.swift */; };
 		0A10000A0000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000A0000000000000001 /* Assets.xcassets */; };
 		0A10000B0000000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000B0000000000000001 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -70,6 +78,14 @@
 		0A2000200000000000000001 /* SignVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignVideoView.swift; sourceTree = "<group>"; };
 		0A2000210000000000000001 /* SignPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignPickerView.swift; sourceTree = "<group>"; };
 		0A2000220000000000000001 /* PronunciationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PronunciationService.swift; sourceTree = "<group>"; };
+		0A2000300000000000000001 /* DeviceID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceID.swift; sourceTree = "<group>"; };
+		0A2000310000000000000001 /* CloudModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudModels.swift; sourceTree = "<group>"; };
+		0A2000320000000000000001 /* CloudBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudBackend.swift; sourceTree = "<group>"; };
+		0A2000330000000000000001 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		0A2000340000000000000001 /* CloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncService.swift; sourceTree = "<group>"; };
+		0A2000350000000000000001 /* FirebaseBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseBackend.swift; sourceTree = "<group>"; };
+		0A2000360000000000000001 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		0A2000370000000000000001 /* AuthSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSheet.swift; sourceTree = "<group>"; };
 		0A20000A0000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A20000B0000000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0A20000C0000000000000001 /* MyEchoAAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyEchoAAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +148,12 @@
 				0A20001E0000000000000001 /* SignVideoStore.swift */,
 				0A20001F0000000000000001 /* SignSearchService.swift */,
 				0A2000220000000000000001 /* PronunciationService.swift */,
+				0A2000300000000000000001 /* DeviceID.swift */,
+				0A2000310000000000000001 /* CloudModels.swift */,
+				0A2000320000000000000001 /* CloudBackend.swift */,
+				0A2000330000000000000001 /* AuthService.swift */,
+				0A2000340000000000000001 /* CloudSyncService.swift */,
+				0A2000350000000000000001 /* FirebaseBackend.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -152,6 +174,8 @@
 				0A20001C0000000000000001 /* AboutView.swift */,
 				0A2000200000000000000001 /* SignVideoView.swift */,
 				0A2000210000000000000001 /* SignPickerView.swift */,
+				0A2000360000000000000001 /* AccountView.swift */,
+				0A2000370000000000000001 /* AuthSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -271,6 +295,14 @@
 				0A1000200000000000000001 /* SignVideoView.swift in Sources */,
 				0A1000210000000000000001 /* SignPickerView.swift in Sources */,
 				0A1000220000000000000001 /* PronunciationService.swift in Sources */,
+				0A1000300000000000000001 /* DeviceID.swift in Sources */,
+				0A1000310000000000000001 /* CloudModels.swift in Sources */,
+				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
+				0A1000330000000000000001 /* AuthService.swift in Sources */,
+				0A1000340000000000000001 /* CloudSyncService.swift in Sources */,
+				0A1000350000000000000001 /* FirebaseBackend.swift in Sources */,
+				0A1000360000000000000001 /* AccountView.swift in Sources */,
+				0A1000370000000000000001 /* AuthSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

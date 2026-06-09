@@ -37,6 +37,19 @@ enum ImageStore {
         return UIImage(contentsOfFile: url.path)
     }
 
+    static func fileURL(for filename: String) -> URL {
+        directoryURL.appendingPathComponent(filename)
+    }
+
+    static func exists(_ filename: String) -> Bool {
+        FileManager.default.fileExists(atPath: fileURL(for: filename).path)
+    }
+
+    /// Write raw JPEG bytes downloaded from the cloud under the given filename.
+    static func writeData(_ data: Data, filename: String) {
+        try? data.write(to: fileURL(for: filename), options: .atomic)
+    }
+
     static func delete(_ filename: String) {
         let url = directoryURL.appendingPathComponent(filename)
         try? FileManager.default.removeItem(at: url)

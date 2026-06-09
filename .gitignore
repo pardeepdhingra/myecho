@@ -1,5 +1,8 @@
 DerivedData/
+DerivedData*/
+**/DerivedData*/
 build/
+GoogleService-Info.plist
 *.xcuserstate
 xcuserdata/
 .DS_Store

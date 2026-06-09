@@ -238,6 +238,15 @@ final class AACStore: ObservableObject {
         quickPhrases = Self.defaultQuickPhrases
     }
 
+    /// Replace the whole board in one shot (used when restoring a cloud snapshot). Each property's
+    /// `didSet` still persists to UserDefaults; the cloud layer suppresses the resulting upload echo
+    /// via its content-hash guard.
+    func replaceAll(words: [AACWord], quickPhrases: [QuickPhrase], settings: AACSettings) {
+        self.words = words
+        self.quickPhrases = quickPhrases
+        self.settings = settings
+    }
+
     func addQuickPhrase(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

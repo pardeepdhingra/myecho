@@ -116,6 +116,11 @@ struct ParentModeView: View {
                     .tabItem {
                         Label("Voice", systemImage: "speaker.wave.2")
                     }
+
+                AccountView()
+                    .tabItem {
+                        Label("Account", systemImage: "icloud")
+                    }
             }
             .navigationTitle("Parent")
             .navigationBarTitleDisplayMode(.inline)
