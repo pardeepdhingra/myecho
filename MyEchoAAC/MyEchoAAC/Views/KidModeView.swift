@@ -22,6 +22,11 @@ struct KidModeView: View {
 
     @State private var message: [AACWord] = []
     @State private var selectedCategory: String?
+    /// Folder ("Motor Plan") board navigation: nil = home page, otherwise the open folder's category
+    /// (or `favoritesCategoryToken`). Only used when `settings.boardMode == .folders`.
+    @State private var openFolder: String?
+    /// Current fringe page when a folder/home overflows the fixed grid.
+    @State private var fringePage: Int = 0
     @State private var showingParentGate = false
     @State private var showingParentMode = false
     @AppStorage("vani.welcomeSeen") private var welcomeSeen: Bool = false
@@ -115,11 +120,18 @@ struct KidModeView: View {
     var body: some View {
         VStack(spacing: 12) {
             header
+            if store.settings.boardMode == .folders {
+                folderChipStrip
+            }
             regulationBar
             quickPhraseStrip
             messageBar
-            categoryFilter
-            wordGrid
+            if store.settings.boardMode == .folders {
+                folderBoard
+            } else {
+                categoryFilter
+                wordGrid
+            }
         }
         .padding(.horizontal, 14)
         .padding(.top, 8)
@@ -170,9 +182,13 @@ struct KidModeView: View {
                     .presentationDetents([.large])
             }
             .onChange(of: store.words) { _, _ in
-                guard let selectedCategory, store.categories.contains(selectedCategory) else {
+                if let selectedCategory, !store.categories.contains(selectedCategory) {
                     self.selectedCategory = nil
-                    return
+                }
+                // If the open folder lost all its visible words (deleted/hidden), fall back to home.
+                if let openFolder, openFolder != Self.favoritesCategoryToken,
+                   !folderCategories.contains(openFolder) {
+                    self.openFolder = nil
                 }
             }
     }
@@ -509,11 +525,322 @@ struct KidModeView: View {
         }
     }
 
+    // MARK: - Folder ("Motor Plan") board: persistent core + paged fringe, fixed no-scroll grid
+
+    private static let boardSpacing: CGFloat = 8
+    private static let favoritesColor = Color(red: 0.95, green: 0.72, blue: 0.15)
+
+    /// One cell of the folder board's fixed grid.
+    private enum FringeCell {
+        case word(AACWord)
+        case blank
+        case folder(name: String, icon: String, color: Color)
+        case favorites
+        case back     // a "Home" tile shown first inside a folder
+    }
+
+    /// Core words: the persistent left band, identical on every page, in stable position order.
+    private var coreWords: [AACWord] {
+        store.words
+            .filter { $0.isVisible && $0.category == AACWord.coreCategory }
+            .sorted { $0.position < $1.position }
+    }
+
+    /// Non-core categories with ≥1 visible word, ordered by the parent's `categoryOrder` first, then by
+    /// first appearance. Each becomes a folder tile in the fringe on the home page.
+    private var folderCategories: [String] {
+        let visible = store.words
+            .filter { $0.isVisible && $0.category != AACWord.coreCategory }
+            .sorted { $0.position < $1.position }
+            .map(\.category)
+        let distinct = ((Array(NSOrderedSet(array: visible)) as? [String]) ?? [])
+            .filter { !store.settings.isCategoryHidden($0) }
+        let order = store.settings.categoryOrder
+        guard !order.isEmpty else { return distinct }
+        let ordered = order.filter { distinct.contains($0) }
+        let rest = distinct.filter { !ordered.contains($0) }
+        return ordered + rest
+    }
+
+    private var showFavoritesFolder: Bool {
+        store.words.contains { $0.isFavorite && $0.isVisible }
+    }
+
+    /// A folder's cells: the category's words in fixed position order, hidden words held as blanks so
+    /// visible words never shift (muscle memory). Trailing blanks trimmed.
+    private func folderSlots(for category: String) -> [BoardSlot] {
+        let all = store.words
+            .filter { $0.category == category }
+            .sorted { $0.position < $1.position }
+        let slots: [BoardSlot] = all.enumerated().map { index, word in
+            word.isVisible ? .word(word) : .blank(index)
+        }
+        guard let lastWordIdx = slots.lastIndex(where: {
+            if case .word = $0 { return true }
+            return false
+        }) else { return [] }
+        return Array(slots[0...lastWordIdx])
+    }
+
+    private func folderTitle(_ folder: String) -> String {
+        folder == Self.favoritesCategoryToken ? "Favorites" : folder
+    }
+
+    private func open(folder: String?) {
+        openFolder = folder
+        fringePage = 0
+        Haptics.actionTap()
+    }
+
+    /// Fringe cells for the current page-set: folder tiles on home, the folder's words inside a folder.
+    /// Core words that don't fit the persistent band (small grid / `coreColumns == 0`) spill to the
+    /// start of the home fringe so none are ever lost.
+    private func currentFringeCells(coreCapacity: Int) -> [FringeCell] {
+        guard let folder = openFolder else {
+            var cells: [FringeCell] = []
+            if coreWords.count > coreCapacity {
+                cells.append(contentsOf: coreWords.dropFirst(coreCapacity).map { .word($0) })
+            }
+            cells.append(contentsOf: folderCategories.map { name in
+                let style = store.resolvedCategoryStyle(for: name)
+                return FringeCell.folder(name: name, icon: style.icon, color: style.color)
+            })
+            if showFavoritesFolder { cells.append(.favorites) }
+            return cells
+        }
+        // A "Home" tile leads every folder page — a board-tile back control (always reliable).
+        if folder == Self.favoritesCategoryToken {
+            return [.back] + store.favoritesOrdered.filter { $0.isVisible }.map { .word($0) }
+        }
+        return [.back] + folderSlots(for: folder).map { slot in
+            switch slot {
+            case .word(let w): return .word(w)
+            case .blank: return .blank
+            }
+        }
+    }
+
+    private func coreCells(capacity: Int) -> [FringeCell] {
+        Array(coreWords.prefix(capacity)).map { .word($0) }
+    }
+
     @ViewBuilder
-    private func wordTile(_ word: AACWord) -> some View {
+    private var folderBoard: some View {
+        GeometryReader { geo in
+            let cols = store.settings.resolvedGrid.columns
+            let rows = store.settings.resolvedGrid.rows
+            let coreCols = store.settings.resolvedCoreColumns()
+            let fringeCols = max(1, cols - coreCols)
+            let spacing = Self.boardSpacing
+            let bandGap: CGFloat = coreCols > 0 ? spacing * 2 : 0
+            let availW = geo.size.width - spacing * CGFloat(cols - 1) - bandGap
+            let availH = geo.size.height - spacing * CGFloat(rows - 1)
+            let tile = max(40, min(availW / CGFloat(cols), availH / CGFloat(rows)))
+            let scale = min(max(tile / 110.0, 0.7), 1.8)
+            let gridH = CGFloat(rows) * tile + CGFloat(rows - 1) * spacing
+
+            HStack(alignment: .top, spacing: bandGap) {
+                if coreCols > 0 {
+                    fixedGrid(coreCells(capacity: coreCols * rows),
+                              cols: coreCols, rows: rows, tile: tile, scale: scale)
+                }
+                fringePager(cols: fringeCols, rows: rows, tile: tile, scale: scale,
+                            gridHeight: gridH, coreCapacity: coreCols * rows)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+    }
+
+    /// A horizontal strip of folder shortcuts shown on top of the board (categories "on top"), so a
+    /// folder can be opened from anywhere. The current location is highlighted.
+    private var folderChipStrip: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                folderChip(title: "Home", icon: "🏠", color: Color.accentColor, isSelected: openFolder == nil) {
+                    open(folder: nil)
+                }
+                ForEach(folderCategories, id: \.self) { name in
+                    let style = store.resolvedCategoryStyle(for: name)
+                    folderChip(title: name, icon: style.icon, color: style.color, isSelected: openFolder == name) {
+                        open(folder: name)
+                    }
+                }
+                if showFavoritesFolder {
+                    folderChip(title: "Favorites", icon: "⭐️", color: Self.favoritesColor,
+                               isSelected: openFolder == Self.favoritesCategoryToken) {
+                        open(folder: Self.favoritesCategoryToken)
+                    }
+                }
+            }
+            .padding(.horizontal, 2)
+            .padding(.vertical, 2)
+        }
+    }
+
+    private func folderChip(title: String, icon: String, color: Color, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Text(icon).font(.system(size: 16))
+                Text(title)
+                    .font(.system(.callout, design: .rounded, weight: .semibold))
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? color : color.opacity(0.18))
+            .foregroundStyle(isSelected ? Color.white : Color.black.opacity(0.82))
+            .clipShape(Capsule())
+            .overlay { Capsule().stroke(isSelected ? Color.clear : color.opacity(0.5), lineWidth: 1.5) }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+    }
+
+    /// A breadcrumb showing the current location. Navigation back to home is done with the in-board
+    /// "Home" tile (the first cell of a folder), which reliably receives taps.
+    private var folderNavBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "house.fill")
+                .font(.footnote.weight(.bold))
+                .foregroundStyle(openFolder == nil ? Color.accentColor : Color.black.opacity(0.55))
+            Text("Home")
+                .font(.system(.callout, design: .rounded, weight: .bold))
+                .foregroundStyle(Color.black.opacity(0.7))
+            if let folder = openFolder {
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.bold))
+                    .foregroundStyle(.secondary)
+                Text(store.resolvedCategoryStyle(for: folder).icon)
+                Text(folderTitle(folder))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundStyle(Color.black.opacity(0.85))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+            Spacer()
+        }
+    }
+
+    /// The fringe region. Never scrolls — overflow spills onto pages flipped with prev/next + dots.
+    /// (Uses an explicit page index rather than a paged `TabView`, whose gesture layer can swallow
+    /// taps on the folder/word buttons inside it.)
+    private func fringePager(cols: Int, rows: Int, tile: CGFloat, scale: Double, gridHeight: CGFloat, coreCapacity: Int) -> some View {
+        let capacity = max(1, cols * rows)
+        let cells = currentFringeCells(coreCapacity: coreCapacity)
+        let pages: [[FringeCell]] = cells.isEmpty
+            ? [[]]
+            : stride(from: 0, to: cells.count, by: capacity).map {
+                Array(cells[$0 ..< min($0 + capacity, cells.count)])
+            }
+        let page = min(max(fringePage, 0), pages.count - 1)
+        let width = CGFloat(cols) * tile + CGFloat(cols - 1) * Self.boardSpacing
+        return VStack(spacing: 6) {
+            fixedGrid(pages[page], cols: cols, rows: rows, tile: tile, scale: scale)
+            if pages.count > 1 {
+                HStack(spacing: 10) {
+                    Button { fringePage = max(0, page - 1) } label: {
+                        Image(systemName: "chevron.left.circle.fill")
+                    }
+                    .disabled(page == 0)
+                    .accessibilityLabel("Previous page")
+
+                    ForEach(0 ..< pages.count, id: \.self) { i in
+                        Circle()
+                            .fill(i == page ? Color.accentColor : Color.black.opacity(0.18))
+                            .frame(width: 8, height: 8)
+                    }
+
+                    Button { fringePage = min(pages.count - 1, page + 1) } label: {
+                        Image(systemName: "chevron.right.circle.fill")
+                    }
+                    .disabled(page == pages.count - 1)
+                    .accessibilityLabel("Next page")
+                }
+                .font(.title3)
+                .tint(Color.accentColor)
+            }
+        }
+        .frame(width: width, alignment: .topLeading)
+    }
+
+    /// Renders `cells` row-major into a fixed `cols × rows` grid of `tile`-sized cells (no scrolling).
+    private func fixedGrid(_ cells: [FringeCell], cols: Int, rows: Int, tile: CGFloat, scale: Double) -> some View {
+        VStack(spacing: Self.boardSpacing) {
+            ForEach(0 ..< rows, id: \.self) { r in
+                HStack(spacing: Self.boardSpacing) {
+                    ForEach(0 ..< cols, id: \.self) { c in
+                        let idx = r * cols + c
+                        cellView(idx < cells.count ? cells[idx] : nil, tile: tile, scale: scale)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cellView(_ cell: FringeCell?, tile: CGFloat, scale: Double) -> some View {
+        Group {
+            switch cell {
+            case .word(let word):
+                wordTile(word, scale: scale)
+            case .blank:
+                BlankTileView()
+            case .folder(let name, let icon, let color):
+                FolderTileView(title: name, icon: icon, color: color, scale: scale,
+                               style: store.settings.tileStyle) {
+                    open(folder: name)
+                }
+            case .favorites:
+                FolderTileView(title: "Favorites", icon: "⭐️", color: Self.favoritesColor,
+                               scale: scale, style: store.settings.tileStyle) {
+                    open(folder: Self.favoritesCategoryToken)
+                }
+            case .back:
+                backTile(scale: scale)
+            case nil:
+                Color.clear
+            }
+        }
+        .frame(width: tile, height: tile)
+    }
+
+    /// A "Home" tile (board button) that returns to the home page. Lives as the first cell of a folder
+    /// page so back-navigation always works (board tiles reliably receive taps).
+    private func backTile(scale: Double) -> some View {
+        let clamped = min(max(scale, 0.7), 1.8)
+        return Button {
+            open(folder: nil)
+        } label: {
+            VStack(spacing: 6 * clamped) {
+                Image(systemName: "house.fill")
+                    .font(.system(size: 36 * clamped, weight: .bold))
+                    .foregroundStyle(.white)
+                Text("Home")
+                    .font(.system(size: 17 * clamped, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1).minimumScaleFactor(0.6)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(8 * clamped)
+            .background(
+                LinearGradient(colors: [Color.accentColor, Color.accentColor.opacity(0.82)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8 * clamped, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
+            .aspectRatio(1, contentMode: .fit)
+        }
+        .buttonStyle(PressableTileStyle())
+        .accessibilityLabel("Home")
+    }
+
+    @ViewBuilder
+    private func wordTile(_ word: AACWord, scale: Double? = nil) -> some View {
         WordTileView(word: word, action: {
             addWord(word)
-        }, scale: store.settings.tileScale, backgroundColor: store.tileColor(for: word))
+        }, scale: scale ?? store.settings.tileScale,
+           backgroundColor: store.tileColor(for: word),
+           style: store.settings.tileStyle)
         .contextMenu {
             Button {
                 speech.speak(word.phrase, settings: store.settings)

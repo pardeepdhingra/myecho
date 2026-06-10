@@ -69,11 +69,17 @@ final class AACStore: ObservableObject {
         return CategoryDefaults.defaultStyle(for: name)
     }
 
-    /// The background color a tile should render with, honoring the "color tiles by category" setting.
+    /// The background color a tile should render with, honoring the board's `colorMode`.
     func tileColor(for word: AACWord) -> Color {
-        settings.colorTilesByCategory
-            ? resolvedCategoryStyle(for: word.category).color
-            : word.colorName.color
+        switch settings.colorMode {
+        case .byCategory:
+            return resolvedCategoryStyle(for: word.category).color
+        case .perWord:
+            return word.colorName.color
+        case .byWordType:
+            // Untagged words fall back to their own colour so the board never goes blank/grey.
+            return (word.partOfSpeech?.defaultColor ?? word.colorName).color
+        }
     }
 
     /// Upsert a parent-customized style for a category.
@@ -88,6 +94,18 @@ final class AACStore: ObservableObject {
                 CategoryStyle(name: name, colorName: colorName, icon: resolvedIcon)
             )
         }
+    }
+
+    /// Whether a folder (category) is hidden from the kid board.
+    func isFolderHidden(_ name: String) -> Bool {
+        settings.isCategoryHidden(name)
+    }
+
+    /// Hide or show a whole folder on the kid board (keeps its words; reversible).
+    func setFolder(_ name: String, hidden: Bool) {
+        var hiddenSet = settings.hiddenCategories.filter { $0.caseInsensitiveCompare(name) != .orderedSame }
+        if hidden { hiddenSet.append(name) }
+        settings.hiddenCategories = hiddenSet
     }
 
     /// Remove a parent-customized style so the category reverts to its deterministic default.
@@ -116,7 +134,7 @@ final class AACStore: ObservableObject {
             label: label,
             phrase: PronunciationService.bestSpokenPhrase(for: label),
             symbol: "💬",
-            category: "Home",
+            category: AACWord.coreCategory,
             colorName: .gray,
             position: nextPosition()
         )
@@ -369,36 +387,35 @@ final class AACStore: ObservableObject {
         }
     }
 
-    static let defaultWords: [AACWord] = [
-        AACWord(label: "I", symbol: "👤", category: "Home", colorName: .blue, position: 1),
-        AACWord(label: "want", symbol: "👉", category: "Home", colorName: .green, position: 2),
-        AACWord(label: "more", symbol: "➕", category: "Home", colorName: .green, position: 3),
-        AACWord(label: "all done", phrase: "all dun", symbol: "✅", category: "Home", colorName: .orange, position: 4),
-        AACWord(label: "yes", symbol: "👍", category: "Home", colorName: .teal, position: 5),
-        AACWord(label: "no", symbol: "✋", category: "Home", colorName: .pink, position: 6),
-        AACWord(label: "help", symbol: "🫶", category: "Home", colorName: .yellow, position: 7),
-        AACWord(label: "stop", symbol: "🛑", category: "Home", colorName: .orange, position: 8),
-        AACWord(label: "go", symbol: "➡️", category: "Home", colorName: .green, position: 9),
-        AACWord(label: "look", symbol: "👀", category: "Home", colorName: .blue, position: 10),
-        AACWord(label: "like", phrase: "lyke", symbol: "💛", category: "Home", colorName: .yellow, position: 11),
-        AACWord(label: "not like", phrase: "not lyke", symbol: "💔", category: "Home", colorName: .pink, position: 12),
-        AACWord(label: "happy", symbol: "😊", category: "Feelings", colorName: .yellow, position: 13),
-        AACWord(label: "sad", symbol: "😢", category: "Feelings", colorName: .blue, position: 14),
-        AACWord(label: "angry", symbol: "😠", category: "Feelings", colorName: .orange, position: 15),
-        AACWord(label: "scared", symbol: "😟", category: "Feelings", colorName: .purple, position: 16),
-        AACWord(label: "hurt", symbol: "🤕", category: "Feelings", colorName: .pink, position: 17),
-        AACWord(label: "tired", symbol: "😴", category: "Feelings", colorName: .gray, position: 18),
-        AACWord(label: "eat", symbol: "🍽️", category: "Needs", colorName: .green, position: 19),
-        AACWord(label: "drink", symbol: "🥤", category: "Needs", colorName: .teal, position: 20),
-        AACWord(label: "toilet", phrase: "toy lit", symbol: "🚽", category: "Needs", colorName: .blue, position: 21),
-        AACWord(label: "break", symbol: "🧘", category: "Needs", colorName: .purple, position: 22),
-        AACWord(label: "play", symbol: "🧸", category: "Play", colorName: .yellow, position: 23),
-        AACWord(label: "music", symbol: "🎵", category: "Play", colorName: .pink, position: 24),
-        AACWord(label: "outside", symbol: "🌳", category: "Play", colorName: .green, position: 25),
-        AACWord(label: "book", symbol: "📖", category: "Play", colorName: .orange, position: 26),
-        AACWord(label: "mum", phrase: "mumm", symbol: "❤️", category: "People", colorName: .pink, position: 27),
-        AACWord(label: "dad", phrase: "dadd", symbol: "⭐️", category: "People", colorName: .blue, position: 28),
-        AACWord(label: "home", symbol: "🏠", category: "Places", colorName: .teal, position: 29),
-        AACWord(label: "school", symbol: "🏫", category: "Places", colorName: .orange, position: 30)
-    ]
+    /// The starter board for fresh installs — the broad, folder-organized, word-type-tagged
+    /// vocabulary (see `StarterVocabulary`). Existing users keep their saved board; they can pull in
+    /// any missing words via `mergeStarterVocabulary()`.
+    static var defaultWords: [AACWord] { StarterVocabulary.words }
+
+    struct StarterMergeResult {
+        let wordsAdded: Int
+        let wordsSkipped: Int
+    }
+
+    /// Additively merge the built-in starter vocabulary, skipping any word whose label already exists
+    /// (case-insensitive). New words are appended with fresh positions so existing tiles never move —
+    /// safe to run repeatedly (idempotent) and safe for a board the parent has already customized.
+    @discardableResult
+    func mergeStarterVocabulary() -> StarterMergeResult {
+        var added = 0
+        var skipped = 0
+        let existingLabels = Set(words.map { $0.label.lowercased() })
+        var nextPos = nextPosition()
+        for var word in StarterVocabulary.words {
+            if existingLabels.contains(word.label.lowercased()) {
+                skipped += 1
+                continue
+            }
+            word.position = nextPos
+            nextPos += 1
+            words.append(word)
+            added += 1
+        }
+        return StarterMergeResult(wordsAdded: added, wordsSkipped: skipped)
+    }
 }

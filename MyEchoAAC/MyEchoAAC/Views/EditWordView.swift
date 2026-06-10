@@ -13,10 +13,13 @@ struct EditWordView: View {
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var showingCamera = false
     @State private var showingEmojiPicker = false
+    @State private var showingSymbolPicker = false
     @State private var showingSignPicker = false
     @State private var showCustomSymbol = false
     @State private var isAddingNewCategory = false
     @State private var newCategoryText: String = ""
+    /// Remembers the folder to return a word to when it's un-pinned from the home core band.
+    @State private var lastFolder: String
     @State private var phraseFollowsLabel: Bool
 
     init(word: AACWord) {
@@ -27,6 +30,7 @@ struct EditWordView: View {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .caseInsensitiveCompare(word.phrase.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
         _phraseFollowsLabel = State(initialValue: labelMatchesPhrase)
+        _lastFolder = State(initialValue: word.category == AACWord.coreCategory ? "" : word.category)
     }
 
     private var cameraAvailable: Bool {
@@ -34,9 +38,7 @@ struct EditWordView: View {
     }
 
     private var previewTileColor: Color {
-        store.settings.colorTilesByCategory
-            ? store.resolvedCategoryStyle(for: draft.category).color
-            : draft.colorName.color
+        store.tileColor(for: draft)
     }
 
     private var pronunciationSuggestion: String? {
@@ -53,10 +55,14 @@ struct EditWordView: View {
                     TextField("Spoken phrase", text: $draft.phrase)
                     pronunciationRow
                     symbolRow
+                    pictureSymbolRow
                     if showCustomSymbol {
                         TextField("Custom symbol", text: $draft.symbol)
                     }
-                    categoryRow
+                    pinToHomeRow
+                    if draft.category != AACWord.coreCategory {
+                        categoryRow
+                    }
                 }
 
                 photoSection
@@ -64,6 +70,19 @@ struct EditWordView: View {
                 signSection
 
                 Section {
+                    Picker("Word type", selection: $draft.partOfSpeech) {
+                        Text("None").tag(PartOfSpeech?.none)
+                        ForEach(PartOfSpeech.allCases) { pos in
+                            HStack {
+                                Circle()
+                                    .fill(pos.defaultColor.color)
+                                    .frame(width: 16, height: 16)
+                                Text(pos.label)
+                            }
+                            .tag(PartOfSpeech?.some(pos))
+                        }
+                    }
+
                     Picker("Color", selection: $draft.colorName) {
                         ForEach(TileColorName.allCases) { color in
                             HStack {
@@ -75,20 +94,26 @@ struct EditWordView: View {
                             .tag(color)
                         }
                     }
-                    .disabled(store.settings.colorTilesByCategory)
+                    .disabled(store.settings.colorMode != .perWord)
 
                     Toggle("Visible on kid screen", isOn: $draft.isVisible)
                     Toggle("Favorite (shows in ★ Favorites)", isOn: $draft.isFavorite)
                 } header: {
                     Text("Board")
                 } footer: {
-                    if store.settings.colorTilesByCategory {
-                        Text("Tiles are currently colored by category, so this card uses the “\(draft.category)” color. Turn off “Color tiles by category” in Parent → Board to set tile colors individually.")
+                    switch store.settings.colorMode {
+                    case .byCategory:
+                        Text("Tiles are currently colored by category, so this card uses the “\(draft.category)” color. Switch color mode to “Per word” in Parent → Board to set tile colors individually.")
+                    case .byWordType:
+                        Text("Tiles are currently colored by word type, so this card uses its “Word type” color. Switch color mode to “Per word” in Parent → Board to set tile colors individually.")
+                    case .perWord:
+                        EmptyView()
                     }
                 }
 
                 Section("Preview") {
-                    WordTileView(word: draft, action: {}, scale: store.settings.tileScale, backgroundColor: previewTileColor)
+                    WordTileView(word: draft, action: {}, scale: store.settings.tileScale,
+                                 backgroundColor: previewTileColor, style: store.settings.tileStyle)
                         .frame(maxWidth: 220)
                         .disabled(true)
                 }
@@ -136,7 +161,14 @@ struct EditWordView: View {
             .sheet(isPresented: $showingEmojiPicker) {
                 EmojiPickerView { emoji in
                     draft.symbol = emoji
+                    draft.symbolName = nil   // choosing an emoji clears the picture symbol
                 }
+            }
+            .sheet(isPresented: $showingSymbolPicker) {
+                SymbolPickerView { name in
+                    draft.symbolName = name
+                }
+                .presentationDetents([.large])
             }
             .sheet(isPresented: $showingSignPicker) {
                 SignPickerView(initialWord: draft.label) { selection in
@@ -211,6 +243,28 @@ struct EditWordView: View {
     }
 
     @ViewBuilder
+    private var pinToHomeRow: some View {
+        Toggle(isOn: Binding(
+            get: { draft.category == AACWord.coreCategory },
+            set: { pin in
+                if pin {
+                    if draft.category != AACWord.coreCategory { lastFolder = draft.category }
+                    draft.category = AACWord.coreCategory
+                } else {
+                    let fallback = store.categories.first { $0 != AACWord.coreCategory } ?? "More"
+                    draft.category = lastFolder.isEmpty ? fallback : lastFolder
+                }
+            }
+        )) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Pin to home (fixed button)")
+                Text("Keeps this button in the fixed area on the home page. Turn off to put it inside a folder instead.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    @ViewBuilder
     private var categoryRow: some View {
         if isAddingNewCategory {
             HStack {
@@ -281,6 +335,37 @@ struct EditWordView: View {
 
         Toggle("Use a custom symbol instead", isOn: $showCustomSymbol)
             .font(.footnote)
+    }
+
+    @ViewBuilder
+    private var pictureSymbolRow: some View {
+        Button {
+            showingSymbolPicker = true
+        } label: {
+            HStack(spacing: 12) {
+                Group {
+                    if let s = draft.symbolName, SymbolLibrary.exists(s) {
+                        Image(s).resizable().scaledToFit().padding(4)
+                    } else {
+                        Image(systemName: "photo.artframe").foregroundStyle(.secondary)
+                    }
+                }
+                .frame(width: 52, height: 52)
+                .background(Color.gray.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Picture symbol")
+                        .font(.subheadline).foregroundStyle(.primary)
+                    Text(draft.symbolName == nil ? "Tap to choose an AAC symbol" : "Symbol set — tap to change")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -471,7 +556,7 @@ struct EditWordView: View {
         }
 
         if draft.category.isEmpty {
-            draft.category = "Home"
+            draft.category = AACWord.coreCategory
         }
 
         if let original = originalImagePath, original != draft.imagePath {

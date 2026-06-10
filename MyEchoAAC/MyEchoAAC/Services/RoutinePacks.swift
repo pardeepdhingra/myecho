@@ -10,7 +10,10 @@ struct RoutinePack: Identifiable {
 }
 
 enum RoutinePacks {
-    static let all: [RoutinePack] = [food, bathroom, play, school, bedtime, feelings, pain]
+    static let all: [RoutinePack] = [
+        food, bathroom, play, school, bedtime, feelings, pain,
+        animals, colors, numbers, weather, vehicles, family, outdoors
+    ]
 
     static let food: RoutinePack =
         RoutinePack(
@@ -177,4 +180,68 @@ enum RoutinePacks {
                 QuickPhrase(text: "I need medicine", position: 0)
             ]
         )
+
+    // MARK: - Additional packs (parents can add these directly)
+
+    private static func noun(_ label: String, _ emoji: String, _ cat: String) -> AACWord {
+        AACWord(label: label, symbol: emoji, category: cat, colorName: .orange, position: 0, partOfSpeech: .noun)
+    }
+    private static func adj(_ label: String, _ emoji: String, _ cat: String) -> AACWord {
+        AACWord(label: label, symbol: emoji, category: cat, colorName: .blue, position: 0, partOfSpeech: .adjective)
+    }
+
+    static let animals = RoutinePack(
+        id: "animals", title: "Animals", subtitle: "Pets, farm and wild animals.", symbol: "🐶",
+        words: [noun("dog","🐶","Animals"), noun("cat","🐱","Animals"), noun("bird","🐦","Animals"),
+                noun("fish","🐟","Animals"), noun("cow","🐮","Animals"), noun("horse","🐴","Animals"),
+                noun("pig","🐷","Animals"), noun("sheep","🐑","Animals"), noun("duck","🦆","Animals"),
+                noun("rabbit","🐰","Animals"), noun("lion","🦁","Animals"), noun("elephant","🐘","Animals"),
+                noun("monkey","🐵","Animals"), noun("bear","🐻","Animals")],
+        phrases: [QuickPhrase(text: "I like animals", position: 0)])
+
+    static let colors = RoutinePack(
+        id: "colors", title: "Colors", subtitle: "Name and choose colors.", symbol: "🎨",
+        words: [adj("red","🔴","Colors"), adj("blue","🔵","Colors"), adj("green","🟢","Colors"),
+                adj("yellow","🟡","Colors"), adj("orange","🟠","Colors"), adj("purple","🟣","Colors"),
+                adj("pink","🌸","Colors"), adj("black","⚫","Colors"), adj("white","⚪","Colors"),
+                adj("brown","🟤","Colors")],
+        phrases: [QuickPhrase(text: "I want the blue one", position: 0)])
+
+    static let numbers = RoutinePack(
+        id: "numbers", title: "Numbers", subtitle: "Count from one to ten.", symbol: "🔢",
+        words: [adj("one","1️⃣","Numbers"), adj("two","2️⃣","Numbers"), adj("three","3️⃣","Numbers"),
+                adj("four","4️⃣","Numbers"), adj("five","5️⃣","Numbers"), adj("six","6️⃣","Numbers"),
+                adj("seven","7️⃣","Numbers"), adj("eight","8️⃣","Numbers"), adj("nine","9️⃣","Numbers"),
+                adj("ten","🔟","Numbers")],
+        phrases: [QuickPhrase(text: "I want two", position: 0)])
+
+    static let weather = RoutinePack(
+        id: "weather", title: "Weather", subtitle: "Sunny, rainy, hot and cold.", symbol: "🌤️",
+        words: [adj("sunny","☀️","Weather"), adj("rainy","🌧️","Weather"), adj("cloudy","☁️","Weather"),
+                adj("windy","🌬️","Weather"), adj("hot","🥵","Weather"), adj("cold","🥶","Weather"),
+                noun("snow","❄️","Weather"), noun("storm","⛈️","Weather"), noun("rainbow","🌈","Weather")],
+        phrases: [QuickPhrase(text: "It is raining", position: 0)])
+
+    static let vehicles = RoutinePack(
+        id: "vehicles", title: "Vehicles", subtitle: "Things that go.", symbol: "🚗",
+        words: [noun("car","🚗","Vehicles"), noun("bus","🚌","Vehicles"), noun("train","🚆","Vehicles"),
+                noun("plane","✈️","Vehicles"), noun("bike","🚲","Vehicles"), noun("boat","⛵","Vehicles"),
+                noun("truck","🚚","Vehicles"), noun("helicopter","🚁","Vehicles"), noun("fire truck","🚒","Vehicles")],
+        phrases: [QuickPhrase(text: "I want to go in the car", position: 0)])
+
+    static let family = RoutinePack(
+        id: "family", title: "Family", subtitle: "People in the family.", symbol: "👪",
+        words: [noun("mum","👩","Family"), noun("dad","👨","Family"), noun("sister","👧","Family"),
+                noun("brother","👦","Family"), noun("grandma","👵","Family"), noun("grandpa","👴","Family"),
+                noun("baby","👶","Family"), noun("aunty","👩‍🦰","Family"), noun("uncle","🧔","Family"),
+                noun("cousin","🧒","Family")],
+        phrases: [QuickPhrase(text: "I want my mum", position: 0)])
+
+    static let outdoors = RoutinePack(
+        id: "outdoors", title: "Outdoors & Play", subtitle: "Park, playground and nature.", symbol: "🏞️",
+        words: [noun("park","🏞️","Outdoors"), noun("playground","🛝","Outdoors"), noun("slide","🛝","Outdoors"),
+                noun("swing","🎠","Outdoors"), noun("tree","🌳","Outdoors"), noun("grass","🌿","Outdoors"),
+                noun("flower","🌷","Outdoors"), noun("sand","🏖️","Outdoors"), noun("beach","🏖️","Outdoors"),
+                noun("garden","🌻","Outdoors")],
+        phrases: [QuickPhrase(text: "I want to go outside", position: 0)])
 }

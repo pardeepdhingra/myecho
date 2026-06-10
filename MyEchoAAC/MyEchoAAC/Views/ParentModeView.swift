@@ -179,6 +179,7 @@ struct ParentModeView: View {
     @State private var editedCategory: IdentifiableString?
     @State private var newPhraseText: String = ""
     @State private var showingResetAlert = false
+    @State private var starterMergeMessage: String?
     @State private var wordSearch: String = ""
     @State private var visibilityFilter: VisibilityFilter = .all
 
@@ -265,42 +266,132 @@ struct ParentModeView: View {
             } message: {
                 Text("This replaces your custom words and voice settings with the starter board.")
             }
+            .alert("Starter vocabulary", isPresented: Binding(
+                get: { starterMergeMessage != nil },
+                set: { if !$0 { starterMergeMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) { starterMergeMessage = nil }
+            } message: {
+                Text(starterMergeMessage ?? "")
+            }
         }
+    }
+
+    /// Swatch + label for each word type, shown when "By word type" coloring is active.
+    private var wordTypeLegend: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(PartOfSpeech.allCases) { pos in
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .fill(pos.defaultColor.color)
+                        .frame(width: 26, height: 20)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                .stroke(.black.opacity(0.12), lineWidth: 1)
+                        }
+                    Text(pos.label)
+                        .font(.callout)
+                    Spacer()
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     private var boardSettings: some View {
         Form {
             Section {
-                Stepper(value: gridColumnsBinding, in: AACSettings.minGridColumns...AACSettings.maxGridColumns) {
-                    HStack {
-                        Text("Columns")
-                        Spacer()
-                        Text("\(clampedGridColumns) × \(clampedGridColumns)")
-                            .font(.body.monospacedDigit())
-                            .foregroundStyle(.secondary)
+                if store.settings.boardMode == .folders {
+                    Picker("Grid size", selection: $store.settings.gridPreset) {
+                        ForEach(GridPreset.allCases) { preset in
+                            Text(preset.label).tag(preset)
+                        }
                     }
+                    if store.settings.gridPreset == .custom {
+                        Stepper(value: $store.settings.gridColumns, in: AACSettings.minGridColumns...AACSettings.maxGridColumns) {
+                            HStack { Text("Columns"); Spacer()
+                                Text("\(store.settings.gridColumns)").font(.body.monospacedDigit()).foregroundStyle(.secondary) }
+                        }
+                        Stepper(value: $store.settings.gridRows, in: 3...12) {
+                            HStack { Text("Rows"); Spacer()
+                                Text("\(store.settings.gridRows)").font(.body.monospacedDigit()).foregroundStyle(.secondary) }
+                        }
+                    }
+                    Stepper(value: $store.settings.coreColumns, in: 0...AACSettings.maxCoreColumns) {
+                        HStack { Text("Core columns (fixed buttons)"); Spacer()
+                            Text("\(store.settings.coreColumns)").font(.body.monospacedDigit()).foregroundStyle(.secondary) }
+                    }
+                } else {
+                    Stepper(value: gridColumnsBinding, in: AACSettings.minGridColumns...AACSettings.maxGridColumns) {
+                        HStack {
+                            Text("Columns")
+                            Spacer()
+                            Text("\(clampedGridColumns) × \(clampedGridColumns)")
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Toggle("Show categories on kid screen", isOn: $store.settings.showCategoryFilter)
                 }
 
-                Toggle("Show categories on kid screen", isOn: $store.settings.showCategoryFilter)
                 Toggle("Show quick phrases", isOn: $store.settings.showQuickPhrases)
                 Toggle("Show symbols in message bar", isOn: $store.settings.showSymbolsInMessageBar)
                 Toggle("Show regulation bar (Break / Help / Stop)", isOn: $store.settings.showRegulationBar)
             } header: {
                 Text("Grid")
             } footer: {
-                Text("Up to \(AACSettings.maxGridColumns) columns on this device — iPad in landscape fits the most. Larger grids show more words at once; smaller grids make each tile bigger.")
+                if store.settings.boardMode == .folders {
+                    Text("Motor Plan sizes fill the screen with no scrolling (extra words page sideways). \"Core columns\" reserve the left side for the always-visible core words.")
+                } else {
+                    Text("Up to \(AACSettings.maxGridColumns) columns on this device — iPad in landscape fits the most. Larger grids show more words at once; smaller grids make each tile bigger.")
+                }
             }
 
             Section {
-                Toggle("Freeze button positions", isOn: $store.settings.freezeButtonPositions)
+                Picker("Board layout", selection: $store.settings.boardMode) {
+                    ForEach(BoardMode.allCases) { mode in
+                        Text(mode.label).tag(mode)
+                    }
+                }
+                Picker("Tile style", selection: $store.settings.tileStyle) {
+                    ForEach(TileStyle.allCases) { s in
+                        Text(s.label).tag(s)
+                    }
+                }
+                if store.settings.boardMode == .folders {
+                    NavigationLink {
+                        folderOrderView
+                    } label: {
+                        HStack {
+                            Label("Folders — reorder, hide/show", systemImage: "folder")
+                            Spacer()
+                            Text("\(allFolderNames.count)")
+                                .font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                if store.settings.boardMode == .classic {
+                    Toggle("Freeze button positions", isOn: $store.settings.freezeButtonPositions)
+                }
             } header: {
                 Text("Layout")
             } footer: {
-                Text("Keeps each button in the same spot when you filter by a category, so it's easier to find by muscle memory. Empty spaces appear where words from other categories would be.")
+                if store.settings.boardMode == .folders {
+                    Text("Folders (Motor Plan) gives every word one fixed location: the home page shows core words plus a folder for each category. Tapping a folder opens its words in a fixed grid that never rearranges — easier to learn by muscle memory.")
+                } else {
+                    Text("Classic shows a scrolling grid with a category filter. \"Freeze button positions\" keeps each button in the same spot when you filter by a category; empty spaces appear where words from other categories would be.")
+                }
             }
 
             Section {
-                Toggle("Color tiles by category", isOn: $store.settings.colorTilesByCategory)
+                Picker("Color tiles", selection: $store.settings.colorMode) {
+                    ForEach(ColorMode.allCases) { mode in
+                        Text(mode.label).tag(mode)
+                    }
+                }
+                if store.settings.colorMode == .byWordType {
+                    wordTypeLegend
+                }
                 NavigationLink {
                     categoryStyleList
                 } label: {
@@ -313,9 +404,16 @@ struct ParentModeView: View {
                     }
                 }
             } header: {
-                Text("Categories")
+                Text("Colors")
             } footer: {
-                Text("Each category has its own color and icon to help kids recognize it. With \"Color tiles by category\" on, every card in a category shares that color — turn it off to color each tile individually in Edit Word.")
+                switch store.settings.colorMode {
+                case .byCategory:
+                    Text("Every card in a category shares that category's color. Each category has its own color and icon to help kids recognize it.")
+                case .perWord:
+                    Text("Each tile uses its own color, which you set in Edit Word.")
+                case .byWordType:
+                    Text("Tiles are colored by word type (the Fitzgerald Key used in many AAC systems), so nouns, verbs, describing words, and so on are each a consistent color. Set a word's type in Edit Word.")
+                }
             }
 
             Section {
@@ -357,6 +455,14 @@ struct ParentModeView: View {
             }
 
             Section {
+                Button {
+                    let result = store.mergeStarterVocabulary()
+                    starterMergeMessage = result.wordsAdded == 0
+                        ? "Your board already has all the starter words."
+                        : "Added \(result.wordsAdded) word\(result.wordsAdded == 1 ? "" : "s") (skipped \(result.wordsSkipped) you already have)."
+                } label: {
+                    Label("Add starter vocabulary", systemImage: "text.book.closed")
+                }
                 NavigationLink {
                     routinePacksView
                 } label: {
@@ -374,7 +480,7 @@ struct ParentModeView: View {
                     }
                 }
             } footer: {
-                Text("Add curated word + phrase sets, or drag-reorder the words that appear in the ★ Favorites category on the kid screen.")
+                Text("Add the full set of built-in words (organized into folders, color-coded by word type) without changing words you already have. Or add curated routine packs, or drag-reorder the ★ Favorites words.")
             }
 
             Section("Learning") {
@@ -692,6 +798,86 @@ struct ParentModeView: View {
     private func addPhrase() {
         store.addQuickPhrase(newPhraseText)
         newPhraseText = ""
+    }
+
+    /// Non-core categories (folders) with ≥1 visible word, in the same order the kid board uses.
+    private var folderCategoryNames: [String] {
+        let visible = store.words
+            .filter { $0.isVisible && $0.category != AACWord.coreCategory }
+            .sorted { $0.position < $1.position }
+            .map(\.category)
+        let distinct = (Array(NSOrderedSet(array: visible)) as? [String]) ?? []
+        let order = store.settings.categoryOrder
+        guard !order.isEmpty else { return distinct }
+        let ordered = order.filter { distinct.contains($0) }
+        let rest = distinct.filter { !ordered.contains($0) }
+        return ordered + rest
+    }
+
+    /// Every folder (non-core category), including hidden ones, in board order — so the manager can
+    /// re-show a hidden folder.
+    private var allFolderNames: [String] {
+        let distinct = store.categories.filter { $0 != AACWord.coreCategory }
+        let order = store.settings.categoryOrder
+        guard !order.isEmpty else { return distinct }
+        let ordered = order.filter { distinct.contains($0) }
+        let rest = distinct.filter { !ordered.contains($0) }
+        return ordered + rest
+    }
+
+    private var folderOrderView: some View {
+        List {
+            Section {
+                if allFolderNames.isEmpty {
+                    Text("No folders yet. Folders are the categories your words belong to (set a word's category in Edit Word).")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(allFolderNames, id: \.self) { name in
+                        folderManagerRow(name)
+                    }
+                    .onMove { offsets, destination in
+                        var arr = allFolderNames
+                        arr.move(fromOffsets: offsets, toOffset: destination)
+                        store.settings.categoryOrder = arr
+                    }
+                }
+            } footer: {
+                Text("Drag to reorder. Tap the eye to hide or show a whole folder on the kid screen — its words are kept, just hidden.")
+            }
+        }
+        .navigationTitle("Folders")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) { EditButton() }
+        }
+    }
+
+    @ViewBuilder
+    private func folderManagerRow(_ name: String) -> some View {
+        let style = store.resolvedCategoryStyle(for: name)
+        let hidden = store.isFolderHidden(name)
+        HStack(spacing: 12) {
+            Text(style.icon).font(.title3)
+                .frame(width: 38, height: 38)
+                .background(style.color.opacity(0.25))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name).font(.headline)
+                if hidden {
+                    Text("Hidden").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Button {
+                store.setFolder(name, hidden: !hidden)
+            } label: {
+                Image(systemName: hidden ? "eye.slash" : "eye")
+                    .font(.title3)
+                    .foregroundStyle(hidden ? Color.secondary : Color.accentColor)
+            }
+            .buttonStyle(.plain)
+        }
+        .opacity(hidden ? 0.55 : 1)
     }
 
     private var favoritesOrderView: some View {

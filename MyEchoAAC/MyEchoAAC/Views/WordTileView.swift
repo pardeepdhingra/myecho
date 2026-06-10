@@ -5,11 +5,16 @@ struct WordTileView: View {
     let word: AACWord
     let action: () -> Void
     var scale: Double = 1.0
-    /// Optional background override (e.g. the word's category color). Falls back to the word's own color.
+    /// Optional background/accent override (e.g. the word's category or word-type color). Falls back to
+    /// the word's own color. In `.outlined` style this is the border colour; in `.filled` it's the fill.
     var backgroundColor: Color? = nil
+    /// How the tile is drawn. Defaults to the TD-Snap-style outlined look.
+    var style: TileStyle = .outlined
 
     private var clampedScale: Double { min(max(scale, 0.7), 1.8) }
-    private var tileColor: Color { backgroundColor ?? word.colorName.color }
+    private var accentColor: Color { backgroundColor ?? word.colorName.color }
+    /// Near-white tile fill used by the outlined style so symbols read with strong contrast.
+    private static let outlinedFill = Color(red: 0.99, green: 0.99, blue: 0.975)
 
     var body: some View {
         Button {
@@ -28,20 +33,11 @@ struct WordTileView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(8 * clampedScale)
-            .background(
-                LinearGradient(
-                    colors: [
-                        tileColor,
-                        tileColor.opacity(0.78)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
+            .background(tileBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous)
-                    .stroke(.black.opacity(0.12), lineWidth: 1)
+                    .stroke(tileBorderColor, lineWidth: tileBorderWidth)
             }
             .overlay(alignment: .topTrailing) {
                 if word.isFavorite {
@@ -61,6 +57,35 @@ struct WordTileView: View {
     }
 
     @ViewBuilder
+    private var tileBackground: some View {
+        switch style {
+        case .outlined:
+            // A soft tint of the tile's colour (over near-white) so each word reads as coloured while
+            // the picture symbol stays legible.
+            ZStack {
+                Self.outlinedFill
+                accentColor.opacity(0.28)
+            }
+        case .filled:
+            LinearGradient(
+                colors: [accentColor, accentColor.opacity(0.78)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+
+    private var tileBorderColor: Color {
+        style == .outlined ? accentColor : .black.opacity(0.12)
+    }
+
+    private var tileBorderWidth: CGFloat {
+        style == .outlined ? 3.5 * clampedScale : 1
+    }
+
+    /// Tile artwork, in priority order: custom photo → sign video → bundled picture symbol → emoji.
+    /// A custom photo always wins (parent requirement).
+    @ViewBuilder
     private var tileImage: some View {
         if let filename = word.imagePath, let image = ImageStore.load(filename) {
             Image(uiImage: image)
@@ -73,6 +98,11 @@ struct WordTileView: View {
                 .frame(width: 56 * clampedScale, height: 56 * clampedScale)
                 .clipShape(RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous))
                 .allowsHitTesting(false)
+        } else if let symbolName = word.symbolName, SymbolLibrary.exists(symbolName) {
+            Image(symbolName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 58 * clampedScale, height: 58 * clampedScale)
         } else {
             Text(word.symbol)
                 .font(.system(size: 42 * clampedScale))

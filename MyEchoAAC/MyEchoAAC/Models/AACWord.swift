@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct AACWord: Identifiable, Codable, Equatable {
+    /// Reserved category whose words live on the **home page** of the folder ("Motor Plan") board.
+    /// Every other distinct category becomes a folder tile on the home page.
+    static let coreCategory = "Core"
+
     var id: UUID
     var label: String
     var phrase: String
@@ -15,9 +19,15 @@ struct AACWord: Identifiable, Codable, Equatable {
     var favoritePosition: Int?
     var signVideoPath: String?
     var signLanguage: SignLanguage?
+    /// Grammatical word type (Fitzgerald Key). Drives tile colour when the board's colour mode is
+    /// `.byWordType`. Optional — untagged words fall back to their `colorName`.
+    var partOfSpeech: PartOfSpeech?
+    /// Name of a bundled picture-symbol asset (e.g. `sym_apple`). When set and no photo/sign exists,
+    /// the tile shows this professional symbol instead of the emoji. A custom **photo always wins**.
+    var symbolName: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage
+        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, partOfSpeech, symbolName
     }
 
     init(
@@ -34,7 +44,9 @@ struct AACWord: Identifiable, Codable, Equatable {
         sourcePackId: String? = nil,
         favoritePosition: Int? = nil,
         signVideoPath: String? = nil,
-        signLanguage: SignLanguage? = nil
+        signLanguage: SignLanguage? = nil,
+        partOfSpeech: PartOfSpeech? = nil,
+        symbolName: String? = nil
     ) {
         self.id = id
         self.label = label
@@ -50,6 +62,8 @@ struct AACWord: Identifiable, Codable, Equatable {
         self.favoritePosition = favoritePosition
         self.signVideoPath = signVideoPath
         self.signLanguage = signLanguage
+        self.partOfSpeech = partOfSpeech
+        self.symbolName = symbolName
     }
 
     init(from decoder: Decoder) throws {
@@ -68,6 +82,51 @@ struct AACWord: Identifiable, Codable, Equatable {
         favoritePosition = try c.decodeIfPresent(Int.self, forKey: .favoritePosition)
         signVideoPath = try c.decodeIfPresent(String.self, forKey: .signVideoPath)
         signLanguage = try c.decodeIfPresent(SignLanguage.self, forKey: .signLanguage)
+        // Lenient: older/cross-platform boards omit this key → nil (untagged).
+        partOfSpeech = try c.decodeIfPresent(PartOfSpeech.self, forKey: .partOfSpeech)
+        symbolName = try c.decodeIfPresent(String.self, forKey: .symbolName)
+    }
+}
+
+// MARK: - Part of speech (Fitzgerald Key word-type colouring)
+
+/// Grammatical word type used for the speech-therapist-recommended colour coding. Each type maps to
+/// a distinct default tile colour so the board is consistent with AAC convention (TD Snap / Fitzgerald
+/// Key). Parents can still override per-tile colours by switching the board to per-word colour mode.
+enum PartOfSpeech: String, CaseIterable, Codable, Identifiable {
+    case noun
+    case verb
+    case adjective
+    case pronoun
+    case social
+    case question
+    case joiningWord
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .noun: "Noun (thing)"
+        case .verb: "Verb (action)"
+        case .adjective: "Describing"
+        case .pronoun: "Pronoun"
+        case .social: "Social"
+        case .question: "Question"
+        case .joiningWord: "Joining word"
+        }
+    }
+
+    /// Fitzgerald-Key-aligned default colour for this word type.
+    var defaultColor: TileColorName {
+        switch self {
+        case .noun: .orange
+        case .verb: .green
+        case .adjective: .blue
+        case .pronoun: .yellow
+        case .social: .pink
+        case .question: .teal
+        case .joiningWord: .purple
+        }
     }
 }
 
@@ -80,6 +139,14 @@ enum TileColorName: String, CaseIterable, Codable, Identifiable {
     case teal
     case yellow
     case gray
+    // Extra hues so many categories can each get a distinct colour (added in the TD Snap quality pass).
+    case red
+    case indigo
+    case brown
+    case mint
+    case cyan
+    case rose
+    case coral
 
     var id: String { rawValue }
 
@@ -93,6 +160,13 @@ enum TileColorName: String, CaseIterable, Codable, Identifiable {
         case .teal: "Teal"
         case .yellow: "Yellow"
         case .gray: "Gray"
+        case .red: "Red"
+        case .indigo: "Indigo"
+        case .brown: "Brown"
+        case .mint: "Mint"
+        case .cyan: "Cyan"
+        case .rose: "Rose"
+        case .coral: "Coral"
         }
     }
 
@@ -106,6 +180,13 @@ enum TileColorName: String, CaseIterable, Codable, Identifiable {
         case .teal: Color(red: 0.65, green: 0.91, blue: 0.89)
         case .yellow: Color(red: 1.0, green: 0.91, blue: 0.55)
         case .gray: Color(red: 0.86, green: 0.88, blue: 0.91)
+        case .red: Color(red: 0.98, green: 0.64, blue: 0.62)
+        case .indigo: Color(red: 0.67, green: 0.68, blue: 0.94)
+        case .brown: Color(red: 0.82, green: 0.71, blue: 0.58)
+        case .mint: Color(red: 0.62, green: 0.93, blue: 0.78)
+        case .cyan: Color(red: 0.60, green: 0.85, blue: 0.96)
+        case .rose: Color(red: 0.97, green: 0.66, blue: 0.86)
+        case .coral: Color(red: 1.0, green: 0.74, blue: 0.62)
         }
     }
 }
@@ -139,28 +220,42 @@ struct ResolvedCategoryStyle: Equatable {
 }
 
 enum CategoryDefaults {
-    /// Palette used for auto-assigned category colors (gray is reserved for "no strong identity").
-    static let palette: [TileColorName] = [.blue, .green, .orange, .pink, .purple, .teal, .yellow]
+    /// Wide palette for auto-assigned category colors so different categories rarely repeat a colour
+    /// (gray is reserved for "no strong identity").
+    static let palette: [TileColorName] = [
+        .blue, .green, .orange, .pink, .purple, .teal, .yellow,
+        .red, .indigo, .brown, .mint, .cyan, .rose, .coral
+    ]
 
-    /// Distinct default look for the built-in starter categories, plus sensible matches for common
-    /// custom names. Keyed by a lowercased keyword that the category name contains.
+    /// Distinct default look for the built-in starter categories (each a **different** colour), plus
+    /// sensible matches for common custom names. Keyed by a lowercased keyword the category contains.
+    /// Order matters — more specific keys first.
     private static let known: [(keyword: String, colorName: TileColorName, icon: String)] = [
-        ("home", .blue, "🏠"),
-        ("feel", .yellow, "😊"),
-        ("need", .green, "🙋"),
-        ("play", .pink, "🧸"),
+        ("core", .gray, "⭐️"),
         ("people", .purple, "👪"),
         ("person", .purple, "👪"),
         ("family", .purple, "👪"),
-        ("place", .teal, "📍"),
         ("food", .orange, "🍎"),
+        ("drink", .cyan, "🥤"),
+        ("action", .green, "🏃"),
+        ("describ", .blue, "📏"),
+        ("feel", .yellow, "😊"),
+        ("body", .rose, "🧍"),
+        ("place", .teal, "📍"),
+        ("play", .pink, "🧸"),
+        ("school", .red, "🏫"),
+        ("clothes", .brown, "👕"),
+        ("social", .mint, "👋"),
+        ("question", .indigo, "❓"),
+        ("joining", .coral, "🔤"),
+        ("word", .coral, "🔤"),
+        // common custom-name fallbacks
+        ("home", .blue, "🏠"),
+        ("need", .green, "🙋"),
         ("eat", .orange, "🍎"),
-        ("drink", .teal, "🥤"),
-        ("school", .orange, "🏫"),
         ("toy", .pink, "🧸"),
-        ("animal", .green, "🐶"),
-        ("body", .pink, "🧍"),
-        ("phrase", .purple, "💬")
+        ("animal", .mint, "🐶"),
+        ("phrase", .indigo, "💬")
     ]
 
     static func defaultStyle(for name: String) -> ResolvedCategoryStyle {

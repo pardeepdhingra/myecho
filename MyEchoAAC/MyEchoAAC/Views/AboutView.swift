@@ -53,6 +53,8 @@ struct AboutView: View {
 
                 freeForeverBadge
 
+                creditsSection
+
                 signature
             }
             .padding(24)
@@ -141,6 +143,24 @@ struct AboutView: View {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .stroke(Color(red: 0.78, green: 0.88, blue: 1.0), lineWidth: 1.5)
         }
+    }
+
+    private var creditsSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Credits")
+                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                .foregroundStyle(Color.black.opacity(0.7))
+            Text("Picture symbols by ARASAAC (arasaac.org), created by the Government of Aragón (Spain) and licensed under Creative Commons BY-NC-SA. Author: Sergio Palao.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Text("Sign-language videos are sourced from public dictionaries (Auslan Signbank, signasl.org) and remain the property of their creators.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.black.opacity(0.03))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var signature: some View {

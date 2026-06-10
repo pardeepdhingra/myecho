@@ -44,6 +44,10 @@
 		0A1000350000000000000001 /* FirebaseBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000350000000000000001 /* FirebaseBackend.swift */; };
 		0A1000360000000000000001 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000360000000000000001 /* AccountView.swift */; };
 		0A1000370000000000000001 /* AuthSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000370000000000000001 /* AuthSheet.swift */; };
+		0A1000390000000000000001 /* StarterVocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000400000000000000001 /* StarterVocabulary.swift */; };
+		0A10003A0000000000000001 /* FolderTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000410000000000000001 /* FolderTileView.swift */; };
+		0A10003B0000000000000001 /* SymbolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000420000000000000001 /* SymbolLibrary.swift */; };
+		0A10003C0000000000000001 /* SymbolPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000430000000000000001 /* SymbolPickerView.swift */; };
 		0A10000A0000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000A0000000000000001 /* Assets.xcassets */; };
 		0A10000B0000000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000B0000000000000001 /* Preview Assets.xcassets */; };
 		0A1000380000000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0A2000380000000000000001 /* GoogleService-Info.plist */; };
@@ -90,6 +94,10 @@
 		0A2000350000000000000001 /* FirebaseBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseBackend.swift; sourceTree = "<group>"; };
 		0A2000360000000000000001 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		0A2000370000000000000001 /* AuthSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSheet.swift; sourceTree = "<group>"; };
+		0A2000400000000000000001 /* StarterVocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterVocabulary.swift; sourceTree = "<group>"; };
+		0A2000410000000000000001 /* FolderTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderTileView.swift; sourceTree = "<group>"; };
+		0A2000420000000000000001 /* SymbolLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolLibrary.swift; sourceTree = "<group>"; };
+		0A2000430000000000000001 /* SymbolPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolPickerView.swift; sourceTree = "<group>"; };
 		0A20000A0000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A20000B0000000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0A2000380000000000000001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -165,6 +173,8 @@
 				0A2000330000000000000001 /* AuthService.swift */,
 				0A2000340000000000000001 /* CloudSyncService.swift */,
 				0A2000350000000000000001 /* FirebaseBackend.swift */,
+				0A2000400000000000000001 /* StarterVocabulary.swift */,
+				0A2000420000000000000001 /* SymbolLibrary.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -175,6 +185,8 @@
 				0A2000060000000000000001 /* KidModeView.swift */,
 				0A2000070000000000000001 /* ParentModeView.swift */,
 				0A2000080000000000000001 /* WordTileView.swift */,
+				0A2000410000000000000001 /* FolderTileView.swift */,
+				0A2000430000000000000001 /* SymbolPickerView.swift */,
 				0A2000090000000000000001 /* EditWordView.swift */,
 				0A20000E0000000000000001 /* CameraPicker.swift */,
 				0A20000F0000000000000001 /* EmojiPickerView.swift */,
@@ -323,6 +335,10 @@
 				0A1000350000000000000001 /* FirebaseBackend.swift in Sources */,
 				0A1000360000000000000001 /* AccountView.swift in Sources */,
 				0A1000370000000000000001 /* AuthSheet.swift in Sources */,
+				0A1000390000000000000001 /* StarterVocabulary.swift in Sources */,
+				0A10003A0000000000000001 /* FolderTileView.swift in Sources */,
+				0A10003B0000000000000001 /* SymbolLibrary.swift in Sources */,
+				0A10003C0000000000000001 /* SymbolPickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

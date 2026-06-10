@@ -69,18 +69,46 @@ object is written to the matching local folder under the same filename; `imagePa
 
 ### A4. JSON shapes — exact keys (camelCase) and enum raw values  ⚠️ identical on both platforms
 - **AacWord:** `id`(UUID string, UPPERCASE), `label`, `phrase`, `symbol`, `category`,
-  `colorName` ∈ `{blue,green,orange,pink,purple,teal,yellow,gray}`, `position`(Int),
+  `colorName` ∈ `{blue,green,orange,pink,purple,teal,yellow,gray,red,indigo,brown,mint,cyan,rose,coral}`
+  (the last 7 were added so categories don't repeat colours; **lenient decode** — an app that doesn't
+  know a value should fall back to `gray`), `position`(Int),
   `isVisible`(Bool), `imagePath`(String?), `isFavorite`(Bool), `sourcePackId`(String?),
-  `favoritePosition`(Int?), `signVideoPath`(String?), `signLanguage` ∈ `{auslan,asl}` (nullable).
+  `favoritePosition`(Int?), `signVideoPath`(String?), `signLanguage` ∈ `{auslan,asl}` (nullable),
+  **`partOfSpeech`** ∈ `{noun,verb,adjective,pronoun,social,question,joiningWord}` (nullable —
+  lenient decode, default `null`/untagged). Drives tile colour when `colorMode == byWordType`.
+  **`symbolName`**(String?, nullable) — name of a bundled picture-symbol asset (e.g. `sym_apple`).
+  Both platforms must ship the same named symbol assets for it to render; a custom **photo always
+  takes priority** over the symbol, which takes priority over the emoji.
+  - **Reserved category:** `category == "Core"` marks words shown on the **home page** of the folder
+    board (see `boardMode` below). Every other distinct `category` is a folder. (`"Core"` is just a
+    string value — no schema change.)
 - **QuickPhrase:** `id`, `text`, `position`, `mode` ∈ `{speak,startSentence,regulation}`,
   `sourcePackId`(String?), `regulationKind` ∈ `{calm,help,stop}` (nullable).
-- **AacSettings:** `gridColumns`, `speechRate`(Float), `pitchMultiplier`(Float),
+- **AacSettings:** `gridColumns`(Int), `speechRate`(Float), `pitchMultiplier`(Float),
   `showCategoryFilter`, `showQuickPhrases`, `trackUsageHistory`, `showSymbolsInMessageBar`,
-  `showAllVoiceQualities`, `tileScale`(Double), `showRegulationBar`.
+  `showAllVoiceQualities`, `tileScale`(Double), `showRegulationBar`,
+  `categoryStyles`(array of `CategoryStyle`), `freezeButtonPositions`(Bool),
+  **`colorMode`** ∈ `{byCategory,perWord,byWordType}`, **`boardMode`** ∈ `{folders,classic}`,
+  **`tileStyle`** ∈ `{outlined,filled}`, **`gridPreset`** ∈ `{size30,size40,size66,custom}`,
+  **`gridRows`**(Int, used when `gridPreset == custom`), **`coreColumns`**(Int 0–4),
+  **`categoryOrder`**([String], explicit folder order; empty = first-appearance),
+  **`hiddenCategories`**([String], folders hidden from the kid board; words kept, reversible).
   - **`voiceIdentifier` is EXCLUDED from sync** (write `null` in `settingsJSON`): it's an
     iOS-AVSpeech-id vs Android-TTS-name and is meaningless cross-device. Each platform keeps its own
     local voice choice; on apply, **preserve the local `voiceIdentifier`**.
   - ElevenLabs / natural-voice fields are removed on both apps; ignore if present (lenient decode).
+  - **`colorMode` supersedes the old `colorTilesByCategory` boolean.** Lenient migration on decode:
+    if `colorMode` is present use it; else if legacy `colorTilesByCategory` is present map
+    `true → byCategory`, `false → perWord`; else default `byCategory`.
+  - **Lenient defaults** (board from an older/other app omitting a key): `colorMode → byCategory`,
+    `boardMode → folders`, `freezeButtonPositions → false`, `categoryStyles → []`,
+    `tileStyle → outlined`, `gridPreset → size40`, `gridRows → 5`, `coreColumns → 2`,
+    `categoryOrder → []`, `symbolName → null`. Must **not** crash. (Note: a brand-new install's
+    *creation* default for `colorMode` is `byWordType` — the TD Snap look — but the decode-time
+    fallback for a board that predates the key stays `byCategory`.)
+  - **`CategoryStyle`** (element of `categoryStyles`): `id`(UUID string, UPPERCASE), `name`(String,
+    the category it applies to), `colorName` ∈ `{blue,green,orange,pink,purple,teal,yellow,gray}`,
+    `icon`(String, an emoji).
 - **UsageEntry:** `id`, `wordId`, `label`, `timestamp` = **ISO-8601 UTC string (RFC 3339)**, e.g.
   `2026-06-09T12:00:00Z`. (Android stores epoch-millis `Long` locally and maps ↔ ISO-8601 via
   `java.time.Instant`; iOS uses `ISO8601DateFormatter`.)
