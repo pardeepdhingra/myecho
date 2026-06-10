@@ -9,6 +9,14 @@ struct MyEchoAACApp: App {
     @StateObject private var sync: CloudSyncService
 
     init() {
+        // UI-test hook: start from a known state (no first-run welcome sheet, fresh starter board).
+        if ProcessInfo.processInfo.arguments.contains("--uitest") {
+            UserDefaults.standard.set(true, forKey: "vani.welcomeSeen")
+            UserDefaults.standard.removeObject(forKey: "vani.words.v1")
+            UserDefaults.standard.removeObject(forKey: "vani.settings.v1")
+            UserDefaults.standard.removeObject(forKey: "vani.phrases.v1")
+        }
+
         CloudBootstrap.configure()
         _ = DeviceID.current
 

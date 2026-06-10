@@ -51,7 +51,10 @@
 		0A10003A0000000000000001 /* FolderTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000410000000000000001 /* FolderTileView.swift */; };
 		0A10003B0000000000000001 /* SymbolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000420000000000000001 /* SymbolLibrary.swift */; };
 		0A10003C0000000000000001 /* SymbolPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000430000000000000001 /* SymbolPickerView.swift */; };
+		0A10003D0000000000000001 /* MessageComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000440000000000000001 /* MessageComposer.swift */; };
 		0AB100010000000000000001 /* AACStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200010000000000000001 /* AACStoreTests.swift */; };
+		0AB100060000000000000001 /* MessageComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200070000000000000001 /* MessageComposerTests.swift */; };
+		0AC100010000000000000001 /* KidModeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC200010000000000000001 /* KidModeUITests.swift */; };
 		0AB100020000000000000001 /* PronunciationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200020000000000000001 /* PronunciationServiceTests.swift */; };
 		0AB100030000000000000001 /* UsageHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200030000000000000001 /* UsageHistoryTests.swift */; };
 		0AB100040000000000000001 /* BackupPayloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200040000000000000001 /* BackupPayloadTests.swift */; };
@@ -69,6 +72,13 @@
 			remoteGlobalIDString = 0A5000010000000000000001;
 			remoteInfo = MyEchoAAC;
 		};
+		0AC700010000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A8000010000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A5000010000000000000001;
+			remoteInfo = MyEchoAAC;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +88,10 @@
 		0AB200040000000000000001 /* BackupPayloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupPayloadTests.swift; sourceTree = "<group>"; };
 		0AB200050000000000000001 /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
 		0AB200060000000000000001 /* MyEchoAACTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyEchoAACTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0AB200070000000000000001 /* MessageComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposerTests.swift; sourceTree = "<group>"; };
+		0A2000440000000000000001 /* MessageComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposer.swift; sourceTree = "<group>"; };
+		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
+		0AC200020000000000000001 /* MyEchoAACUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyEchoAACUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A2000010000000000000001 /* MyEchoAACApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEchoAACApp.swift; sourceTree = "<group>"; };
 		0A2000020000000000000001 /* AACWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AACWord.swift; sourceTree = "<group>"; };
 		0A2000030000000000000001 /* AACSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AACSettings.swift; sourceTree = "<group>"; };
@@ -144,6 +158,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0AC500010000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -152,8 +173,17 @@
 			children = (
 				0A4000020000000000000001 /* MyEchoAAC */,
 				0AB300010000000000000001 /* MyEchoAACTests */,
+				0AC300010000000000000001 /* MyEchoAACUITests */,
 				0A4000070000000000000001 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		0AC300010000000000000001 /* MyEchoAACUITests */ = {
+			isa = PBXGroup;
+			children = (
+				0AC200010000000000000001 /* KidModeUITests.swift */,
+			);
+			path = MyEchoAACUITests;
 			sourceTree = "<group>";
 		};
 		0AB300010000000000000001 /* MyEchoAACTests */ = {
@@ -161,6 +191,7 @@
 			children = (
 				0AB200050000000000000001 /* TestSupport.swift */,
 				0AB200010000000000000001 /* AACStoreTests.swift */,
+				0AB200070000000000000001 /* MessageComposerTests.swift */,
 				0AB200020000000000000001 /* PronunciationServiceTests.swift */,
 				0AB200030000000000000001 /* UsageHistoryTests.swift */,
 				0AB200040000000000000001 /* BackupPayloadTests.swift */,
@@ -189,6 +220,7 @@
 				0A2000020000000000000001 /* AACWord.swift */,
 				0A2000030000000000000001 /* AACSettings.swift */,
 				0A2000040000000000000001 /* AACStore.swift */,
+				0A2000440000000000000001 /* MessageComposer.swift */,
 				0A2000130000000000000001 /* QuickPhrase.swift */,
 				0A20001D0000000000000001 /* SignLanguage.swift */,
 			);
@@ -257,6 +289,7 @@
 			children = (
 				0A20000C0000000000000001 /* MyEchoAAC.app */,
 				0AB200060000000000000001 /* MyEchoAACTests.xctest */,
+				0AC200020000000000000001 /* MyEchoAACUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -303,6 +336,23 @@
 			productReference = 0AB200060000000000000001 /* MyEchoAACTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		0AC600010000000000000001 /* MyEchoAACUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0AC900010000000000000001 /* Build configuration list for PBXNativeTarget "MyEchoAACUITests" */;
+			buildPhases = (
+				0AC400010000000000000001 /* Sources */,
+				0AC500010000000000000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0AC800010000000000000001 /* PBXTargetDependency */,
+			);
+			name = MyEchoAACUITests;
+			productName = MyEchoAACUITests;
+			productReference = 0AC200020000000000000001 /* MyEchoAACUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -317,6 +367,10 @@
 						CreatedOnToolsVersion = 26.5;
 					};
 					0AB600010000000000000001 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 0A5000010000000000000001;
+					};
+					0AC600010000000000000001 = {
 						CreatedOnToolsVersion = 26.5;
 						TestTargetID = 0A5000010000000000000001;
 					};
@@ -340,6 +394,7 @@
 			targets = (
 				0A5000010000000000000001 /* MyEchoAAC */,
 				0AB600010000000000000001 /* MyEchoAACTests */,
+				0AC600010000000000000001 /* MyEchoAACUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -366,6 +421,7 @@
 				0A1000020000000000000001 /* AACWord.swift in Sources */,
 				0A1000030000000000000001 /* AACSettings.swift in Sources */,
 				0A1000040000000000000001 /* AACStore.swift in Sources */,
+				0A10003D0000000000000001 /* MessageComposer.swift in Sources */,
 				0A1000050000000000000001 /* SpeechService.swift in Sources */,
 				0A1000060000000000000001 /* KidModeView.swift in Sources */,
 				0A1000070000000000000001 /* ParentModeView.swift in Sources */,
@@ -412,9 +468,18 @@
 			files = (
 				0AB100050000000000000001 /* TestSupport.swift in Sources */,
 				0AB100010000000000000001 /* AACStoreTests.swift in Sources */,
+				0AB100060000000000000001 /* MessageComposerTests.swift in Sources */,
 				0AB100020000000000000001 /* PronunciationServiceTests.swift in Sources */,
 				0AB100030000000000000001 /* UsageHistoryTests.swift in Sources */,
 				0AB100040000000000000001 /* BackupPayloadTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0AC400010000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AC100010000000000000001 /* KidModeUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +490,11 @@
 			isa = PBXTargetDependency;
 			target = 0A5000010000000000000001 /* MyEchoAAC */;
 			targetProxy = 0AB700010000000000000001 /* PBXContainerItemProxy */;
+		};
+		0AC800010000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A5000010000000000000001 /* MyEchoAAC */;
+			targetProxy = 0AC700010000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -648,6 +718,42 @@
 			};
 			name = Release;
 		};
+		0AC900020000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZM63VS564M;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pardeepdhingra.vani.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyEchoAAC;
+			};
+			name = Debug;
+		};
+		0AC900030000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZM63VS564M;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pardeepdhingra.vani.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyEchoAAC;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -674,6 +780,15 @@
 			buildConfigurations = (
 				0AB900020000000000000001 /* Debug */,
 				0AB900030000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0AC900010000000000000001 /* Build configuration list for PBXNativeTarget "MyEchoAACUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AC900020000000000000001 /* Debug */,
+				0AC900030000000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

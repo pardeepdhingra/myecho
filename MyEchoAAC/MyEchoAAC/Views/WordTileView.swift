@@ -54,6 +54,7 @@ struct WordTileView: View {
         }
         .buttonStyle(PressableTileStyle())
         .accessibilityLabel(word.phrase)
+        .accessibilityIdentifier("tile_\(word.label)")
     }
 
     @ViewBuilder

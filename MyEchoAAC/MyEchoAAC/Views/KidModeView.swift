@@ -20,7 +20,7 @@ struct KidModeView: View {
     @EnvironmentObject private var speech: SpeechService
     @EnvironmentObject private var history: UsageHistory
 
-    @State private var message: [AACWord] = []
+    @StateObject private var composer = MessageComposer()
     @State private var selectedCategory: String?
     /// Folder ("Motor Plan") board navigation: nil = home page, otherwise the open folder's category
     /// (or `favoritesCategoryToken`). Only used when `settings.boardMode == .folders`.
@@ -33,10 +33,6 @@ struct KidModeView: View {
     @State private var showingWelcome = false
     @State private var showingSentenceHistory = false
     @State private var showingAbout = false
-
-    private var phrase: String {
-        message.map(\.phrase).joined(separator: " ")
-    }
 
     private var columns: [GridItem] {
         return Array(
@@ -282,6 +278,7 @@ struct KidModeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(word.label)
+        .accessibilityIdentifier("chip_\(word.label)")
     }
 
     @ViewBuilder
@@ -385,20 +382,21 @@ struct KidModeView: View {
             HStack {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        if message.isEmpty {
+                        if composer.isEmpty {
                             Text("Ready to talk")
                                 .font(.system(.title3, design: .rounded, weight: .medium))
                                 .foregroundStyle(Color.black.opacity(0.5))
                                 .padding(.horizontal, 4)
                         } else {
-                            ForEach(message) { word in
-                                messageChip(for: word)
+                            ForEach(composer.entries) { entry in
+                                messageChip(for: entry.word)
                             }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(height: 58)
+                .accessibilityIdentifier("messageBar")
 
                 Button {
                     speakMessage()
@@ -410,7 +408,8 @@ struct KidModeView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color.accentColor)
-                .disabled(message.isEmpty)
+                .disabled(composer.isEmpty)
+                .accessibilityIdentifier("speakButton")
             }
 
             HStack(spacing: 10) {
@@ -424,7 +423,8 @@ struct KidModeView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color.accentColor.opacity(0.85))
-                .disabled(message.isEmpty)
+                .disabled(composer.isEmpty)
+                .accessibilityIdentifier("deleteButton")
 
                 Button {
                     clearMessage()
@@ -436,7 +436,8 @@ struct KidModeView: View {
                 }
                 .buttonStyle(.bordered)
                 .tint(Color.accentColor)
-                .disabled(message.isEmpty)
+                .disabled(composer.isEmpty)
+                .accessibilityIdentifier("clearButton")
 
                 Button {
                     showingSentenceHistory = true
@@ -884,7 +885,7 @@ struct KidModeView: View {
     }
 
     private func addWord(_ word: AACWord) {
-        message.append(word)
+        composer.append(word)
         speech.speak(word.phrase, settings: store.settings)
         history.record(wordId: word.id, label: word.label, enabled: store.settings.trackUsageHistory)
     }
@@ -904,30 +905,22 @@ struct KidModeView: View {
                 colorName: .purple,
                 position: 0
             )
-            message.append(starterWord)
+            composer.append(starterWord)
         }
     }
 
     private func speakMessage() {
-        let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard let polished = composer.polishedSentence else { return }
         Haptics.actionTap()
-        let polished: String
-        if let last = trimmed.last, ".?!".contains(last) {
-            polished = trimmed
-        } else {
-            polished = trimmed + "."
-        }
         speech.speak(polished, settings: store.settings)
         history.recordSentence(polished, enabled: store.settings.trackUsageHistory)
     }
 
     private func removeLastWord() {
-        guard !message.isEmpty else { return }
-        message.removeLast()
+        composer.removeLast()
     }
 
     private func clearMessage() {
-        message.removeAll()
+        composer.clear()
     }
 }
