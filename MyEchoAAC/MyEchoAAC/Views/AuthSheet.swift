@@ -3,6 +3,10 @@ import SwiftUI
 
 /// Sign in / create account sheet. Email-password plus Sign in with Apple.
 struct AuthSheet: View {
+    /// Sign in with Apple needs the `applesignin` entitlement (paid developer account). Off for the
+    /// free-personal-team build so no broken button shows; flip to true when that capability is added.
+    static let appleSignInEnabled = false
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var auth: AuthService
 
@@ -69,17 +73,19 @@ struct AuthSheet: View {
                     }
                 }
 
-                Section {
-                    SignInWithAppleButton(.continue) { request in
-                        auth.prepareAppleRequest(request)
-                    } onCompletion: { result in
-                        Task { await handleApple(result) }
+                if Self.appleSignInEnabled {
+                    Section {
+                        SignInWithAppleButton(.continue) { request in
+                            auth.prepareAppleRequest(request)
+                        } onCompletion: { result in
+                            Task { await handleApple(result) }
+                        }
+                        .signInWithAppleButtonStyle(.black)
+                        .frame(height: 48)
+                        .listRowInsets(EdgeInsets())
+                    } header: {
+                        Text("Or")
                     }
-                    .signInWithAppleButtonStyle(.black)
-                    .frame(height: 48)
-                    .listRowInsets(EdgeInsets())
-                } header: {
-                    Text("Or")
                 }
             }
             .navigationTitle("Cloud account")
