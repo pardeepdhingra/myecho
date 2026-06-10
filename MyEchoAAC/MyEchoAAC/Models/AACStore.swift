@@ -20,9 +20,10 @@ final class AACStore: ObservableObject {
     private let phrasesKey = "vani.phrases.v1"
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
+    private let defaults: UserDefaults
 
-    init() {
-        let defaults = UserDefaults.standard
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
 
         if let data = defaults.data(forKey: wordsKey),
            let storedWords = try? decoder.decode([AACWord].self, from: data),
@@ -356,17 +357,17 @@ final class AACStore: ObservableObject {
 
     private func saveWords() {
         guard let data = try? encoder.encode(words) else { return }
-        UserDefaults.standard.set(data, forKey: wordsKey)
+        defaults.set(data, forKey: wordsKey)
     }
 
     private func saveSettings() {
         guard let data = try? encoder.encode(settings) else { return }
-        UserDefaults.standard.set(data, forKey: settingsKey)
+        defaults.set(data, forKey: settingsKey)
     }
 
     private func saveQuickPhrases() {
         guard let data = try? encoder.encode(quickPhrases) else { return }
-        UserDefaults.standard.set(data, forKey: phrasesKey)
+        defaults.set(data, forKey: phrasesKey)
     }
 
     static let defaultQuickPhrases: [QuickPhrase] = [

@@ -25,8 +25,10 @@ final class UsageHistory: ObservableObject {
     private let maxSentences = 25
     private let maxEntries = 2000
     private let logger = Logger(subsystem: "com.pardeepdhingra.vani", category: "UsageHistory")
+    private let defaults: UserDefaults
 
-    init() {
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         load()
         loadSentences()
     }
@@ -94,24 +96,24 @@ final class UsageHistory: ObservableObject {
     var totalCount: Int { entries.count }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: key),
+        guard let data = defaults.data(forKey: key),
               let decoded = try? JSONDecoder().decode([Entry].self, from: data) else { return }
         entries = decoded
     }
 
     private func save() {
         guard let data = try? JSONEncoder().encode(entries) else { return }
-        UserDefaults.standard.set(data, forKey: key)
+        defaults.set(data, forKey: key)
     }
 
     private func loadSentences() {
-        guard let data = UserDefaults.standard.data(forKey: sentencesKey),
+        guard let data = defaults.data(forKey: sentencesKey),
               let decoded = try? JSONDecoder().decode([String].self, from: data) else { return }
         spokenSentences = decoded
     }
 
     private func saveSentences() {
         guard let data = try? JSONEncoder().encode(spokenSentences) else { return }
-        UserDefaults.standard.set(data, forKey: sentencesKey)
+        defaults.set(data, forKey: sentencesKey)
     }
 }

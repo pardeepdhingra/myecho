@@ -49,6 +49,10 @@ Sign language (per-word video, real sources)
 Routine packs
 - [x] Routine boards added for food, bathroom, play, school, bedtime, feelings, and pain/body (`RoutinePacks`).
 
+Quality & testing
+- [x] Unit-test target (`MyEchoAACTests`, Swift Testing) — 41 tests covering board logic (`AACStore`), pronunciation, usage history, and backup payload coding. Run with `xcodebuild test -scheme MyEchoAAC`.
+- [x] `AACStore` / `UsageHistory` accept an injected `UserDefaults` so tests are isolated from real child data.
+
 ## Next (can work on now)
 
 - [ ] Polish first-run visual design and capture fresh simulator screenshots.
@@ -57,7 +61,7 @@ Routine packs
 - [ ] Sign language: let parents trim/choose a thumbnail frame for each saved sign.
 - [ ] Per-word sign learning card (tap to enlarge the sign + hear the word) for teaching moments.
 - [ ] Multiple boards / profiles (Home, School, Therapy).
-- [ ] Basic UI tests for kid-mode message building.
+- [ ] Basic UI tests for kid-mode message building (unit tests now exist; UI/XCUITest layer still to do).
 
 ## Voice (next)
 
