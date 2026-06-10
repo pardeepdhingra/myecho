@@ -489,6 +489,19 @@ struct ParentModeView: View {
             }
 
             Section {
+                NavigationLink {
+                    BoardSetsView()
+                        .environmentObject(store)
+                } label: {
+                    Label("Board sets", systemImage: "square.stack.3d.up")
+                }
+            } header: {
+                Text("Board sets")
+            } footer: {
+                Text("Save the board as named sets — Home, School, Therapy — and switch between them.")
+            }
+
+            Section {
                 Button {
                     if let url = BoardBackup.exportToTempFile(store: store) {
                         exportURL = IdentifiableURL(url: url)

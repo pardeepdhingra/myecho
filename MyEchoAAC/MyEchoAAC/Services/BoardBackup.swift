@@ -16,7 +16,9 @@ enum BoardBackup {
     private static let logger = Logger(subsystem: "com.pardeepdhingra.vani", category: "BoardBackup")
     private static let currentVersion = 1
 
-    static func exportToTempFile(store: AACStore) -> URL? {
+    /// Snapshot the whole board — words, phrases, settings, and every referenced photo (embedded as
+    /// base64 JPEG) — into one self-contained payload. Shared by file export and saved board sets.
+    static func makePayload(store: AACStore) -> BackupPayload {
         var images: [String: String] = [:]
         for word in store.words {
             guard let filename = word.imagePath,
@@ -25,7 +27,7 @@ enum BoardBackup {
             images[filename] = data.base64EncodedString()
         }
 
-        let payload = BackupPayload(
+        return BackupPayload(
             version: currentVersion,
             exportedAt: Date(),
             words: store.words,
@@ -33,15 +35,49 @@ enum BoardBackup {
             settings: store.settings,
             images: images
         )
+    }
 
+    static func encode(_ payload: BackupPayload) -> Data? {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
         guard let data = try? encoder.encode(payload) else {
             logger.error("Failed to encode backup")
             return nil
         }
+        return data
+    }
+
+    static func decodePayload(from data: Data) -> BackupPayload? {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        guard let payload = try? decoder.decode(BackupPayload.self, from: data) else {
+            logger.error("Failed to decode backup")
+            return nil
+        }
+        return payload
+    }
+
+    /// Replace the live board with a payload: photos on disk are replaced with the payload's embedded
+    /// images, then the store contents swap in one shot.
+    static func apply(_ payload: BackupPayload, to store: AACStore) {
+        ImageStore.purgeAll()
+        for (filename, base64) in payload.images {
+            guard let imageData = Data(base64Encoded: base64),
+                  let image = UIImage(data: imageData),
+                  let savedData = image.jpegData(compressionQuality: 0.85) else { continue }
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let destinationDir = documentsURL.appendingPathComponent("word-images", isDirectory: true)
+            try? FileManager.default.createDirectory(at: destinationDir, withIntermediateDirectories: true)
+            let destination = destinationDir.appendingPathComponent(filename)
+            try? savedData.write(to: destination, options: .atomic)
+        }
+
+        store.replaceAll(words: payload.words, quickPhrases: payload.quickPhrases, settings: payload.settings)
+    }
+
+    static func exportToTempFile(store: AACStore) -> URL? {
+        guard let data = encode(makePayload(store: store)) else { return nil }
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd-HHmm"
@@ -67,29 +103,8 @@ enum BoardBackup {
             return false
         }
 
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-
-        guard let payload = try? decoder.decode(BackupPayload.self, from: data) else {
-            logger.error("Failed to decode backup")
-            return false
-        }
-
-        ImageStore.purgeAll()
-        for (filename, base64) in payload.images {
-            guard let imageData = Data(base64Encoded: base64),
-                  let image = UIImage(data: imageData),
-                  let savedData = image.jpegData(compressionQuality: 0.85) else { continue }
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let destinationDir = documentsURL.appendingPathComponent("word-images", isDirectory: true)
-            try? FileManager.default.createDirectory(at: destinationDir, withIntermediateDirectories: true)
-            let destination = destinationDir.appendingPathComponent(filename)
-            try? savedData.write(to: destination, options: .atomic)
-        }
-
-        store.words = payload.words
-        store.quickPhrases = payload.quickPhrases
-        store.settings = payload.settings
+        guard let payload = decodePayload(from: data) else { return false }
+        apply(payload, to: store)
         return true
     }
 }

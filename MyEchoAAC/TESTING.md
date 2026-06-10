@@ -25,6 +25,7 @@ pure logic that a non-verbal child and their parents depend on most:
 | `PronunciationServiceTests.swift` | Phonetic overrides and normalization rules that make tricky words speak clearly |
 | `UsageHistoryTests.swift` | Tap/sentence history, frequency counts, recency, caps, persistence |
 | `BackupPayloadTests.swift` | `.vaniboard` payload round-trip and lenient decoding of older/cross-platform boards |
+| `BoardSetStoreTests.swift` | Named board sets: save/load round-trip, index persistence, missing-file pruning, overwrite, rename, delete, corrupt-load safety |
 
 `MyEchoAACUITests` is a UI-test bundle covering the critical kid-mode journey:
 

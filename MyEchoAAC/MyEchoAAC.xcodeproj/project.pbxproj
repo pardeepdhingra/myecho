@@ -52,6 +52,9 @@
 		0A10003B0000000000000001 /* SymbolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000420000000000000001 /* SymbolLibrary.swift */; };
 		0A10003C0000000000000001 /* SymbolPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000430000000000000001 /* SymbolPickerView.swift */; };
 		0A10003D0000000000000001 /* MessageComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000440000000000000001 /* MessageComposer.swift */; };
+		0A10003E0000000000000001 /* BoardSetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000450000000000000001 /* BoardSetStore.swift */; };
+		0A10003F0000000000000001 /* BoardSetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000460000000000000001 /* BoardSetsView.swift */; };
+		0AB100070000000000000001 /* BoardSetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200080000000000000001 /* BoardSetStoreTests.swift */; };
 		0AB100010000000000000001 /* AACStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200010000000000000001 /* AACStoreTests.swift */; };
 		0AB100060000000000000001 /* MessageComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200070000000000000001 /* MessageComposerTests.swift */; };
 		0AC100010000000000000001 /* KidModeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC200010000000000000001 /* KidModeUITests.swift */; };
@@ -90,6 +93,9 @@
 		0AB200060000000000000001 /* MyEchoAACTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyEchoAACTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AB200070000000000000001 /* MessageComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposerTests.swift; sourceTree = "<group>"; };
 		0A2000440000000000000001 /* MessageComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComposer.swift; sourceTree = "<group>"; };
+		0A2000450000000000000001 /* BoardSetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetStore.swift; sourceTree = "<group>"; };
+		0A2000460000000000000001 /* BoardSetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetsView.swift; sourceTree = "<group>"; };
+		0AB200080000000000000001 /* BoardSetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetStoreTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
 		0AC200020000000000000001 /* MyEchoAACUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyEchoAACUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A2000010000000000000001 /* MyEchoAACApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEchoAACApp.swift; sourceTree = "<group>"; };
@@ -195,6 +201,7 @@
 				0AB200020000000000000001 /* PronunciationServiceTests.swift */,
 				0AB200030000000000000001 /* UsageHistoryTests.swift */,
 				0AB200040000000000000001 /* BackupPayloadTests.swift */,
+				0AB200080000000000000001 /* BoardSetStoreTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -235,6 +242,7 @@
 				0A2000100000000000000001 /* PINStore.swift */,
 				0A2000120000000000000001 /* Haptics.swift */,
 				0A2000140000000000000001 /* BoardBackup.swift */,
+				0A2000450000000000000001 /* BoardSetStore.swift */,
 				0A2000160000000000000001 /* UsageHistory.swift */,
 				0A20001B0000000000000001 /* RoutinePacks.swift */,
 				0A20001E0000000000000001 /* SignVideoStore.swift */,
@@ -260,6 +268,7 @@
 				0A2000080000000000000001 /* WordTileView.swift */,
 				0A2000410000000000000001 /* FolderTileView.swift */,
 				0A2000430000000000000001 /* SymbolPickerView.swift */,
+				0A2000460000000000000001 /* BoardSetsView.swift */,
 				0A2000090000000000000001 /* EditWordView.swift */,
 				0A20000E0000000000000001 /* CameraPicker.swift */,
 				0A20000F0000000000000001 /* EmojiPickerView.swift */,
@@ -435,6 +444,8 @@
 				0A1000110000000000000001 /* Haptics.swift in Sources */,
 				0A1000120000000000000001 /* QuickPhrase.swift in Sources */,
 				0A1000130000000000000001 /* BoardBackup.swift in Sources */,
+				0A10003E0000000000000001 /* BoardSetStore.swift in Sources */,
+				0A10003F0000000000000001 /* BoardSetsView.swift in Sources */,
 				0A1000140000000000000001 /* ShareSheet.swift in Sources */,
 				0A1000150000000000000001 /* UsageHistory.swift in Sources */,
 				0A1000180000000000000001 /* WelcomeView.swift in Sources */,
@@ -472,6 +483,7 @@
 				0AB100020000000000000001 /* PronunciationServiceTests.swift in Sources */,
 				0AB100030000000000000001 /* UsageHistoryTests.swift in Sources */,
 				0AB100040000000000000001 /* BackupPayloadTests.swift in Sources */,
+				0AB100070000000000000001 /* BoardSetStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
