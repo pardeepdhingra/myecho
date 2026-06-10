@@ -79,9 +79,9 @@ enum GridPreset: String, CaseIterable, Codable, Identifiable {
 
     var label: String {
         switch self {
-        case .size30: "30 — big targets (6×5)"
-        case .size40: "40 — balanced (8×5)"
-        case .size66: "66 — more words (11×6)"
+        case .size30: "Big buttons"
+        case .size40: "Medium buttons"
+        case .size66: "Small buttons (more words)"
         case .custom: "Custom"
         }
     }

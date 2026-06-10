@@ -630,15 +630,20 @@ struct KidModeView: View {
             let spacing = Self.boardSpacing
             // Reserve room for the page-dots row so tiles never get clipped at the bottom.
             let dotsReserve: CGFloat = 26
-            // The preset (Motor Plan 30/40/66) is the *target/maximum* density. We pick the number of
-            // columns/rows that actually FIT the screen at a comfortable tile size, so tiles are never
-            // tiny (small screens) and never cut off below (short boards) — overflow paginates.
-            let preset = store.settings.resolvedGrid
-            let targetTile: CGFloat = 96 * CGFloat(min(max(store.settings.tileScale, 0.8), 1.4))
-            let fitCols = max(2, Int((geo.size.width + spacing) / (targetTile + spacing)))
-            let fitRows = max(2, Int((geo.size.height - dotsReserve + spacing) / (targetTile + spacing)))
-            let cols = max(3, min(preset.columns, fitCols))
-            let rows = max(2, min(preset.rows, fitRows))
+            // The grid size sets the *tile size* (density), not a fixed column count: we then FILL the
+            // available space with as many columns/rows as fit at that size. This uses the whole screen
+            // (no wasted space) and only paginates when content genuinely exceeds a full screen.
+            let baseTile: CGFloat = {
+                switch store.settings.gridPreset {
+                case .size30: return 116   // big buttons
+                case .size40: return 90    // medium
+                case .size66: return 70    // small buttons, more words
+                case .custom: return max(56, 980 / CGFloat(max(3, store.settings.gridColumns)))
+                }
+            }()
+            let targetTile = baseTile * CGFloat(min(max(store.settings.tileScale, 0.7), 1.6))
+            let cols = max(3, Int((geo.size.width + spacing) / (targetTile + spacing)))
+            let rows = max(2, Int((geo.size.height - dotsReserve + spacing) / (targetTile + spacing)))
             // Core band: keep ≥2 fringe columns, but widen it (within limits) so it can hold ALL the
             // core words at the current row count — otherwise overflow core words would only show on
             // the home page and vanish inside folders (the "fixed buttons get overridden" bug).
