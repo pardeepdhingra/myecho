@@ -16,6 +16,8 @@
 		0A1000070000000000000001 /* ParentModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000070000000000000001 /* ParentModeView.swift */; };
 		0A1000080000000000000001 /* WordTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000080000000000000001 /* WordTileView.swift */; };
 		0A1000090000000000000001 /* EditWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000090000000000000001 /* EditWordView.swift */; };
+		0A10000A0000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000A0000000000000001 /* Assets.xcassets */; };
+		0A10000B0000000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000B0000000000000001 /* Preview Assets.xcassets */; };
 		0A10000C0000000000000001 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20000D0000000000000001 /* ImageStore.swift */; };
 		0A10000D0000000000000001 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20000E0000000000000001 /* CameraPicker.swift */; };
 		0A10000E0000000000000001 /* EmojiPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20000F0000000000000001 /* EmojiPickerView.swift */; };
@@ -44,13 +46,11 @@
 		0A1000350000000000000001 /* FirebaseBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000350000000000000001 /* FirebaseBackend.swift */; };
 		0A1000360000000000000001 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000360000000000000001 /* AccountView.swift */; };
 		0A1000370000000000000001 /* AuthSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000370000000000000001 /* AuthSheet.swift */; };
+		0A1000380000000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0A2000380000000000000001 /* GoogleService-Info.plist */; };
 		0A1000390000000000000001 /* StarterVocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000400000000000000001 /* StarterVocabulary.swift */; };
 		0A10003A0000000000000001 /* FolderTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000410000000000000001 /* FolderTileView.swift */; };
 		0A10003B0000000000000001 /* SymbolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000420000000000000001 /* SymbolLibrary.swift */; };
 		0A10003C0000000000000001 /* SymbolPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000430000000000000001 /* SymbolPickerView.swift */; };
-		0A10000A0000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000A0000000000000001 /* Assets.xcassets */; };
-		0A10000B0000000000000001 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A20000B0000000000000001 /* Preview Assets.xcassets */; };
-		0A1000380000000000000001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0A2000380000000000000001 /* GoogleService-Info.plist */; };
 		0AF000050000000000000001 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0AF000020000000000000001 /* FirebaseAuth */; };
 		0AF000060000000000000001 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0AF000030000000000000001 /* FirebaseFirestore */; };
 		0AF000070000000000000001 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 0AF000040000000000000001 /* FirebaseStorage */; };
@@ -66,6 +66,9 @@
 		0A2000070000000000000001 /* ParentModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentModeView.swift; sourceTree = "<group>"; };
 		0A2000080000000000000001 /* WordTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordTileView.swift; sourceTree = "<group>"; };
 		0A2000090000000000000001 /* EditWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWordView.swift; sourceTree = "<group>"; };
+		0A20000A0000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0A20000B0000000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		0A20000C0000000000000001 /* MyEchoAAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyEchoAAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A20000D0000000000000001 /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
 		0A20000E0000000000000001 /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
 		0A20000F0000000000000001 /* EmojiPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPickerView.swift; sourceTree = "<group>"; };
@@ -94,15 +97,12 @@
 		0A2000350000000000000001 /* FirebaseBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseBackend.swift; sourceTree = "<group>"; };
 		0A2000360000000000000001 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		0A2000370000000000000001 /* AuthSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSheet.swift; sourceTree = "<group>"; };
+		0A2000380000000000000001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		0A2000390000000000000001 /* MyEchoAAC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyEchoAAC.entitlements; sourceTree = "<group>"; };
 		0A2000400000000000000001 /* StarterVocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterVocabulary.swift; sourceTree = "<group>"; };
 		0A2000410000000000000001 /* FolderTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderTileView.swift; sourceTree = "<group>"; };
 		0A2000420000000000000001 /* SymbolLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolLibrary.swift; sourceTree = "<group>"; };
 		0A2000430000000000000001 /* SymbolPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolPickerView.swift; sourceTree = "<group>"; };
-		0A20000A0000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0A20000B0000000000000001 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		0A2000380000000000000001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		0A2000390000000000000001 /* MyEchoAAC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyEchoAAC.entitlements; sourceTree = "<group>"; };
-		0A20000C0000000000000001 /* MyEchoAAC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyEchoAAC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,12 +234,12 @@
 			);
 			dependencies = (
 			);
+			name = MyEchoAAC;
 			packageProductDependencies = (
 				0AF000020000000000000001 /* FirebaseAuth */,
 				0AF000030000000000000001 /* FirebaseFirestore */,
 				0AF000040000000000000001 /* FirebaseStorage */,
 			);
-			name = MyEchoAAC;
 			productName = MyEchoAAC;
 			productReference = 0A20000C0000000000000001 /* MyEchoAAC.app */;
 			productType = "com.apple.product-type.application";
@@ -465,12 +465,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyEchoAAC/MyEchoAAC.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_ENTITLEMENTS = "MyEchoAAC/MyEchoAAC.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MyEchoAAC/Preview Content\"";
-				DEVELOPMENT_TEAM = FD2K8FFS66;
+				DEVELOPMENT_TEAM = ZM63VS564M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "वाणी";
@@ -498,12 +498,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyEchoAAC/MyEchoAAC.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_ENTITLEMENTS = "MyEchoAAC/MyEchoAAC.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MyEchoAAC/Preview Content\"";
-				DEVELOPMENT_TEAM = FD2K8FFS66;
+				DEVELOPMENT_TEAM = ZM63VS564M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "वाणी";

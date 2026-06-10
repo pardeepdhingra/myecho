@@ -60,11 +60,11 @@ struct WordTileView: View {
     private var tileBackground: some View {
         switch style {
         case .outlined:
-            // A soft tint of the tile's colour (over near-white) so each word reads as coloured while
-            // the picture symbol stays legible.
+            // Light tint over near-white; the colour reads mainly through the thick coloured border
+            // (see tileBorderColor/Width). Clearly lighter than the solid `.filled` style.
             ZStack {
                 Self.outlinedFill
-                accentColor.opacity(0.28)
+                accentColor.opacity(0.18)
             }
         case .filled:
             LinearGradient(

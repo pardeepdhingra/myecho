@@ -69,8 +69,16 @@ final class AACStore: ObservableObject {
         return CategoryDefaults.defaultStyle(for: name)
     }
 
-    /// The background color a tile should render with, honoring the board's `colorMode`.
+    /// The background color a tile should render with. An explicit per-button override always wins;
+    /// otherwise the board's `colorMode` decides (by default the word's **folder colour**).
     func tileColor(for word: AACWord) -> Color {
+        if let override = word.colorOverride { return override.color }
+        // Core/pinned words have no folder identity — in the default "by folder" mode colour them by
+        // word type (Fitzgerald Key, the AAC convention) so they aren't a flat grey.
+        if settings.colorMode == .byCategory, word.category == AACWord.coreCategory,
+           let pos = word.partOfSpeech {
+            return pos.defaultColor.color
+        }
         switch settings.colorMode {
         case .byCategory:
             return resolvedCategoryStyle(for: word.category).color

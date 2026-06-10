@@ -25,9 +25,13 @@ struct AACWord: Identifiable, Codable, Equatable {
     /// Name of a bundled picture-symbol asset (e.g. `sym_apple`). When set and no photo/sign exists,
     /// the tile shows this professional symbol instead of the emoji. A custom **photo always wins**.
     var symbolName: String?
+    /// Explicit per-button colour the parent chose for THIS tile. When set it always wins; when nil the
+    /// tile follows the board colour mode (by default the **folder's colour**). Lets one button differ
+    /// without leaving "colour by folder" for the whole board.
+    var colorOverride: TileColorName?
 
     enum CodingKeys: String, CodingKey {
-        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, partOfSpeech, symbolName
+        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, partOfSpeech, symbolName, colorOverride
     }
 
     init(
@@ -46,7 +50,8 @@ struct AACWord: Identifiable, Codable, Equatable {
         signVideoPath: String? = nil,
         signLanguage: SignLanguage? = nil,
         partOfSpeech: PartOfSpeech? = nil,
-        symbolName: String? = nil
+        symbolName: String? = nil,
+        colorOverride: TileColorName? = nil
     ) {
         self.id = id
         self.label = label
@@ -64,6 +69,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         self.signLanguage = signLanguage
         self.partOfSpeech = partOfSpeech
         self.symbolName = symbolName
+        self.colorOverride = colorOverride
     }
 
     init(from decoder: Decoder) throws {
@@ -85,6 +91,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         // Lenient: older/cross-platform boards omit this key → nil (untagged).
         partOfSpeech = try c.decodeIfPresent(PartOfSpeech.self, forKey: .partOfSpeech)
         symbolName = try c.decodeIfPresent(String.self, forKey: .symbolName)
+        colorOverride = try c.decodeIfPresent(TileColorName.self, forKey: .colorOverride)
     }
 }
 

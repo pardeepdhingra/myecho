@@ -627,15 +627,30 @@ struct KidModeView: View {
     @ViewBuilder
     private var folderBoard: some View {
         GeometryReader { geo in
-            let cols = store.settings.resolvedGrid.columns
-            let rows = store.settings.resolvedGrid.rows
-            let coreCols = store.settings.resolvedCoreColumns()
-            let fringeCols = max(1, cols - coreCols)
             let spacing = Self.boardSpacing
+            // Reserve room for the page-dots row so tiles never get clipped at the bottom.
+            let dotsReserve: CGFloat = 26
+            // The preset (Motor Plan 30/40/66) is the *target/maximum* density. We pick the number of
+            // columns/rows that actually FIT the screen at a comfortable tile size, so tiles are never
+            // tiny (small screens) and never cut off below (short boards) — overflow paginates.
+            let preset = store.settings.resolvedGrid
+            let targetTile: CGFloat = 96 * CGFloat(min(max(store.settings.tileScale, 0.8), 1.4))
+            let fitCols = max(2, Int((geo.size.width + spacing) / (targetTile + spacing)))
+            let fitRows = max(2, Int((geo.size.height - dotsReserve + spacing) / (targetTile + spacing)))
+            let cols = max(3, min(preset.columns, fitCols))
+            let rows = max(2, min(preset.rows, fitRows))
+            // Core band: keep ≥2 fringe columns, but widen it (within limits) so it can hold ALL the
+            // core words at the current row count — otherwise overflow core words would only show on
+            // the home page and vanish inside folders (the "fixed buttons get overridden" bug).
+            let baseCore = max(0, min(store.settings.coreColumns, cols - 2, AACSettings.maxCoreColumns))
+            let neededForCore = rows > 0 ? Int(ceil(Double(coreWords.count) / Double(rows))) : 0
+            let coreCols = baseCore == 0 ? 0 : max(baseCore, min(neededForCore, cols - 2, AACSettings.maxCoreColumns))
+            let fringeCols = max(1, cols - coreCols)
             let bandGap: CGFloat = coreCols > 0 ? spacing * 2 : 0
             let availW = geo.size.width - spacing * CGFloat(cols - 1) - bandGap
-            let availH = geo.size.height - spacing * CGFloat(rows - 1)
-            let tile = max(40, min(availW / CGFloat(cols), availH / CGFloat(rows)))
+            let availH = geo.size.height - dotsReserve - spacing * CGFloat(rows - 1)
+            // Exact fit (no floor) so the grid is always fully on-screen.
+            let tile = min(availW / CGFloat(cols), availH / CGFloat(rows))
             let scale = min(max(tile / 110.0, 0.7), 1.8)
             let gridH = CGFloat(rows) * tile + CGFloat(rows - 1) * spacing
 

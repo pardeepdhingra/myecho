@@ -83,7 +83,8 @@ struct EditWordView: View {
                         }
                     }
 
-                    Picker("Color", selection: $draft.colorName) {
+                    Picker("Button color", selection: $draft.colorOverride) {
+                        Text("Match folder color").tag(TileColorName?.none)
                         ForEach(TileColorName.allCases) { color in
                             HStack {
                                 Circle()
@@ -91,23 +92,19 @@ struct EditWordView: View {
                                     .frame(width: 16, height: 16)
                                 Text(color.label)
                             }
-                            .tag(color)
+                            .tag(TileColorName?.some(color))
                         }
                     }
-                    .disabled(store.settings.colorMode != .perWord)
 
                     Toggle("Visible on kid screen", isOn: $draft.isVisible)
                     Toggle("Favorite (shows in ★ Favorites)", isOn: $draft.isFavorite)
                 } header: {
                     Text("Board")
                 } footer: {
-                    switch store.settings.colorMode {
-                    case .byCategory:
-                        Text("Tiles are currently colored by category, so this card uses the “\(draft.category)” color. Switch color mode to “Per word” in Parent → Board to set tile colors individually.")
-                    case .byWordType:
-                        Text("Tiles are currently colored by word type, so this card uses its “Word type” color. Switch color mode to “Per word” in Parent → Board to set tile colors individually.")
-                    case .perWord:
-                        EmptyView()
+                    if draft.colorOverride == nil {
+                        Text("By default this button uses its folder's color (“\(draft.category)”). Pick a specific color above to make just this one button different.")
+                    } else {
+                        Text("This button uses a custom color. Choose “Match folder color” to follow the “\(draft.category)” folder again.")
                     }
                 }
 
