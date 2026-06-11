@@ -269,6 +269,9 @@ final class CloudSyncService: ObservableObject {
             if let img = word.imagePath, ImageStore.exists(img) {
                 out.append(LocalAsset(filename: img, kind: .image, localURL: ImageStore.fileURL(for: img)))
             }
+            if let thumb = word.signThumbnailPath, ImageStore.exists(thumb) {
+                out.append(LocalAsset(filename: thumb, kind: .image, localURL: ImageStore.fileURL(for: thumb)))
+            }
             if let vid = word.signVideoPath, SignVideoStore.exists(vid) {
                 out.append(LocalAsset(filename: vid, kind: .signVideo, localURL: SignVideoStore.fileURL(for: vid)))
                 if SignVideoStore.thumbnailExists(for: vid) {
@@ -310,6 +313,9 @@ final class CloudSyncService: ObservableObject {
             if let img = word.imagePath, !ImageStore.exists(img), let meta = remoteByName[img] {
                 try await backend.downloadAsset(storagePath: meta.storagePath, to: ImageStore.fileURL(for: img))
             }
+            if let thumb = word.signThumbnailPath, !ImageStore.exists(thumb), let meta = remoteByName[thumb] {
+                try await backend.downloadAsset(storagePath: meta.storagePath, to: ImageStore.fileURL(for: thumb))
+            }
             if let vid = word.signVideoPath {
                 if !SignVideoStore.exists(vid), let meta = remoteByName[vid] {
                     try await backend.downloadAsset(storagePath: meta.storagePath, to: SignVideoStore.fileURL(for: vid))
@@ -342,7 +348,7 @@ final class CloudSyncService: ObservableObject {
     private func isLocalBoardPristine() -> Bool {
         let defaultLabels = Set(AACStore.defaultWords.map(\.label))
         let localLabels = Set(store.words.map(\.label))
-        let noMedia = store.words.allSatisfy { $0.imagePath == nil && $0.signVideoPath == nil }
+        let noMedia = store.words.allSatisfy { $0.imagePath == nil && $0.signVideoPath == nil && $0.signThumbnailPath == nil }
         return store.words.count <= AACStore.defaultWords.count
             && localLabels.isSubset(of: defaultLabels)
             && noMedia
