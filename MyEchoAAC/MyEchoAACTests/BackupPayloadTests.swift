@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import UIKit
 @testable import MyEchoAAC
 
 @Suite("Backup payload coding")
@@ -105,5 +106,37 @@ struct BackupPayloadTests {
         let phrase = try JSONDecoder().decode(QuickPhrase.self, from: Data(json.utf8))
         #expect(phrase.mode == .speak)
         #expect(phrase.regulationKind == nil)
+    }
+
+    @Test("apply() does not delete images that are not referenced by any word")
+    @MainActor
+    func applyDoesNotDeleteUnreferencedImages() {
+        // Simulate a "scene image" that lives in ImageStore but isn't in any word
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4))
+        let img = renderer.image { ctx in ctx.fill(CGRect(x: 0, y: 0, width: 4, height: 4)) }
+        guard let scenePath = ImageStore.save(img) else {
+            Issue.record("ImageStore.save returned nil")
+            return
+        }
+        #expect(ImageStore.exists(scenePath))
+
+        let defaults = makeIsolatedDefaults()
+        let store = AACStore(defaults: defaults)
+        // The store has default words (no custom image paths), so apply should leave scenePath alone
+        let payload = BackupPayload(
+            version: 1,
+            exportedAt: Date(timeIntervalSince1970: 1_750_000_000),
+            words: store.words,
+            quickPhrases: store.quickPhrases,
+            settings: store.settings,
+            images: [:]
+        )
+        BoardBackup.apply(payload, to: store)
+
+        // The scene image must still exist — apply() only removes word-referenced images
+        #expect(ImageStore.exists(scenePath))
+
+        // Cleanup
+        ImageStore.delete(scenePath)
     }
 }

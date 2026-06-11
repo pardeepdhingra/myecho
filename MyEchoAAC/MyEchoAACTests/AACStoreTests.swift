@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import UIKit
 @testable import MyEchoAAC
 
 @MainActor
@@ -115,6 +116,35 @@ struct AACStoreTests {
         store.upsert(word)
         store.delete(word)
         #expect(!store.words.contains { $0.id == word.id })
+    }
+
+    @Test("resetStarterBoard restores default words")
+    func resetStarterBoardRestoresWords() {
+        let store = makeStore()
+        store.words = [makeWord(label: "custom", position: 0)]
+        store.resetStarterBoard()
+        #expect(!store.words.isEmpty)
+        #expect(store.words.map(\.label) == StarterVocabulary.words.map(\.label))
+    }
+
+    @Test("resetStarterBoard does not delete unrelated ImageStore files")
+    func resetStarterBoardSparesCoreImages() {
+        // Simulate a "scene image" file in ImageStore that isn't a word photo
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4))
+        let img = renderer.image { ctx in ctx.fill(CGRect(x: 0, y: 0, width: 4, height: 4)) }
+        guard let scenePath = ImageStore.save(img) else {
+            Issue.record("ImageStore.save returned nil")
+            return
+        }
+        #expect(ImageStore.exists(scenePath))
+
+        let store = makeStore()
+        store.resetStarterBoard()
+
+        #expect(ImageStore.exists(scenePath), "Scene image must survive resetStarterBoard")
+
+        // Cleanup
+        ImageStore.delete(scenePath)
     }
 
     @Test("categories lists each folder once, ordered by first position")
