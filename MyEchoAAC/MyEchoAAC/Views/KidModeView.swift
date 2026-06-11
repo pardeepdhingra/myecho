@@ -34,6 +34,7 @@ struct KidModeView: View {
     @State private var showingWelcome = false
     @State private var showingSentenceHistory = false
     @State private var showingAbout = false
+    @State private var showingWordFinder = false
 
     private var columns: [GridItem] {
         return Array(
@@ -179,6 +180,20 @@ struct KidModeView: View {
                     .environmentObject(history)
                     .presentationDetents([.large])
             }
+            .sheet(isPresented: $showingWordFinder) {
+                WordFinderView(
+                    onAdd: { word in
+                        showingWordFinder = false
+                        addWord(word)
+                    },
+                    onNavigate: { word in
+                        showingWordFinder = false
+                        navigateToWord(word)
+                    }
+                )
+                .environmentObject(store)
+                .presentationDetents([.large, .medium])
+            }
             .onChange(of: store.words) { _, _ in
                 if let selectedCategory, !store.categories.contains(selectedCategory) {
                     self.selectedCategory = nil
@@ -237,6 +252,22 @@ struct KidModeView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("About Vani")
+
+            Button {
+                showingWordFinder = true
+            } label: {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(.body, weight: .semibold))
+                    .foregroundStyle(Color.black.opacity(0.75))
+                    .frame(width: 36, height: 36)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .overlay {
+                        Circle().stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Find a word")
 
             Button {
                 showingParentGate = true
@@ -1002,5 +1033,21 @@ struct KidModeView: View {
 
     private func clearMessage() {
         composer.clear()
+    }
+
+    /// Navigate the board to show the folder (or category) that contains `word`.
+    private func navigateToWord(_ word: AACWord) {
+        if store.settings.boardMode == .folders {
+            if word.category == AACWord.coreCategory {
+                // Core words live in the persistent band — just go home
+                open(folder: nil)
+            } else if folderCategories.contains(word.category) {
+                open(folder: word.category)
+            } else {
+                open(folder: nil)
+            }
+        } else {
+            selectedCategory = store.categories.contains(word.category) ? word.category : nil
+        }
     }
 }

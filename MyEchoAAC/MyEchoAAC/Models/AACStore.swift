@@ -122,6 +122,35 @@ final class AACStore: ObservableObject {
         settings.categoryStyles.removeAll { $0.name.caseInsensitiveCompare(name) == .orderedSame }
     }
 
+    // MARK: - Word search
+
+    /// Returns visible words whose label or phrase contains `query` (case-insensitive, trimmed).
+    /// Prefix matches rank before substring matches; ties are resolved alphabetically.
+    /// Returns `[]` for blank queries.
+    func searchWords(matching query: String) -> [AACWord] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+        let lower = trimmed.lowercased()
+        return words
+            .filter { $0.isVisible }
+            .filter {
+                $0.label.lowercased().contains(lower) ||
+                $0.phrase.lowercased().contains(lower)
+            }
+            .sorted { lhs, rhs in
+                let lPrefix = lhs.label.lowercased().hasPrefix(lower)
+                let rPrefix = rhs.label.lowercased().hasPrefix(lower)
+                if lPrefix != rPrefix { return lPrefix }
+                return lhs.label.localizedCaseInsensitiveCompare(rhs.label) == .orderedAscending
+            }
+    }
+
+    /// Human-readable path for a word (used in search results). Core words are always visible;
+    /// other words live inside their category folder.
+    static func pathLabel(for word: AACWord) -> String {
+        word.category == AACWord.coreCategory ? "Core" : word.category
+    }
+
     func visibleWords(in category: String?) -> [AACWord] {
         words
             .filter { $0.isVisible }

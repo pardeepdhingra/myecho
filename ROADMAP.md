@@ -75,7 +75,7 @@ Quality & testing
 Already at parity: Motor Plan folder board with fixed positions ✓, core-word band ✓, Fitzgerald word-type colours ✓, grid sizes 30/40/66/custom ✓, message window with symbol chips ✓, quick fires (quick phrases + regulation bar) ✓, progressive reveal (hide words/folders without moving buttons) ✓, page sets (board sets) ✓, backup/share ✓, cloud sync ✓, usage stats ✓, next-word prediction ✓ (TD Snap doesn't even have this on the symbol board).
 
 Gaps to close, in value order:
-- [ ] **Word finder for the kid board** — search a word, show the path to it (folder + page) like TD Snap Search; therapists rely on this.
+- [x] **Word finder for the kid board** — search a word, show the path to it (folder + page) like TD Snap Search; therapists rely on this. Magnifying-glass button in kid-board header opens `WordFinderView`; tap result to add to message bar, "Locate" button navigates to the folder/category.
 - [ ] **Keyboard page** — type-to-speak page with word prediction for literate users.
 - [ ] **Bigger symbol library** — integrate an open symbol set (e.g. ARASAAC, license-permitting) with search + download; bundled set is small.
 - [ ] **Switch scanning** — row/column scanning with external-switch and full-screen-tap support (TD Snap's core accessibility feature).

@@ -56,7 +56,9 @@
 		0A10003F0000000000000001 /* BoardSetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000460000000000000001 /* BoardSetsView.swift */; };
 		0AB100070000000000000001 /* BoardSetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200080000000000000001 /* BoardSetStoreTests.swift */; };
 		0A1000400000000000000001 /* PredictionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000470000000000000001 /* PredictionService.swift */; };
+		0A1000410000000000000001 /* WordFinderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000480000000000000001 /* WordFinderView.swift */; };
 		0AB100080000000000000001 /* PredictionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200090000000000000001 /* PredictionServiceTests.swift */; };
+		0AB100090000000000000001 /* WordFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2000A0000000000000001 /* WordFinderTests.swift */; };
 		0AB100010000000000000001 /* AACStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200010000000000000001 /* AACStoreTests.swift */; };
 		0AB100060000000000000001 /* MessageComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200070000000000000001 /* MessageComposerTests.swift */; };
 		0AC100010000000000000001 /* KidModeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC200010000000000000001 /* KidModeUITests.swift */; };
@@ -99,7 +101,9 @@
 		0A2000460000000000000001 /* BoardSetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetsView.swift; sourceTree = "<group>"; };
 		0AB200080000000000000001 /* BoardSetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardSetStoreTests.swift; sourceTree = "<group>"; };
 		0A2000470000000000000001 /* PredictionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionService.swift; sourceTree = "<group>"; };
+		0A2000480000000000000001 /* WordFinderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderView.swift; sourceTree = "<group>"; };
 		0AB200090000000000000001 /* PredictionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionServiceTests.swift; sourceTree = "<group>"; };
+		0AB2000A0000000000000001 /* WordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
 		0AC200020000000000000001 /* MyEchoAACUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyEchoAACUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A2000010000000000000001 /* MyEchoAACApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEchoAACApp.swift; sourceTree = "<group>"; };
@@ -207,6 +211,7 @@
 				0AB200040000000000000001 /* BackupPayloadTests.swift */,
 				0AB200080000000000000001 /* BoardSetStoreTests.swift */,
 				0AB200090000000000000001 /* PredictionServiceTests.swift */,
+				0AB2000A0000000000000001 /* WordFinderTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 				0A2000410000000000000001 /* FolderTileView.swift */,
 				0A2000430000000000000001 /* SymbolPickerView.swift */,
 				0A2000460000000000000001 /* BoardSetsView.swift */,
+				0A2000480000000000000001 /* WordFinderView.swift */,
 				0A2000090000000000000001 /* EditWordView.swift */,
 				0A20000E0000000000000001 /* CameraPicker.swift */,
 				0A20000F0000000000000001 /* EmojiPickerView.swift */,
@@ -465,6 +471,7 @@
 				0A1000210000000000000001 /* SignPickerView.swift in Sources */,
 				0A1000220000000000000001 /* PronunciationService.swift in Sources */,
 				0A1000400000000000000001 /* PredictionService.swift in Sources */,
+				0A1000410000000000000001 /* WordFinderView.swift in Sources */,
 				0A1000300000000000000001 /* DeviceID.swift in Sources */,
 				0A1000310000000000000001 /* CloudModels.swift in Sources */,
 				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
@@ -492,6 +499,7 @@
 				0AB100040000000000000001 /* BackupPayloadTests.swift in Sources */,
 				0AB100070000000000000001 /* BoardSetStoreTests.swift in Sources */,
 				0AB100080000000000000001 /* PredictionServiceTests.swift in Sources */,
+				0AB100090000000000000001 /* WordFinderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
