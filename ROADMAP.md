@@ -81,7 +81,7 @@ Gaps to close, in value order:
 - [x] **Switch scanning** — row/column scanning; yellow highlight overlay; full-screen-tap to advance/select; auto-scan timer; parent-configurable interval.
 - [x] **Partner window** — flip the spoken message to face the communication partner. ↕ button in message bar opens full-screen rotated large-text overlay; tap anywhere dismisses.
 - [x] **Grammar support** — word forms/inflections (plurals, tenses) on long-press. Seeded ~25 verb/noun forms; `WordFormsSheet` bottom sheet; context menu in kid mode; editing in `EditWordView`.
-- [ ] **Visual scene displays** — photo scenes with tappable hotspots (early-communicator support).
+- [x] **Visual scene displays** — photo scenes with tappable hotspots (early-communicator support). `AACScene` + `AACSceneHotspot` models; `SceneStore`; `SceneEditorView` (PhotosPicker + tap-to-place hotspots); `SceneListView` (parent tab); `SceneView` (kid fullscreen); scene tiles on kid fringe alongside folders.
 
 ## Voice (next)
 
