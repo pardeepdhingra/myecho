@@ -38,6 +38,7 @@ struct KidModeView: View {
     @State private var showingPartnerWindow = false
     @State private var wordFormsWord: AACWord?
     @State private var showingKeyboard = false
+    @State private var learningCardWord: AACWord?
     @StateObject private var scanner = ScanningEngine()
 
     private var columns: [GridItem] {
@@ -211,6 +212,13 @@ struct KidModeView: View {
                 PartnerWindowView(message: composer.phrase) {
                     showingPartnerWindow = false
                 }
+            }
+            .fullScreenCover(item: $learningCardWord) { word in
+                SignLearningCardView(word: word) {
+                    learningCardWord = nil
+                }
+                .environmentObject(store)
+                .environmentObject(speech)
             }
             .sheet(isPresented: $showingKeyboard) {
                 KeyboardPageView { word in
@@ -1053,6 +1061,7 @@ struct KidModeView: View {
         WordTileView(word: word, action: {
             addWord(word)
         }, scale: scale ?? store.settings.tileScale,
+           onShowSign: word.signVideoPath != nil ? { learningCardWord = word } : nil,
            backgroundColor: store.tileColor(for: word),
            style: store.settings.tileStyle)
         .contextMenu {

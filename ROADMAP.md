@@ -65,7 +65,7 @@ Quality & testing
 - [x] Sign language: bulk/"suggest sign for this word" flow so parents don't search one at a time.
 - [x] Sign language: handle/refresh download failures and offline gracefully — `SignDownloader` retries 3× with 1/2/3s backoff; `SignPickerView` shows "Try again" on search error and "Retry" button per result on download failure.
 - [ ] Sign language: let parents trim/choose a thumbnail frame for each saved sign.
-- [ ] Per-word sign learning card (tap to enlarge the sign + hear the word) for teaching moments.
+- [x] Per-word sign learning card (tap to enlarge the sign + hear the word) for teaching moments.
 - [x] Multiple boards via **Board sets** (Home, School, Therapy) — save/load/rename/overwrite named full-board snapshots (`BoardSetStore`, Parent → Board → Board sets). Self-contained files with embedded photos; the live board remains the single synced board.
 - [ ] Per-profile cloud sync (each board set as its own cloud document) — needs a cross-platform contract revision in CLOUD_SYNC_PLAN.md first.
 - [x] Basic UI tests for kid-mode message building (`MyEchoAACUITests/KidModeUITests`).

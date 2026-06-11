@@ -5,6 +5,8 @@ struct WordTileView: View {
     let word: AACWord
     let action: () -> Void
     var scale: Double = 1.0
+    /// If set, a small sign badge appears on tiles with a downloaded sign video; tapping it opens the learning card.
+    var onShowSign: (() -> Void)? = nil
     /// Optional background/accent override (e.g. the word's category or word-type color). Falls back to
     /// the word's own color. In `.outlined` style this is the border colour; in `.filled` it's the fill.
     var backgroundColor: Color? = nil
@@ -45,6 +47,24 @@ struct WordTileView: View {
                         .font(.system(size: 12 * clampedScale, weight: .bold))
                         .foregroundStyle(.yellow.shadow(.drop(color: .black.opacity(0.3), radius: 1)))
                         .padding(6 * clampedScale)
+                }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if let showSign = onShowSign,
+                   let filename = word.signVideoPath, SignVideoStore.exists(filename) {
+                    Button {
+                        showSign()
+                    } label: {
+                        Image(systemName: "hand.raised.fill")
+                            .font(.system(size: 11 * clampedScale, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(4 * clampedScale)
+                            .background(Color.black.opacity(0.45))
+                            .clipShape(RoundedRectangle(cornerRadius: 5 * clampedScale, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Learn \(word.label) sign")
+                    .padding(5 * clampedScale)
                 }
             }
             .shadow(color: .black.opacity(0.08), radius: 5, y: 2)
