@@ -362,25 +362,8 @@ struct KidModeView: View {
         .accessibilityIdentifier("chip_\(word.label)")
     }
 
-    /// Chip artwork follows the same priority as the tile (photo → bundled picture symbol → emoji) so
-    /// the message bar shows the exact symbol the child just pressed.
-    @ViewBuilder
     private func chipSymbol(for word: AACWord) -> some View {
-        if let filename = word.imagePath, let image = ImageStore.load(filename) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 32, height: 32)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-        } else if let symbolName = word.symbolName, SymbolLibrary.exists(symbolName) {
-            Image(symbolName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-        } else {
-            Text(word.symbol)
-                .font(.system(size: 24))
-        }
+        WordArtworkView(word: word, size: 32, cornerRadius: 6)
     }
 
     @ViewBuilder
@@ -484,8 +467,7 @@ struct KidModeView: View {
                                 addWord(word)
                             } label: {
                                 HStack(spacing: 6) {
-                                    Text(word.symbol)
-                                        .font(.system(size: 18))
+                                    WordArtworkView(word: word, size: 24, cornerRadius: 4)
                                     Text(word.label)
                                         .font(.system(.callout, design: .rounded, weight: .semibold))
                                         .foregroundStyle(Color.black.opacity(0.82))

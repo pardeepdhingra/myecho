@@ -104,31 +104,10 @@ struct WordTileView: View {
         style == .outlined ? 3.5 * clampedScale : 1
     }
 
-    /// Tile artwork, in priority order: custom photo → sign video → bundled picture symbol → emoji.
-    /// A custom photo always wins (parent requirement).
-    @ViewBuilder
     private var tileImage: some View {
-        if let filename = word.imagePath, let image = ImageStore.load(filename) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 56 * clampedScale, height: 56 * clampedScale)
-                .clipShape(RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous))
-        } else if let signFilename = word.signVideoPath, SignVideoStore.exists(signFilename) {
-            SignVideoView(url: SignVideoStore.fileURL(for: signFilename), videoGravity: .resizeAspectFill)
-                .frame(width: 56 * clampedScale, height: 56 * clampedScale)
-                .clipShape(RoundedRectangle(cornerRadius: 8 * clampedScale, style: .continuous))
-                .allowsHitTesting(false)
-        } else if let symbolName = word.symbolName, SymbolLibrary.exists(symbolName) {
-            Image(symbolName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 58 * clampedScale, height: 58 * clampedScale)
-        } else {
-            Text(word.symbol)
-                .font(.system(size: 42 * clampedScale))
-                .minimumScaleFactor(0.5)
-        }
+        WordArtworkView(word: word,
+                        size: 56 * clampedScale,
+                        cornerRadius: 8 * clampedScale)
     }
 }
 

@@ -109,7 +109,6 @@ struct WordFinderView: View {
     private func resultCard(_ word: AACWord) -> some View {
         HStack(spacing: 14) {
             tileSymbol(word)
-                .frame(width: 54, height: 54)
                 .background(store.tileColor(for: word))
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
@@ -157,21 +156,7 @@ struct WordFinderView: View {
         return path == "Core" ? "⭐️ Core (always visible)" : "📁 \(path)"
     }
 
-    @ViewBuilder
     private func tileSymbol(_ word: AACWord) -> some View {
-        if let filename = word.imagePath, let image = ImageStore.load(filename) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .clipped()
-        } else if let symbolName = word.symbolName, SymbolLibrary.exists(symbolName) {
-            Image(symbolName)
-                .resizable()
-                .scaledToFit()
-                .padding(8)
-        } else {
-            Text(word.symbol)
-                .font(.system(size: 28))
-        }
+        WordArtworkView(word: word, size: 54, cornerRadius: 10)
     }
 }

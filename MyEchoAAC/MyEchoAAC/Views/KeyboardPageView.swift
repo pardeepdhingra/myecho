@@ -54,7 +54,7 @@ struct KeyboardPageView: View {
                         dismiss()
                     } label: {
                         HStack(spacing: 6) {
-                            Text(word.symbol).font(.system(size: 18))
+                            WordArtworkView(word: word, size: 24, cornerRadius: 4)
                             Text(word.label)
                                 .font(.system(.callout, design: .rounded, weight: .semibold))
                                 .foregroundStyle(Color.black.opacity(0.82))
