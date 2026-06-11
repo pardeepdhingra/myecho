@@ -1013,15 +1013,8 @@ struct KidModeView: View {
             case .back:
                 backTile(scale: scale)
             case .scene(let scene):
-                FolderTileView(
-                    title: scene.name,
-                    icon: "🖼️",
-                    color: Color(red: 0.35, green: 0.65, blue: 0.55),
-                    scale: scale,
-                    style: store.settings.tileStyle
-                ) {
+                SceneTileView(scene: scene, scale: scale) {
                     showingScene = scene
-                    Haptics.actionTap()
                 }
             case nil:
                 Color.clear
