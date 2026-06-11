@@ -80,7 +80,7 @@ Gaps to close, in value order:
 - [ ] **Bigger symbol library** — integrate an open symbol set (e.g. ARASAAC, license-permitting) with search + download; bundled set is small.
 - [ ] **Switch scanning** — row/column scanning with external-switch and full-screen-tap support (TD Snap's core accessibility feature).
 - [x] **Partner window** — flip the spoken message to face the communication partner. ↕ button in message bar opens full-screen rotated large-text overlay; tap anywhere dismisses.
-- [ ] **Grammar support** — word forms/inflections (plurals, tenses) on long-press.
+- [x] **Grammar support** — word forms/inflections (plurals, tenses) on long-press. Seeded ~25 verb/noun forms; `WordFormsSheet` bottom sheet; context menu in kid mode; editing in `EditWordView`.
 - [ ] **Visual scene displays** — photo scenes with tappable hotspots (early-communicator support).
 
 ## Voice (next)

@@ -18,6 +18,7 @@ struct EditWordView: View {
     @State private var showCustomSymbol = false
     @State private var isAddingNewCategory = false
     @State private var newCategoryText: String = ""
+    @State private var newFormText: String = ""
     /// Remembers the folder to return a word to when it's un-pinned from the home core band.
     @State private var lastFolder: String
     @State private var phraseFollowsLabel: Bool
@@ -68,6 +69,8 @@ struct EditWordView: View {
                 photoSection
 
                 signSection
+
+                wordFormsSection
 
                 Section {
                     Picker("Word type", selection: $draft.partOfSpeech) {
@@ -363,6 +366,53 @@ struct EditWordView: View {
             }
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var wordFormsSection: some View {
+        Section {
+            ForEach(draft.wordForms, id: \.self) { form in
+                HStack {
+                    Text(form)
+                        .font(.system(.body, design: .rounded))
+                    Spacer()
+                    Button {
+                        draft.wordForms.removeAll { $0 == form }
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Remove \(form)")
+                }
+            }
+
+            HStack {
+                TextField("Add a form (e.g. eating)", text: $newFormText)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .submitLabel(.done)
+                    .onSubmit { addForm() }
+                Button(action: addForm) {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundStyle(.green)
+                }
+                .buttonStyle(.plain)
+                .disabled(newFormText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel("Add form")
+            }
+        } header: {
+            Text("Word forms")
+        } footer: {
+            Text("Alternative forms (e.g. eating, ate, eats) that the child can pick with a long press in kid mode.")
+        }
+    }
+
+    private func addForm() {
+        let trimmed = newFormText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !draft.wordForms.contains(trimmed) else { return }
+        draft.wordForms.append(trimmed)
+        newFormText = ""
     }
 
     @ViewBuilder

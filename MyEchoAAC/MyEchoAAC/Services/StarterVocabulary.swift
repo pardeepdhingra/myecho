@@ -182,6 +182,55 @@ enum StarterVocabulary {
             ("a", "🅰️", "uh")
         ])
 
+        applyWordForms(to: &result)
         return result
+    }
+
+    // MARK: - Word forms seeding
+
+    /// Pre-populated word forms for high-frequency starter words. Parents can always add/edit these
+    /// in the word editor. Only verbs and irregular nouns need entries — regular nouns rarely change
+    /// in AAC use. Verbs listed as [present-participle, simple-past, third-person-singular].
+    private static let seedForms: [String: [String]] = [
+        // Core verbs
+        "want": ["wanting", "wanted", "wants"],
+        "go":   ["going", "went", "goes"],
+        "stop": ["stopping", "stopped", "stops"],
+        "help": ["helping", "helped", "helps"],
+        "like": ["liking", "liked", "likes"],
+        // Actions folder verbs
+        "eat":   ["eating", "ate", "eats"],
+        "drink": ["drinking", "drank", "drinks"],
+        "play":  ["playing", "played", "plays"],
+        "run":   ["running", "ran", "runs"],
+        "jump":  ["jumping", "jumped", "jumps"],
+        "sit":   ["sitting", "sat", "sits"],
+        "open":  ["opening", "opened", "opens"],
+        "sleep": ["sleeping", "slept", "sleeps"],
+        "wash":  ["washing", "washed", "washes"],
+        "throw": ["throwing", "threw", "throws"],
+        "build": ["building", "built", "builds"],
+        "look":  ["looking", "looked", "looks"],
+        "make":  ["making", "made", "makes"],
+        "give":  ["giving", "gave", "gives"],
+        "do":    ["doing", "did", "does"],
+        "turn":  ["turning", "turned", "turns"],
+        // School verbs
+        "listen": ["listening", "listened", "listens"],
+        // Irregular nouns
+        "foot": ["feet"],
+        "book": ["books"],
+        "ball": ["balls"],
+        "hand": ["hands"],
+        "friend": ["friends"],
+    ]
+
+    private static func applyWordForms(to words: inout [AACWord]) {
+        for index in words.indices {
+            let label = words[index].label
+            if let forms = seedForms[label], !forms.isEmpty {
+                words[index].wordForms = forms
+            }
+        }
     }
 }

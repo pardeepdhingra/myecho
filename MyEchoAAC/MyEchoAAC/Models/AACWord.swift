@@ -29,9 +29,12 @@ struct AACWord: Identifiable, Codable, Equatable {
     /// tile follows the board colour mode (by default the **folder's colour**). Lets one button differ
     /// without leaving "colour by folder" for the whole board.
     var colorOverride: TileColorName?
+    /// Alternative word forms the parent has configured (e.g. ["eating", "ate", "eats"] for "eat").
+    /// Shown as a long-press popover in kid mode so the child can select a grammatical form.
+    var wordForms: [String]
 
     enum CodingKeys: String, CodingKey {
-        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, partOfSpeech, symbolName, colorOverride
+        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, partOfSpeech, symbolName, colorOverride, wordForms
     }
 
     init(
@@ -51,7 +54,8 @@ struct AACWord: Identifiable, Codable, Equatable {
         signLanguage: SignLanguage? = nil,
         partOfSpeech: PartOfSpeech? = nil,
         symbolName: String? = nil,
-        colorOverride: TileColorName? = nil
+        colorOverride: TileColorName? = nil,
+        wordForms: [String] = []
     ) {
         self.id = id
         self.label = label
@@ -70,6 +74,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         self.partOfSpeech = partOfSpeech
         self.symbolName = symbolName
         self.colorOverride = colorOverride
+        self.wordForms = wordForms
     }
 
     init(from decoder: Decoder) throws {
@@ -92,6 +97,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         partOfSpeech = try c.decodeIfPresent(PartOfSpeech.self, forKey: .partOfSpeech)
         symbolName = try c.decodeIfPresent(String.self, forKey: .symbolName)
         colorOverride = try c.decodeIfPresent(TileColorName.self, forKey: .colorOverride)
+        wordForms = try c.decodeIfPresent([String].self, forKey: .wordForms) ?? []
     }
 }
 

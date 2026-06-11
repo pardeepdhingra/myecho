@@ -36,6 +36,7 @@ struct KidModeView: View {
     @State private var showingAbout = false
     @State private var showingWordFinder = false
     @State private var showingPartnerWindow = false
+    @State private var wordFormsWord: AACWord?
 
     private var columns: [GridItem] {
         return Array(
@@ -180,6 +181,23 @@ struct KidModeView: View {
                     .environmentObject(speech)
                     .environmentObject(history)
                     .presentationDetents([.large])
+            }
+            .sheet(item: $wordFormsWord) { word in
+                WordFormsSheet(
+                    word: word,
+                    tileColor: store.tileColor(for: word)
+                ) { form in
+                    let synthetic = AACWord(
+                        label: form,
+                        phrase: form,
+                        symbol: word.symbol,
+                        category: word.category,
+                        colorName: word.colorName,
+                        position: 0,
+                        colorOverride: word.colorOverride
+                    )
+                    addWord(synthetic)
+                }
             }
             .fullScreenCover(isPresented: $showingPartnerWindow) {
                 PartnerWindowView(message: composer.phrase) {
@@ -1009,6 +1027,13 @@ struct KidModeView: View {
                 Haptics.success()
             } label: {
                 Label("Add to Quick Phrases", systemImage: "quote.bubble")
+            }
+            if !word.wordForms.isEmpty {
+                Button {
+                    wordFormsWord = word
+                } label: {
+                    Label("Word forms…", systemImage: "textformat.alt")
+                }
             }
         }
     }
