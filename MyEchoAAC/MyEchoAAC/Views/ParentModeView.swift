@@ -1131,6 +1131,18 @@ struct ParentModeView: View {
                     Slider(value: $store.settings.pitchMultiplier, in: 0.85...1.25)
                 }
             }
+
+            Section {
+                NavigationLink {
+                    PronunciationLibraryView()
+                        .environmentObject(store)
+                        .environmentObject(speech)
+                } label: {
+                    Label("Pronunciation library", systemImage: "text.bubble")
+                }
+            } footer: {
+                Text("Add custom phonetic overrides so tricky words are spoken correctly.")
+            }
         }
     }
 }

@@ -86,7 +86,7 @@ Gaps to close, in value order:
 ## Voice (next)
 
 - [ ] Build a small ElevenLabs voice proxy for distributable releases (key out of app).
-- [ ] Expand pronunciation overrides and let parents add custom pronunciations per word.
+- [x] Expand pronunciation overrides and let parents add custom pronunciations per word.
 
 ## Later
 

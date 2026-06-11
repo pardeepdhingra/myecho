@@ -143,6 +143,9 @@ struct AACSettings: Codable, Equatable {
     var scanningEnabled: Bool
     /// Seconds between automatic scan advances (auto-scan mode). 0 = manual only.
     var scanIntervalSeconds: Double
+    /// Parent-defined phonetic overrides (word → spoken form). Consulted by PronunciationService
+    /// before the built-in dictionary, so parents can correct any word app-wide.
+    var pronunciationOverrides: [String: String]
 
     /// Back-compat convenience for the old boolean meaning ("tiles share their category colour").
     var colorTilesByCategory: Bool { colorMode == .byCategory }
@@ -192,7 +195,8 @@ struct AACSettings: Codable, Equatable {
         showWordSuggestions: true,
         showKeyboardPage: true,
         scanningEnabled: false,
-        scanIntervalSeconds: 2.0
+        scanIntervalSeconds: 2.0,
+        pronunciationOverrides: [:]
     )
 
     enum CodingKeys: String, CodingKey {
@@ -208,6 +212,7 @@ struct AACSettings: Codable, Equatable {
         case showKeyboardPage
         case scanningEnabled
         case scanIntervalSeconds
+        case pronunciationOverrides
         /// Legacy key (pre-`colorMode`); read-only for migration.
         case colorTilesByCategory
     }
@@ -237,7 +242,8 @@ struct AACSettings: Codable, Equatable {
         showWordSuggestions: Bool = true,
         showKeyboardPage: Bool = true,
         scanningEnabled: Bool = false,
-        scanIntervalSeconds: Double = 2.0
+        scanIntervalSeconds: Double = 2.0,
+        pronunciationOverrides: [String: String] = [:]
     ) {
         self.gridColumns = gridColumns
         self.voiceIdentifier = voiceIdentifier
@@ -264,6 +270,7 @@ struct AACSettings: Codable, Equatable {
         self.showKeyboardPage = showKeyboardPage
         self.scanningEnabled = scanningEnabled
         self.scanIntervalSeconds = scanIntervalSeconds
+        self.pronunciationOverrides = pronunciationOverrides
     }
 
     init(from decoder: Decoder) throws {
@@ -300,6 +307,7 @@ struct AACSettings: Codable, Equatable {
         showKeyboardPage = try c.decodeIfPresent(Bool.self, forKey: .showKeyboardPage) ?? true
         scanningEnabled = try c.decodeIfPresent(Bool.self, forKey: .scanningEnabled) ?? false
         scanIntervalSeconds = try c.decodeIfPresent(Double.self, forKey: .scanIntervalSeconds) ?? 2.0
+        pronunciationOverrides = try c.decodeIfPresent([String: String].self, forKey: .pronunciationOverrides) ?? [:]
     }
 
     /// Explicit encode so we write only real stored fields — never the legacy `colorTilesByCategory`
@@ -331,5 +339,6 @@ struct AACSettings: Codable, Equatable {
         try c.encode(showKeyboardPage, forKey: .showKeyboardPage)
         try c.encode(scanningEnabled, forKey: .scanningEnabled)
         try c.encode(scanIntervalSeconds, forKey: .scanIntervalSeconds)
+        try c.encode(pronunciationOverrides, forKey: .pronunciationOverrides)
     }
 }

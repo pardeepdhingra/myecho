@@ -20,24 +20,31 @@ enum PronunciationService {
         "toilet": "toy lit"
     ]
 
-    static func suggestion(for label: String) -> String? {
+    /// Returns a suggested spoken form for `label`, checking `customOverrides` first.
+    /// `customOverrides` is the parent's own dictionary (from `AACSettings.pronunciationOverrides`).
+    static func suggestion(for label: String, customOverrides: [String: String] = [:]) -> String? {
         let normalized = normalize(label)
         guard !normalized.isEmpty else { return nil }
+
+        // Custom parent overrides take precedence over built-ins.
+        if let custom = customOverrides[normalized] {
+            return custom
+        }
 
         if let exact = phraseOverrides[normalized] {
             return exact
         }
 
         let words = normalized.split(separator: " ").map(String.init)
-        let spokenWords = words.map { wordOverrides[$0] ?? simplePhoneticWord($0) }
+        let spokenWords = words.map { customOverrides[$0] ?? wordOverrides[$0] ?? simplePhoneticWord($0) }
         let suggestion = spokenWords.joined(separator: " ")
         return suggestion.caseInsensitiveCompare(label.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
             ? nil
             : suggestion
     }
 
-    static func bestSpokenPhrase(for label: String) -> String {
-        suggestion(for: label) ?? label.trimmingCharacters(in: .whitespacesAndNewlines)
+    static func bestSpokenPhrase(for label: String, customOverrides: [String: String] = [:]) -> String {
+        suggestion(for: label, customOverrides: customOverrides) ?? label.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private static func normalize(_ value: String) -> String {
