@@ -596,6 +596,12 @@ struct EditWordView: View {
 
     private func handlePickedSign(_ selection: SignPickerSelection) {
         let previousDuringEdit = draft.signVideoPath
+        // Clear any stale thumbnail — it was picked from the old sign and no longer matches.
+        // Only delete it if it's not the original (original is handled by cancel/save).
+        if let currentThumb = draft.signThumbnailPath, currentThumb != originalSignThumbnailPath {
+            ImageStore.delete(currentThumb)
+        }
+        draft.signThumbnailPath = nil
         draft.signVideoPath = selection.filename
         draft.signLanguage = selection.language
         if let previousDuringEdit, previousDuringEdit != originalSignVideoPath {
