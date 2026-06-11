@@ -774,11 +774,10 @@ struct KidModeView: View {
     private var folderBoard: some View {
         GeometryReader { geo in
             let spacing = Self.boardSpacing
-            // Reserve room for the page-dots row so tiles never get clipped at the bottom.
-            let dotsReserve: CGFloat = 26
             // The grid size sets the *tile size* (density), not a fixed column count: we then FILL the
             // available space with as many columns/rows as fit at that size. This uses the whole screen
             // (no wasted space) and only paginates when content genuinely exceeds a full screen.
+            // Page dots are overlaid at the bottom of the grid (no reserved row needed).
             let baseTile: CGFloat = {
                 switch store.settings.gridPreset {
                 case .size30: return 116   // big buttons
@@ -789,7 +788,7 @@ struct KidModeView: View {
             }()
             let targetTile = baseTile * CGFloat(min(max(store.settings.tileScale, 0.7), 1.6))
             let cols = max(3, Int((geo.size.width + spacing) / (targetTile + spacing)))
-            let rows = max(2, Int((geo.size.height - dotsReserve + spacing) / (targetTile + spacing)))
+            let rows = max(2, Int((geo.size.height + spacing) / (targetTile + spacing)))
             // Core band: keep ≥2 fringe columns, but widen it (within limits) so it can hold ALL the
             // core words at the current row count — otherwise overflow core words would only show on
             // the home page and vanish inside folders (the "fixed buttons get overridden" bug).
@@ -799,7 +798,7 @@ struct KidModeView: View {
             let fringeCols = max(1, cols - coreCols)
             let bandGap: CGFloat = coreCols > 0 ? spacing * 2 : 0
             let availW = geo.size.width - spacing * CGFloat(cols - 1) - bandGap
-            let availH = geo.size.height - dotsReserve - spacing * CGFloat(rows - 1)
+            let availH = geo.size.height - spacing * CGFloat(rows - 1)
             // Exact fit (no floor) so the grid is always fully on-screen.
             let tile = min(availW / CGFloat(cols), availH / CGFloat(rows))
             let scale = min(max(tile / 110.0, 0.7), 1.8)
@@ -897,9 +896,10 @@ struct KidModeView: View {
         }
     }
 
-    /// The fringe region. Never scrolls — overflow spills onto pages flipped with prev/next + dots.
-    /// (Uses an explicit page index rather than a paged `TabView`, whose gesture layer can swallow
-    /// taps on the folder/word buttons inside it.)
+    /// The fringe region. Never scrolls — overflow spills onto pages.
+    /// Pages are turned with a horizontal swipe (left = next, right = previous). Tiny page dots
+    /// are overlaid at the bottom of the grid rather than occupying a separate row, so every pixel
+    /// of screen space is available for word tiles.
     private func fringePager(cols: Int, rows: Int, tile: CGFloat, scale: Double, gridHeight: CGFloat, coreCapacity: Int) -> some View {
         let capacity = max(1, cols * rows)
         let cells = currentFringeCells(coreCapacity: coreCapacity)
@@ -910,31 +910,37 @@ struct KidModeView: View {
             }
         let page = min(max(fringePage, 0), pages.count - 1)
         let width = CGFloat(cols) * tile + CGFloat(cols - 1) * Self.boardSpacing
-        return VStack(spacing: 6) {
+        return ZStack(alignment: .bottom) {
             fixedGrid(pages[page], cols: cols, rows: rows, tile: tile, scale: scale,
                       highlighted: scanner.highlightedIndices)
-            if pages.count > 1 {
-                HStack(spacing: 10) {
-                    Button { fringePage = max(0, page - 1) } label: {
-                        Image(systemName: "chevron.left.circle.fill")
-                    }
-                    .disabled(page == 0)
-                    .accessibilityLabel("Previous page")
+                .gesture(
+                    DragGesture(minimumDistance: 50, coordinateSpace: .local)
+                        .onEnded { value in
+                            let dx = value.translation.width
+                            let dy = value.translation.height
+                            // Only act on clearly horizontal swipes to avoid misreading vertical drags.
+                            guard abs(dx) > abs(dy) * 1.5 else { return }
+                            withAnimation(.easeInOut(duration: 0.18)) {
+                                if dx < 0 {
+                                    fringePage = min(pages.count - 1, page + 1)
+                                } else {
+                                    fringePage = max(0, page - 1)
+                                }
+                            }
+                        }
+                )
 
+            if pages.count > 1 {
+                HStack(spacing: 6) {
                     ForEach(0 ..< pages.count, id: \.self) { i in
                         Circle()
-                            .fill(i == page ? Color.accentColor : Color.black.opacity(0.18))
-                            .frame(width: 8, height: 8)
+                            .fill(i == page ? Color.white : Color.white.opacity(0.45))
+                            .frame(width: 7, height: 7)
+                            .shadow(color: .black.opacity(0.35), radius: 1)
                     }
-
-                    Button { fringePage = min(pages.count - 1, page + 1) } label: {
-                        Image(systemName: "chevron.right.circle.fill")
-                    }
-                    .disabled(page == pages.count - 1)
-                    .accessibilityLabel("Next page")
                 }
-                .font(.title3)
-                .tint(Color.accentColor)
+                .padding(.bottom, 5)
+                .accessibilityHidden(true)
             }
         }
         .frame(width: width, alignment: .topLeading)
