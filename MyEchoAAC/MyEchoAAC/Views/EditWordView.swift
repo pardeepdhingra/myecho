@@ -165,9 +165,20 @@ struct EditWordView: View {
                 }
             }
             .sheet(isPresented: $showingSymbolPicker) {
-                SymbolPickerView { name in
-                    draft.symbolName = name
-                }
+                SymbolPickerView(
+                    onSelect: { name in
+                        draft.symbolName = name
+                    },
+                    onSelectImage: { path in
+                        // Image already saved to ImageStore by the picker; clear symbolName so photo takes priority.
+                        let previousDuringEdit = draft.imagePath
+                        draft.imagePath = path
+                        draft.symbolName = nil
+                        if let previousDuringEdit, previousDuringEdit != originalImagePath {
+                            ImageStore.delete(previousDuringEdit)
+                        }
+                    }
+                )
                 .presentationDetents([.large])
             }
             .sheet(isPresented: $showingSignPicker) {
