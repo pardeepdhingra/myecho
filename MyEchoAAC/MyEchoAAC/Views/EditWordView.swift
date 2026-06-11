@@ -607,7 +607,9 @@ struct EditWordView: View {
         if let filename = draft.signVideoPath, filename != originalSignVideoPath {
             SignVideoStore.delete(filename)
         }
-        if let thumbPath = draft.signThumbnailPath {
+        // Only delete the thumbnail if it's a new one picked during this edit session —
+        // the original thumbnail (if untouched) must survive so cancel() can restore it.
+        if let thumbPath = draft.signThumbnailPath, thumbPath != originalSignThumbnailPath {
             ImageStore.delete(thumbPath)
         }
         draft.signVideoPath = nil
