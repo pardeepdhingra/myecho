@@ -37,6 +37,7 @@ struct KidModeView: View {
     @State private var showingWordFinder = false
     @State private var showingPartnerWindow = false
     @State private var wordFormsWord: AACWord?
+    @State private var showingKeyboard = false
 
     private var columns: [GridItem] {
         return Array(
@@ -203,6 +204,14 @@ struct KidModeView: View {
                 PartnerWindowView(message: composer.phrase) {
                     showingPartnerWindow = false
                 }
+            }
+            .sheet(isPresented: $showingKeyboard) {
+                KeyboardPageView { word in
+                    addWord(word)
+                }
+                .environmentObject(store)
+                .environmentObject(speech)
+                .presentationDetents([.medium, .large])
             }
             .sheet(isPresented: $showingWordFinder) {
                 WordFinderView(
@@ -660,6 +669,7 @@ struct KidModeView: View {
         case blank
         case folder(name: String, icon: String, color: Color)
         case favorites
+        case keyboard // type-to-speak keyboard page tile
         case back     // a "Home" tile shown first inside a folder
 
         /// Stable identity so SwiftUI never reuses one cell's view for different content — without
@@ -671,6 +681,7 @@ struct KidModeView: View {
             case .blank: "blank"
             case .folder(let name, _, _): "folder_\(name)"
             case .favorites: "favorites"
+            case .keyboard: "keyboard"
             case .back: "back"
             }
         }
@@ -743,6 +754,7 @@ struct KidModeView: View {
                 return FringeCell.folder(name: name, icon: style.icon, color: style.color)
             })
             if showFavoritesFolder { cells.append(.favorites) }
+            if store.settings.showKeyboardPage { cells.append(.keyboard) }
             return cells
         }
         // A "Home" tile leads every folder page — a board-tile back control (always reliable).
@@ -962,6 +974,13 @@ struct KidModeView: View {
                 FolderTileView(title: "Favorites", icon: "⭐️", color: Self.favoritesColor,
                                scale: scale, style: store.settings.tileStyle) {
                     open(folder: Self.favoritesCategoryToken)
+                }
+            case .keyboard:
+                FolderTileView(title: "Keyboard", icon: "⌨️",
+                               color: Color(red: 0.55, green: 0.65, blue: 0.95),
+                               scale: scale, style: store.settings.tileStyle) {
+                    showingKeyboard = true
+                    Haptics.actionTap()
                 }
             case .back:
                 backTile(scale: scale)

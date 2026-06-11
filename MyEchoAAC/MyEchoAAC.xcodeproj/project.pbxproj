@@ -59,7 +59,9 @@
 		0A1000410000000000000001 /* WordFinderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000480000000000000001 /* WordFinderView.swift */; };
 		0A1000420000000000000001 /* PartnerWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000490000000000000001 /* PartnerWindowView.swift */; };
 		0A1000430000000000000001 /* WordFormsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004A0000000000000001 /* WordFormsSheet.swift */; };
+		0A1000440000000000000001 /* KeyboardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004B0000000000000001 /* KeyboardPageView.swift */; };
 		0AB10000A000000000000001 /* WordFormsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000B000000000000001 /* WordFormsTests.swift */; };
+		0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000C000000000000001 /* KeyboardPageTests.swift */; };
 		0AB100080000000000000001 /* PredictionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200090000000000000001 /* PredictionServiceTests.swift */; };
 		0AB100090000000000000001 /* WordFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2000A0000000000000001 /* WordFinderTests.swift */; };
 		0AB100010000000000000001 /* AACStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200010000000000000001 /* AACStoreTests.swift */; };
@@ -107,7 +109,9 @@
 		0A2000480000000000000001 /* WordFinderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderView.swift; sourceTree = "<group>"; };
 		0A2000490000000000000001 /* PartnerWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerWindowView.swift; sourceTree = "<group>"; };
 		0A20004A0000000000000001 /* WordFormsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsSheet.swift; sourceTree = "<group>"; };
+		0A20004B0000000000000001 /* KeyboardPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageView.swift; sourceTree = "<group>"; };
 		0AB20000B000000000000001 /* WordFormsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsTests.swift; sourceTree = "<group>"; };
+		0AB20000C000000000000001 /* KeyboardPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageTests.swift; sourceTree = "<group>"; };
 		0AB200090000000000000001 /* PredictionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionServiceTests.swift; sourceTree = "<group>"; };
 		0AB2000A0000000000000001 /* WordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
@@ -219,6 +223,7 @@
 				0AB200090000000000000001 /* PredictionServiceTests.swift */,
 				0AB2000A0000000000000001 /* WordFinderTests.swift */,
 				0AB20000B000000000000001 /* WordFormsTests.swift */,
+				0AB20000C000000000000001 /* KeyboardPageTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -290,6 +295,7 @@
 				0A2000480000000000000001 /* WordFinderView.swift */,
 				0A2000490000000000000001 /* PartnerWindowView.swift */,
 				0A20004A0000000000000001 /* WordFormsSheet.swift */,
+				0A20004B0000000000000001 /* KeyboardPageView.swift */,
 				0A2000090000000000000001 /* EditWordView.swift */,
 				0A20000E0000000000000001 /* CameraPicker.swift */,
 				0A20000F0000000000000001 /* EmojiPickerView.swift */,
@@ -483,6 +489,7 @@
 				0A1000410000000000000001 /* WordFinderView.swift in Sources */,
 				0A1000420000000000000001 /* PartnerWindowView.swift in Sources */,
 				0A1000430000000000000001 /* WordFormsSheet.swift in Sources */,
+				0A1000440000000000000001 /* KeyboardPageView.swift in Sources */,
 				0A1000300000000000000001 /* DeviceID.swift in Sources */,
 				0A1000310000000000000001 /* CloudModels.swift in Sources */,
 				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
@@ -512,6 +519,7 @@
 				0AB100080000000000000001 /* PredictionServiceTests.swift in Sources */,
 				0AB100090000000000000001 /* WordFinderTests.swift in Sources */,
 				0AB10000A000000000000001 /* WordFormsTests.swift in Sources */,
+				0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

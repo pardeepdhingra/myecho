@@ -76,7 +76,7 @@ Already at parity: Motor Plan folder board with fixed positions ✓, core-word b
 
 Gaps to close, in value order:
 - [x] **Word finder for the kid board** — search a word, show the path to it (folder + page) like TD Snap Search; therapists rely on this. Magnifying-glass button in kid-board header opens `WordFinderView`; tap result to add to message bar, "Locate" button navigates to the folder/category.
-- [ ] **Keyboard page** — type-to-speak page with word prediction for literate users.
+- [x] **Keyboard page** — type-to-speak page with vocabulary type-ahead and a ⌨️ folder tile on the home fringe. Parents can hide it.
 - [ ] **Bigger symbol library** — integrate an open symbol set (e.g. ARASAAC, license-permitting) with search + download; bundled set is small.
 - [ ] **Switch scanning** — row/column scanning with external-switch and full-screen-tap support (TD Snap's core accessibility feature).
 - [x] **Partner window** — flip the spoken message to face the communication partner. ↕ button in message bar opens full-screen rotated large-text overlay; tap anywhere dismisses.

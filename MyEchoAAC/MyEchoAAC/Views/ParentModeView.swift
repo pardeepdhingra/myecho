@@ -338,6 +338,7 @@ struct ParentModeView: View {
                 Toggle("Show symbols in message bar", isOn: $store.settings.showSymbolsInMessageBar)
                 Toggle("Show regulation bar (Break / Help / Stop)", isOn: $store.settings.showRegulationBar)
                 Toggle("Word suggestions", isOn: $store.settings.showWordSuggestions)
+                Toggle("Keyboard page (type to speak)", isOn: $store.settings.showKeyboardPage)
             } header: {
                 Text("Grid")
             } footer: {
