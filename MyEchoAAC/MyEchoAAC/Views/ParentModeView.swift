@@ -173,7 +173,9 @@ struct ParentModeView: View {
     @EnvironmentObject private var store: AACStore
     @EnvironmentObject private var speech: SpeechService
     @EnvironmentObject private var history: UsageHistory
+    @EnvironmentObject private var profileStore: ProfileStore
 
+    @State private var showingProfileSwitcher = false
     @State private var editedWord: AACWord?
     @State private var editedPhrase: QuickPhrase?
     @State private var editedCategory: IdentifiableString?
@@ -248,6 +250,24 @@ struct ParentModeView: View {
                     }
                 }
 
+                ToolbarItem(placement: .principal) {
+                    Button {
+                        showingProfileSwitcher = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(profileStore.activeProfile?.emoji ?? "⭐️")
+                                .font(.system(size: 16))
+                            Text(profileStore.activeProfile?.name ?? "Profile")
+                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            Image(systemName: "chevron.down")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Switch profile: \(profileStore.activeProfile?.name ?? "")")
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         editedWord = store.addBlankWord()
@@ -255,6 +275,11 @@ struct ParentModeView: View {
                         Label("Add word", systemImage: "plus")
                     }
                 }
+            }
+            .sheet(isPresented: $showingProfileSwitcher) {
+                ProfileSwitcherView()
+                    .environmentObject(profileStore)
+                    .environmentObject(store)
             }
             .sheet(item: $editedWord) { word in
                 EditWordView(word: word)

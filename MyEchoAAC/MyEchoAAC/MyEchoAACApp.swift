@@ -8,6 +8,7 @@ struct MyEchoAACApp: App {
     @StateObject private var predictions = PredictionService()
     @StateObject private var auth: AuthService
     @StateObject private var sync: CloudSyncService
+    @StateObject private var profileStore: ProfileStore
 
     init() {
         // UI-test hook: start from a known state (no first-run welcome sheet, fresh starter board).
@@ -21,7 +22,9 @@ struct MyEchoAACApp: App {
         CloudBootstrap.configure()
         _ = DeviceID.current
 
-        let s = AACStore()
+        let ps = ProfileStore()
+        let activeDefaults = ps.activeProfile.flatMap { ps.userDefaults(for: $0) } ?? .standard
+        let s = AACStore(defaults: activeDefaults)
         s.ensureRegulationDefaults()
         let h = UsageHistory()
         let backends = CloudBootstrap.makeBackends()
@@ -32,6 +35,7 @@ struct MyEchoAACApp: App {
         _history = StateObject(wrappedValue: h)
         _auth = StateObject(wrappedValue: a)
         _sync = StateObject(wrappedValue: cs)
+        _profileStore = StateObject(wrappedValue: ps)
     }
 
     var body: some Scene {
@@ -43,6 +47,7 @@ struct MyEchoAACApp: App {
                 .environmentObject(predictions)
                 .environmentObject(auth)
                 .environmentObject(sync)
+                .environmentObject(profileStore)
                 .tint(.indigo)
                 .task { sync.start() }
         }

@@ -92,7 +92,7 @@ Gaps to close, in value order:
 
 - [x] Word finder for parents — `ParentWordFinderView` (magnifying glass in Words toolbar): shows artwork, label, full location badge ("📁 Food · 7 of 24"), and direct Edit button; auto-opens `EditWordView` without needing to scroll the flat list.
 - [x] Progressive reveal without changing learned tile positions — `QuickRevealView` (eye icon in Words toolbar): shows all words including hidden ones as a grid; tap to toggle visibility, position lock auto-enabled, Show All / Hide All, per-category filter.
-- [ ] Multiple child profiles.
+- [x] Multiple child profiles — `ProfileStore` + `ChildProfile` + `ProfileSwitcherView`: each profile has its own UserDefaults suite (separate words, settings, phrases); `AACStore.reload(from:)` switches live board; profile switcher in ParentMode title bar (emoji + name + chevron); add/edit/delete profiles; default profile stays on `.standard` defaults (no migration needed).
 - [ ] Cloud sync, only if privacy and reliability are clear.
 - [ ] Therapist/share mode.
 
