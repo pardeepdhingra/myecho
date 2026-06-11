@@ -75,17 +75,8 @@ struct SceneTileView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
-                VStack(spacing: 4 * clampedScale) {
-                    Text("🖼️")
-                        .font(.system(size: 36 * clampedScale))
-                    Text(scene.name)
-                        .font(.system(size: 15 * clampedScale, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.55)
-                        .padding(.horizontal, 6 * clampedScale)
-                }
+                Text("🖼️")
+                    .font(.system(size: 36 * clampedScale))
             }
         }
     }

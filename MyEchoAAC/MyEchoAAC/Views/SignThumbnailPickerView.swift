@@ -117,16 +117,15 @@ struct SignThumbnailPickerView: View {
     private func loadDurationAndInitialFrame() {
         let asset = AVURLAsset(url: videoURL)
         Task {
-            if let track = try? await asset.loadTracks(withMediaType: .video).first,
-               let naturalSize = try? await track.load(.naturalSize),
-               naturalSize != .zero {
-                let dur = try? await asset.load(.duration)
-                let seconds = dur.map { CMTimeGetSeconds($0) } ?? 1
-                await MainActor.run {
-                    duration = max(seconds, 0.01)
-                }
+            let dur = try? await asset.load(.duration)
+            let seconds = dur.map { CMTimeGetSeconds($0) } ?? 1
+            let resolvedDuration = max(seconds, 0.01)
+            await MainActor.run {
+                duration = resolvedDuration
+                // Start at midpoint — frame 0 is often black on sign videos
+                seekTime = resolvedDuration / 2
             }
-            extractFrame(at: 0)
+            extractFrame(at: resolvedDuration / 2)
         }
     }
 

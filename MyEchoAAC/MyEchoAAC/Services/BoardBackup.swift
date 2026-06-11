@@ -61,8 +61,12 @@ enum BoardBackup {
 
     /// Replace the live board with a payload: photos on disk are replaced with the payload's embedded
     /// images, then the store contents swap in one shot.
+    /// Only word-referenced images are deleted — scene images live in the same directory and must survive.
     static func apply(_ payload: BackupPayload, to store: AACStore) {
-        ImageStore.purgeAll()
+        for word in store.words {
+            if let f = word.imagePath { ImageStore.delete(f) }
+            if let f = word.signThumbnailPath { ImageStore.delete(f) }
+        }
         for (filename, base64) in payload.images {
             guard let imageData = Data(base64Encoded: base64),
                   let image = UIImage(data: imageData),

@@ -375,8 +375,11 @@ final class AACStore: ObservableObject {
     }
 
     func resetStarterBoard() {
-        ImageStore.purgeAll()
-        SignVideoStore.purgeAll()
+        for word in words {
+            if let f = word.imagePath { ImageStore.delete(f) }
+            if let f = word.signThumbnailPath { ImageStore.delete(f) }
+            if let f = word.signVideoPath { SignVideoStore.delete(f) }
+        }
         words = Self.defaultWords
         settings = .default
         quickPhrases = Self.defaultQuickPhrases

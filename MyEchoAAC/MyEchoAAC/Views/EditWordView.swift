@@ -10,6 +10,7 @@ struct EditWordView: View {
     @State private var draft: AACWord
     @State private var originalImagePath: String?
     @State private var originalSignVideoPath: String?
+    @State private var originalSignThumbnailPath: String?
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var showingCamera = false
     @State private var showingEmojiPicker = false
@@ -28,6 +29,7 @@ struct EditWordView: View {
         _draft = State(initialValue: word)
         _originalImagePath = State(initialValue: word.imagePath)
         _originalSignVideoPath = State(initialValue: word.signVideoPath)
+        _originalSignThumbnailPath = State(initialValue: word.signThumbnailPath)
         let labelMatchesPhrase = word.label
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .caseInsensitiveCompare(word.phrase.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
@@ -620,6 +622,9 @@ struct EditWordView: View {
         if let currentSign = draft.signVideoPath, currentSign != originalSignVideoPath {
             SignVideoStore.delete(currentSign)
         }
+        if let currentThumb = draft.signThumbnailPath, currentThumb != originalSignThumbnailPath {
+            ImageStore.delete(currentThumb)
+        }
         dismiss()
     }
 
@@ -646,6 +651,9 @@ struct EditWordView: View {
         }
         if let originalSign = originalSignVideoPath, originalSign != draft.signVideoPath {
             SignVideoStore.delete(originalSign)
+        }
+        if let originalThumb = originalSignThumbnailPath, originalThumb != draft.signThumbnailPath {
+            ImageStore.delete(originalThumb)
         }
 
         store.upsert(draft)

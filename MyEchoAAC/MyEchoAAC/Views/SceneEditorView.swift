@@ -10,6 +10,7 @@ struct SceneEditorView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var editedScene: AACScene
+    @State private var originalImagePath: String?
     @State private var image: UIImage?
     @State private var pickerItem: PhotosPickerItem?
     @State private var editingHotspot: AACSceneHotspot?
@@ -20,6 +21,7 @@ struct SceneEditorView: View {
         self.scene = scene
         self.onSave = onSave
         _editedScene = State(initialValue: scene)
+        _originalImagePath = State(initialValue: scene.imagePath)
     }
 
     var body: some View {
@@ -35,10 +37,18 @@ struct SceneEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        if let current = editedScene.imagePath, current != originalImagePath {
+                            ImageStore.delete(current)
+                        }
+                        dismiss()
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
+                        if let original = originalImagePath, original != editedScene.imagePath {
+                            ImageStore.delete(original)
+                        }
                         onSave(editedScene)
                         dismiss()
                     }
@@ -63,9 +73,13 @@ struct SceneEditorView: View {
             Task {
                 if let data = try? await item?.loadTransferable(type: Data.self),
                    let img = UIImage(data: data) {
-                    if let old = editedScene.imagePath { ImageStore.delete(old) }
+                    let previousDuringEdit = editedScene.imagePath
                     editedScene.imagePath = ImageStore.save(img)
                     image = img
+                    // Only delete intermediate edits, not the original (needed for cancel)
+                    if let previousDuringEdit, previousDuringEdit != originalImagePath {
+                        ImageStore.delete(previousDuringEdit)
+                    }
                 }
             }
         }
