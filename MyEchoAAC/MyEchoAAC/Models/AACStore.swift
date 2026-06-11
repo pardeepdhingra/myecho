@@ -281,6 +281,9 @@ final class AACStore: ObservableObject {
         if let filename = word.imagePath {
             ImageStore.delete(filename)
         }
+        if let thumbFilename = word.signThumbnailPath {
+            ImageStore.delete(thumbFilename)
+        }
         if let signFilename = word.signVideoPath {
             SignVideoStore.delete(signFilename)
         }
@@ -342,6 +345,9 @@ final class AACStore: ObservableObject {
         for word in wordsToRemove {
             if let filename = word.imagePath {
                 ImageStore.delete(filename)
+            }
+            if let thumbFilename = word.signThumbnailPath {
+                ImageStore.delete(thumbFilename)
             }
             if let signFilename = word.signVideoPath {
                 SignVideoStore.delete(signFilename)
