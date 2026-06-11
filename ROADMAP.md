@@ -94,7 +94,7 @@ Gaps to close, in value order:
 - [x] Progressive reveal without changing learned tile positions — `QuickRevealView` (eye icon in Words toolbar): shows all words including hidden ones as a grid; tap to toggle visibility, position lock auto-enabled, Show All / Hide All, per-category filter.
 - [x] Multiple child profiles — `ProfileStore` + `ChildProfile` + `ProfileSwitcherView`: each profile has its own UserDefaults suite (separate words, settings, phrases); `AACStore.reload(from:)` switches live board; profile switcher in ParentMode title bar (emoji + name + chevron); add/edit/delete profiles; default profile stays on `.standard` defaults (no migration needed).
 - [ ] Cloud sync, only if privacy and reliability are clear.
-- [ ] Therapist/share mode.
+- [x] Therapist/share mode. "Share session report" button in Parent → Stats: child name, today's word counts, recent sentences exported as a plain-text file via iOS share sheet.
 
 ## Release / distribution notes
 
