@@ -21,10 +21,11 @@ enum BoardBackup {
     static func makePayload(store: AACStore) -> BackupPayload {
         var images: [String: String] = [:]
         for word in store.words {
-            guard let filename = word.imagePath,
-                  let image = ImageStore.load(filename),
-                  let data = image.jpegData(compressionQuality: 0.85) else { continue }
-            images[filename] = data.base64EncodedString()
+            for filename in [word.imagePath, word.signThumbnailPath].compactMap({ $0 }) {
+                guard let image = ImageStore.load(filename),
+                      let data = image.jpegData(compressionQuality: 0.85) else { continue }
+                images[filename] = data.base64EncodedString()
+            }
         }
 
         return BackupPayload(

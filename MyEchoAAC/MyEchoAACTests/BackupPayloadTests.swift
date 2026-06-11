@@ -38,6 +38,37 @@ struct BackupPayloadTests {
         #expect(decoded.version == 1)
     }
 
+    @Test("Word with signThumbnailPath survives backup round-trip")
+    func signThumbnailPathRoundTrip() throws {
+        var word = AACWord(
+            label: "hello",
+            symbol: "👋",
+            category: AACWord.coreCategory,
+            colorName: .blue,
+            position: 0
+        )
+        word.signVideoPath = "videos/hello.mp4"
+        word.signThumbnailPath = "abc123.jpg"
+
+        let payload = BackupPayload(
+            version: 1,
+            exportedAt: Date(timeIntervalSince1970: 1_750_000_000),
+            words: [word],
+            quickPhrases: [],
+            settings: .default,
+            images: ["abc123.jpg": "aGVsbG8="]
+        )
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let decoded = try decoder.decode(BackupPayload.self, from: encoder.encode(payload))
+        #expect(decoded.words.first?.signThumbnailPath == "abc123.jpg")
+        #expect(decoded.images["abc123.jpg"] == "aGVsbG8=")
+    }
+
     @Test("Words from older boards decode with sensible defaults for missing keys")
     func lenientWordDecoding() throws {
         // The minimal shape an old/cross-platform board might export — no favorites,
