@@ -9,6 +9,7 @@ struct MyEchoAACApp: App {
     @StateObject private var auth: AuthService
     @StateObject private var sync: CloudSyncService
     @StateObject private var profileStore: ProfileStore
+    @StateObject private var sceneStore = SceneStore()
 
     init() {
         // UI-test hook: start from a known state (no first-run welcome sheet, fresh starter board).
@@ -48,6 +49,7 @@ struct MyEchoAACApp: App {
                 .environmentObject(auth)
                 .environmentObject(sync)
                 .environmentObject(profileStore)
+                .environmentObject(sceneStore)
                 .tint(.indigo)
                 .task { sync.start() }
         }

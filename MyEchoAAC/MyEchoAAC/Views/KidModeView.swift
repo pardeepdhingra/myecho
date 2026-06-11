@@ -20,6 +20,7 @@ struct KidModeView: View {
     @EnvironmentObject private var speech: SpeechService
     @EnvironmentObject private var history: UsageHistory
     @EnvironmentObject private var predictions: PredictionService
+    @EnvironmentObject private var sceneStore: SceneStore
 
     @StateObject private var composer = MessageComposer()
     @State private var selectedCategory: String?
@@ -39,6 +40,7 @@ struct KidModeView: View {
     @State private var wordFormsWord: AACWord?
     @State private var showingKeyboard = false
     @State private var learningCardWord: AACWord?
+    @State private var showingScene: AACScene?
     @StateObject private var scanner = ScanningEngine()
 
     private var columns: [GridItem] {
@@ -241,6 +243,13 @@ struct KidModeView: View {
                 )
                 .environmentObject(store)
                 .presentationDetents([.large, .medium])
+            }
+            .fullScreenCover(item: $showingScene) { scene in
+                SceneView(scene: scene) { word in
+                    addWord(word)
+                }
+                .environmentObject(speech)
+                .environmentObject(store)
             }
             .onChange(of: store.words) { _, _ in
                 if let selectedCategory, !store.categories.contains(selectedCategory) {
@@ -668,6 +677,7 @@ struct KidModeView: View {
         case favorites
         case keyboard // type-to-speak keyboard page tile
         case back     // a "Home" tile shown first inside a folder
+        case scene(AACScene)
 
         /// Stable identity so SwiftUI never reuses one cell's view for different content — without
         /// this, the grid identifies cells by position and a pressed button can briefly show another
@@ -680,6 +690,7 @@ struct KidModeView: View {
             case .favorites: "favorites"
             case .keyboard: "keyboard"
             case .back: "back"
+            case .scene(let s): "scene_\(s.id.uuidString)"
             }
         }
     }
@@ -752,6 +763,7 @@ struct KidModeView: View {
             })
             if showFavoritesFolder { cells.append(.favorites) }
             if store.settings.showKeyboardPage { cells.append(.keyboard) }
+            cells.append(contentsOf: sceneStore.visibleScenes.map { .scene($0) })
             return cells
         }
         // A "Home" tile leads every folder page — a board-tile back control (always reliable).
@@ -1000,6 +1012,17 @@ struct KidModeView: View {
                 }
             case .back:
                 backTile(scale: scale)
+            case .scene(let scene):
+                FolderTileView(
+                    title: scene.name,
+                    icon: "🖼️",
+                    color: Color(red: 0.35, green: 0.65, blue: 0.55),
+                    scale: scale,
+                    style: store.settings.tileStyle
+                ) {
+                    showingScene = scene
+                    Haptics.actionTap()
+                }
             case nil:
                 Color.clear
             }

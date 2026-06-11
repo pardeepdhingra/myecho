@@ -71,6 +71,12 @@
 		0A10004D0000000000000001 /* ChildProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000540000000000000001 /* ChildProfile.swift */; };
 		0A10004E0000000000000001 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000550000000000000001 /* ProfileStore.swift */; };
 		0A10004F0000000000000001 /* ProfileSwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000560000000000000001 /* ProfileSwitcherView.swift */; };
+		0A1000500000000000000001 /* AACScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000570000000000000001 /* AACScene.swift */; };
+		0A1000510000000000000001 /* SceneStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000580000000000000001 /* SceneStore.swift */; };
+		0A1000520000000000000001 /* SceneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000590000000000000001 /* SceneView.swift */; };
+		0A1000530000000000000001 /* SceneEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20005A0000000000000001 /* SceneEditorView.swift */; };
+		0A1000540000000000000001 /* SceneListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20005B0000000000000001 /* SceneListView.swift */; };
+		0AB100140000000000000001 /* SceneStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200150000000000000001 /* SceneStoreTests.swift */; };
 		0AB10000A000000000000001 /* WordFormsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000B000000000000001 /* WordFormsTests.swift */; };
 		0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000C000000000000001 /* KeyboardPageTests.swift */; };
 		0AB10000C000000000000001 /* AARASAACServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000D000000000000001 /* AARASAACServiceTests.swift */; };
@@ -140,6 +146,11 @@
 		0A2000540000000000000001 /* ChildProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProfile.swift; sourceTree = "<group>"; };
 		0A2000550000000000000001 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		0A2000560000000000000001 /* ProfileSwitcherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherView.swift; sourceTree = "<group>"; };
+		0A2000570000000000000001 /* AACScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AACScene.swift; sourceTree = "<group>"; };
+		0A2000580000000000000001 /* SceneStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneStore.swift; sourceTree = "<group>"; };
+		0A2000590000000000000001 /* SceneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneView.swift; sourceTree = "<group>"; };
+		0A20005A0000000000000001 /* SceneEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneEditorView.swift; sourceTree = "<group>"; };
+		0A20005B0000000000000001 /* SceneListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneListView.swift; sourceTree = "<group>"; };
 		0AB20000B000000000000001 /* WordFormsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsTests.swift; sourceTree = "<group>"; };
 		0AB20000C000000000000001 /* KeyboardPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageTests.swift; sourceTree = "<group>"; };
 		0AB20000D000000000000001 /* AARASAACServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AARASAACServiceTests.swift; sourceTree = "<group>"; };
@@ -150,6 +161,7 @@
 		0AB200120000000000000001 /* QuickRevealTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRevealTests.swift; sourceTree = "<group>"; };
 		0AB200130000000000000001 /* ParentWordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentWordFinderTests.swift; sourceTree = "<group>"; };
 		0AB200140000000000000001 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
+		0AB200150000000000000001 /* SceneStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneStoreTests.swift; sourceTree = "<group>"; };
 		0AB200090000000000000001 /* PredictionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionServiceTests.swift; sourceTree = "<group>"; };
 		0AB2000A0000000000000001 /* WordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
@@ -270,6 +282,7 @@
 				0AB200120000000000000001 /* QuickRevealTests.swift */,
 				0AB200130000000000000001 /* ParentWordFinderTests.swift */,
 				0AB200140000000000000001 /* ProfileStoreTests.swift */,
+				0AB200150000000000000001 /* SceneStoreTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -299,6 +312,7 @@
 				0A2000130000000000000001 /* QuickPhrase.swift */,
 				0A20001D0000000000000001 /* SignLanguage.swift */,
 				0A2000540000000000000001 /* ChildProfile.swift */,
+				0A2000570000000000000001 /* AACScene.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -329,6 +343,7 @@
 				0A20004C0000000000000001 /* AARASAACService.swift */,
 				0A20004D0000000000000001 /* ScanningEngine.swift */,
 				0A2000550000000000000001 /* ProfileStore.swift */,
+				0A2000580000000000000001 /* SceneStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -365,6 +380,9 @@
 				0A2000520000000000000001 /* QuickRevealView.swift */,
 				0A2000530000000000000001 /* ParentWordFinderView.swift */,
 				0A2000560000000000000001 /* ProfileSwitcherView.swift */,
+				0A2000590000000000000001 /* SceneView.swift */,
+				0A20005A0000000000000001 /* SceneEditorView.swift */,
+				0A20005B0000000000000001 /* SceneListView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -558,6 +576,11 @@
 				0A10004D0000000000000001 /* ChildProfile.swift in Sources */,
 				0A10004E0000000000000001 /* ProfileStore.swift in Sources */,
 				0A10004F0000000000000001 /* ProfileSwitcherView.swift in Sources */,
+				0A1000500000000000000001 /* AACScene.swift in Sources */,
+				0A1000510000000000000001 /* SceneStore.swift in Sources */,
+				0A1000520000000000000001 /* SceneView.swift in Sources */,
+				0A1000530000000000000001 /* SceneEditorView.swift in Sources */,
+				0A1000540000000000000001 /* SceneListView.swift in Sources */,
 				0A1000300000000000000001 /* DeviceID.swift in Sources */,
 				0A1000310000000000000001 /* CloudModels.swift in Sources */,
 				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
@@ -596,6 +619,7 @@
 				0AB100110000000000000001 /* QuickRevealTests.swift in Sources */,
 				0AB100120000000000000001 /* ParentWordFinderTests.swift in Sources */,
 				0AB100130000000000000001 /* ProfileStoreTests.swift in Sources */,
+				0AB100140000000000000001 /* SceneStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

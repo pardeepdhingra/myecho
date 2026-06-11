@@ -174,6 +174,7 @@ struct ParentModeView: View {
     @EnvironmentObject private var speech: SpeechService
     @EnvironmentObject private var history: UsageHistory
     @EnvironmentObject private var profileStore: ProfileStore
+    @EnvironmentObject private var sceneStore: SceneStore
 
     @State private var showingProfileSwitcher = false
     @State private var editedWord: AACWord?
@@ -234,6 +235,12 @@ struct ParentModeView: View {
                 voiceSettings
                     .tabItem {
                         Label("Voice", systemImage: "speaker.wave.2")
+                    }
+
+                SceneListView()
+                    .environmentObject(sceneStore)
+                    .tabItem {
+                        Label("Scenes", systemImage: "photo.on.rectangle.angled")
                     }
 
                 AccountView()
