@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Single source of truth for a word's artwork in the child's UI.
 ///
-/// Priority order (matches the word tile): custom photo → sign video → picture symbol → emoji.
+/// Priority order: custom photo → sign thumbnail (static) → sign video (looping) → picture symbol → emoji.
 /// Use this everywhere a word's image appears so the child always sees the exact same artwork
 /// regardless of whether it's on the main tile, the message bar chip, the suggestion strip, etc.
 struct WordArtworkView: View {
