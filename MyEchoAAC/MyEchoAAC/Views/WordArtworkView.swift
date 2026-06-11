@@ -2,7 +2,9 @@ import SwiftUI
 
 /// Single source of truth for a word's artwork in the child's UI.
 ///
-/// Priority order: custom photo → sign thumbnail (static) → sign video (looping) → picture symbol → emoji.
+/// Priority order: custom photo → user sign thumbnail (static) → auto sign thumbnail (static) → sign video (looping) → picture symbol → emoji.
+/// The auto-thumbnail is generated from the sign video's final frame at download time, avoiding video
+/// decoding on every tile render when no user-chosen frame has been set (saves CPU / battery).
 /// Use this everywhere a word's image appears so the child always sees the exact same artwork
 /// regardless of whether it's on the main tile, the message bar chip, the suggestion strip, etc.
 struct WordArtworkView: View {
@@ -24,6 +26,13 @@ struct WordArtworkView: View {
                     .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
             } else if let thumbFilename = word.signThumbnailPath, let thumb = ImageStore.load(thumbFilename) {
                 Image(uiImage: thumb)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
+            } else if let signFilename = word.signVideoPath,
+                      let autoThumb = SignVideoStore.loadThumbnail(for: signFilename) {
+                Image(uiImage: autoThumb)
                     .resizable()
                     .scaledToFill()
                     .frame(width: size, height: size)
