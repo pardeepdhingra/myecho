@@ -38,6 +38,7 @@ struct KidModeView: View {
     @State private var showingPartnerWindow = false
     @State private var wordFormsWord: AACWord?
     @State private var showingKeyboard = false
+    @StateObject private var scanner = ScanningEngine()
 
     private var columns: [GridItem] {
         return Array(
@@ -172,9 +173,15 @@ struct KidModeView: View {
             }
             .onAppear {
                 UIApplication.shared.isIdleTimerDisabled = true
+                scanner.autoScan = store.settings.scanIntervalSeconds > 0
+                scanner.scanInterval = store.settings.scanIntervalSeconds
             }
             .onDisappear {
                 UIApplication.shared.isIdleTimerDisabled = false
+                scanner.stop()
+            }
+            .onChange(of: store.settings.scanningEnabled) { _, enabled in
+                if !enabled { scanner.stop() }
             }
             .sheet(isPresented: $showingParentMode) {
                 ParentModeView()
@@ -817,6 +824,16 @@ struct KidModeView: View {
                             gridHeight: gridH, coreCapacity: coreCols * rows)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .onChange(of: rows) { _, _ in updateScanner(rows: rows, cols: fringeCols) }
+            .onChange(of: fringeCols) { _, _ in updateScanner(rows: rows, cols: fringeCols) }
+            .onAppear { updateScanner(rows: rows, cols: fringeCols) }
+            .overlay {
+                if store.settings.scanningEnabled {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture { handleScanTap() }
+                }
+            }
         }
     }
 
@@ -904,7 +921,8 @@ struct KidModeView: View {
         let page = min(max(fringePage, 0), pages.count - 1)
         let width = CGFloat(cols) * tile + CGFloat(cols - 1) * Self.boardSpacing
         return VStack(spacing: 6) {
-            fixedGrid(pages[page], cols: cols, rows: rows, tile: tile, scale: scale)
+            fixedGrid(pages[page], cols: cols, rows: rows, tile: tile, scale: scale,
+                      highlighted: scanner.highlightedIndices)
             if pages.count > 1 {
                 HStack(spacing: 10) {
                     Button { fringePage = max(0, page - 1) } label: {
@@ -936,11 +954,11 @@ struct KidModeView: View {
     /// Cells carry content-based identity (word id / folder name), NOT positional identity — so when
     /// the board reflows (folder opens, page flips), SwiftUI moves views instead of rewriting their
     /// content in place. Positional identity caused a pressed button to show another word's symbol.
-    private func fixedGrid(_ cells: [FringeCell], cols: Int, rows: Int, tile: CGFloat, scale: Double) -> some View {
+    private func fixedGrid(_ cells: [FringeCell], cols: Int, rows: Int, tile: CGFloat, scale: Double,
+                           highlighted: Set<Int> = []) -> some View {
         let slots: [(id: String, cell: FringeCell?)] = (0 ..< rows * cols).map { idx in
             if idx < cells.count {
                 let cell = cells[idx]
-                // Blanks need the slot index to stay unique, but keep it stable for a given layout.
                 let id = cell.stableID == "blank" ? "blank_\(idx)" : cell.stableID
                 return (id, cell)
             }
@@ -950,7 +968,8 @@ struct KidModeView: View {
             ForEach(0 ..< rows, id: \.self) { r in
                 HStack(spacing: Self.boardSpacing) {
                     ForEach(slots[(r * cols) ..< min((r + 1) * cols, slots.count)], id: \.id) { slot in
-                        cellView(slot.cell, tile: tile, scale: scale)
+                        let idx = slots.firstIndex(where: { $0.id == slot.id }) ?? 0
+                        cellView(slot.cell, tile: tile, scale: scale, isHighlighted: highlighted.contains(idx))
                     }
                 }
             }
@@ -958,7 +977,8 @@ struct KidModeView: View {
     }
 
     @ViewBuilder
-    private func cellView(_ cell: FringeCell?, tile: CGFloat, scale: Double) -> some View {
+    private func cellView(_ cell: FringeCell?, tile: CGFloat, scale: Double,
+                          isHighlighted: Bool = false) -> some View {
         Group {
             switch cell {
             case .word(let word):
@@ -989,6 +1009,13 @@ struct KidModeView: View {
             }
         }
         .frame(width: tile, height: tile)
+        .overlay {
+            if isHighlighted {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.yellow, lineWidth: 5)
+                    .shadow(color: Color.yellow.opacity(0.6), radius: 6)
+            }
+        }
     }
 
     /// A "Home" tile (board button) that returns to the home page. Lives as the first cell of a folder
@@ -1096,6 +1123,29 @@ struct KidModeView: View {
 
     private func clearMessage() {
         composer.clear()
+    }
+
+    // MARK: - Scanning
+
+    private func updateScanner(rows: Int, cols: Int) {
+        guard store.settings.scanningEnabled else { return }
+        scanner.configure(rows: rows, cols: cols)
+        scanner.scanInterval = store.settings.scanIntervalSeconds
+        if scanner.autoScan && scanner.phase == .idle {
+            scanner.startAutoScan()
+        }
+    }
+
+    private func handleScanTap() {
+        switch scanner.phase {
+        case .idle:
+            scanner.advance()
+        case .row:
+            scanner.selectCurrentRow()
+        case .cell:
+            scanner.activate()
+        }
+        Haptics.actionTap()
     }
 
     /// Navigate the board to show the folder (or category) that contains `word`.

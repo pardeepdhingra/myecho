@@ -61,9 +61,11 @@
 		0A1000430000000000000001 /* WordFormsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004A0000000000000001 /* WordFormsSheet.swift */; };
 		0A1000440000000000000001 /* KeyboardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004B0000000000000001 /* KeyboardPageView.swift */; };
 		0A1000450000000000000001 /* AARASAACService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004C0000000000000001 /* AARASAACService.swift */; };
+		0A1000460000000000000001 /* ScanningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004D0000000000000001 /* ScanningEngine.swift */; };
 		0AB10000A000000000000001 /* WordFormsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000B000000000000001 /* WordFormsTests.swift */; };
 		0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000C000000000000001 /* KeyboardPageTests.swift */; };
 		0AB10000C000000000000001 /* AARASAACServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000D000000000000001 /* AARASAACServiceTests.swift */; };
+		0AB10000D000000000000001 /* ScanningEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000E000000000000001 /* ScanningEngineTests.swift */; };
 		0AB100080000000000000001 /* PredictionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200090000000000000001 /* PredictionServiceTests.swift */; };
 		0AB100090000000000000001 /* WordFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2000A0000000000000001 /* WordFinderTests.swift */; };
 		0AB100010000000000000001 /* AACStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200010000000000000001 /* AACStoreTests.swift */; };
@@ -113,9 +115,11 @@
 		0A20004A0000000000000001 /* WordFormsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsSheet.swift; sourceTree = "<group>"; };
 		0A20004B0000000000000001 /* KeyboardPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageView.swift; sourceTree = "<group>"; };
 		0A20004C0000000000000001 /* AARASAACService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AARASAACService.swift; sourceTree = "<group>"; };
+		0A20004D0000000000000001 /* ScanningEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningEngine.swift; sourceTree = "<group>"; };
 		0AB20000B000000000000001 /* WordFormsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsTests.swift; sourceTree = "<group>"; };
 		0AB20000C000000000000001 /* KeyboardPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageTests.swift; sourceTree = "<group>"; };
 		0AB20000D000000000000001 /* AARASAACServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AARASAACServiceTests.swift; sourceTree = "<group>"; };
+		0AB20000E000000000000001 /* ScanningEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningEngineTests.swift; sourceTree = "<group>"; };
 		0AB200090000000000000001 /* PredictionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionServiceTests.swift; sourceTree = "<group>"; };
 		0AB2000A0000000000000001 /* WordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
@@ -229,6 +233,7 @@
 				0AB20000B000000000000001 /* WordFormsTests.swift */,
 				0AB20000C000000000000001 /* KeyboardPageTests.swift */,
 				0AB20000D000000000000001 /* AARASAACServiceTests.swift */,
+				0AB20000E000000000000001 /* ScanningEngineTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -285,6 +290,7 @@
 				0A2000400000000000000001 /* StarterVocabulary.swift */,
 				0A2000420000000000000001 /* SymbolLibrary.swift */,
 				0A20004C0000000000000001 /* AARASAACService.swift */,
+				0A20004D0000000000000001 /* ScanningEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -497,6 +503,7 @@
 				0A1000430000000000000001 /* WordFormsSheet.swift in Sources */,
 				0A1000440000000000000001 /* KeyboardPageView.swift in Sources */,
 				0A1000450000000000000001 /* AARASAACService.swift in Sources */,
+				0A1000460000000000000001 /* ScanningEngine.swift in Sources */,
 				0A1000300000000000000001 /* DeviceID.swift in Sources */,
 				0A1000310000000000000001 /* CloudModels.swift in Sources */,
 				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
@@ -528,6 +535,7 @@
 				0AB10000A000000000000001 /* WordFormsTests.swift in Sources */,
 				0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */,
 				0AB10000C000000000000001 /* AARASAACServiceTests.swift in Sources */,
+				0AB10000D000000000000001 /* ScanningEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

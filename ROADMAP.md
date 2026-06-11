@@ -78,7 +78,7 @@ Gaps to close, in value order:
 - [x] **Word finder for the kid board** — search a word, show the path to it (folder + page) like TD Snap Search; therapists rely on this. Magnifying-glass button in kid-board header opens `WordFinderView`; tap result to add to message bar, "Locate" button navigates to the folder/category.
 - [x] **Keyboard page** — type-to-speak page with vocabulary type-ahead and a ⌨️ folder tile on the home fringe. Parents can hide it.
 - [x] **Bigger symbol library** — ARASAAC online search tab in SymbolPicker; downloads pictograms on demand from arasaac.org API and saves to ImageStore. Retry logic, attribution in About.
-- [ ] **Switch scanning** — row/column scanning with external-switch and full-screen-tap support (TD Snap's core accessibility feature).
+- [x] **Switch scanning** — row/column scanning; yellow highlight overlay; full-screen-tap to advance/select; auto-scan timer; parent-configurable interval.
 - [x] **Partner window** — flip the spoken message to face the communication partner. ↕ button in message bar opens full-screen rotated large-text overlay; tap anywhere dismisses.
 - [x] **Grammar support** — word forms/inflections (plurals, tenses) on long-press. Seeded ~25 verb/noun forms; `WordFormsSheet` bottom sheet; context menu in kid mode; editing in `EditWordView`.
 - [ ] **Visual scene displays** — photo scenes with tappable hotspots (early-communicator support).

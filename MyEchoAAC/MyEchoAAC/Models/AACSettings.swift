@@ -139,6 +139,10 @@ struct AACSettings: Codable, Equatable {
     var showWordSuggestions: Bool
     /// Show a ⌨️ Keyboard tile on the home fringe so literate users can type words directly.
     var showKeyboardPage: Bool
+    /// Enable switch-scanning mode — highlights rows then cells; users activate with a tap.
+    var scanningEnabled: Bool
+    /// Seconds between automatic scan advances (auto-scan mode). 0 = manual only.
+    var scanIntervalSeconds: Double
 
     /// Back-compat convenience for the old boolean meaning ("tiles share their category colour").
     var colorTilesByCategory: Bool { colorMode == .byCategory }
@@ -186,7 +190,9 @@ struct AACSettings: Codable, Equatable {
         categoryOrder: [],
         hiddenCategories: [],
         showWordSuggestions: true,
-        showKeyboardPage: true
+        showKeyboardPage: true,
+        scanningEnabled: false,
+        scanIntervalSeconds: 2.0
     )
 
     enum CodingKeys: String, CodingKey {
@@ -200,6 +206,8 @@ struct AACSettings: Codable, Equatable {
         case tileStyle, gridPreset, gridRows, coreColumns, categoryOrder, hiddenCategories
         case showWordSuggestions
         case showKeyboardPage
+        case scanningEnabled
+        case scanIntervalSeconds
         /// Legacy key (pre-`colorMode`); read-only for migration.
         case colorTilesByCategory
     }
@@ -227,7 +235,9 @@ struct AACSettings: Codable, Equatable {
         categoryOrder: [String] = [],
         hiddenCategories: [String] = [],
         showWordSuggestions: Bool = true,
-        showKeyboardPage: Bool = true
+        showKeyboardPage: Bool = true,
+        scanningEnabled: Bool = false,
+        scanIntervalSeconds: Double = 2.0
     ) {
         self.gridColumns = gridColumns
         self.voiceIdentifier = voiceIdentifier
@@ -252,6 +262,8 @@ struct AACSettings: Codable, Equatable {
         self.hiddenCategories = hiddenCategories
         self.showWordSuggestions = showWordSuggestions
         self.showKeyboardPage = showKeyboardPage
+        self.scanningEnabled = scanningEnabled
+        self.scanIntervalSeconds = scanIntervalSeconds
     }
 
     init(from decoder: Decoder) throws {
@@ -286,6 +298,8 @@ struct AACSettings: Codable, Equatable {
         hiddenCategories = try c.decodeIfPresent([String].self, forKey: .hiddenCategories) ?? []
         showWordSuggestions = try c.decodeIfPresent(Bool.self, forKey: .showWordSuggestions) ?? true
         showKeyboardPage = try c.decodeIfPresent(Bool.self, forKey: .showKeyboardPage) ?? true
+        scanningEnabled = try c.decodeIfPresent(Bool.self, forKey: .scanningEnabled) ?? false
+        scanIntervalSeconds = try c.decodeIfPresent(Double.self, forKey: .scanIntervalSeconds) ?? 2.0
     }
 
     /// Explicit encode so we write only real stored fields — never the legacy `colorTilesByCategory`
@@ -315,5 +329,7 @@ struct AACSettings: Codable, Equatable {
         try c.encode(hiddenCategories, forKey: .hiddenCategories)
         try c.encode(showWordSuggestions, forKey: .showWordSuggestions)
         try c.encode(showKeyboardPage, forKey: .showKeyboardPage)
+        try c.encode(scanningEnabled, forKey: .scanningEnabled)
+        try c.encode(scanIntervalSeconds, forKey: .scanIntervalSeconds)
     }
 }

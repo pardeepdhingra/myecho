@@ -339,6 +339,15 @@ struct ParentModeView: View {
                 Toggle("Show regulation bar (Break / Help / Stop)", isOn: $store.settings.showRegulationBar)
                 Toggle("Word suggestions", isOn: $store.settings.showWordSuggestions)
                 Toggle("Keyboard page (type to speak)", isOn: $store.settings.showKeyboardPage)
+                Toggle("Switch scanning", isOn: $store.settings.scanningEnabled)
+                if store.settings.scanningEnabled {
+                    Stepper(
+                        value: $store.settings.scanIntervalSeconds,
+                        in: 0.5...10.0, step: 0.5
+                    ) {
+                        Text("Scan speed: \(store.settings.scanIntervalSeconds, specifier: "%.1f")s")
+                    }
+                }
             } header: {
                 Text("Grid")
             } footer: {
