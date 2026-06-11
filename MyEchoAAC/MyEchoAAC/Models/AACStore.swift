@@ -158,6 +158,12 @@ final class AACStore: ObservableObject {
             .sorted { $0.position < $1.position }
     }
 
+    func allWords(in category: String?) -> [AACWord] {
+        words
+            .filter { category == nil || $0.category == category }
+            .sorted { $0.position < $1.position }
+    }
+
     func upsert(_ word: AACWord) {
         if let index = words.firstIndex(where: { $0.id == word.id }) {
             words[index] = word

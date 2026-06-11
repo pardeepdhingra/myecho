@@ -91,7 +91,7 @@ Gaps to close, in value order:
 ## Later
 
 - [ ] Word finder for parents.
-- [ ] Progressive reveal without changing learned tile positions.
+- [x] Progressive reveal without changing learned tile positions — `QuickRevealView` (eye icon in Words toolbar): shows all words including hidden ones as a grid; tap to toggle visibility, position lock auto-enabled, Show All / Hide All, per-category filter.
 - [ ] Multiple child profiles.
 - [ ] Cloud sync, only if privacy and reliability are clear.
 - [ ] Therapist/share mode.

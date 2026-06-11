@@ -66,6 +66,7 @@
 		0A1000480000000000000001 /* SignLearningCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20004F0000000000000001 /* SignLearningCardView.swift */; };
 		0A1000490000000000000001 /* PronunciationLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000500000000000000001 /* PronunciationLibraryView.swift */; };
 		0A10004A0000000000000001 /* WordArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000510000000000000001 /* WordArtworkView.swift */; };
+		0A10004B0000000000000001 /* QuickRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000520000000000000001 /* QuickRevealView.swift */; };
 		0AB10000A000000000000001 /* WordFormsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000B000000000000001 /* WordFormsTests.swift */; };
 		0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000C000000000000001 /* KeyboardPageTests.swift */; };
 		0AB10000C000000000000001 /* AARASAACServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000D000000000000001 /* AARASAACServiceTests.swift */; };
@@ -73,6 +74,7 @@
 		0AB10000E000000000000001 /* BulkSignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000F000000000000001 /* BulkSignTests.swift */; };
 		0AB10000F000000000000001 /* SignLearningCardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200100000000000000001 /* SignLearningCardTests.swift */; };
 		0AB100100000000000000001 /* PronunciationLibraryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200110000000000000001 /* PronunciationLibraryTests.swift */; };
+		0AB100110000000000000001 /* QuickRevealTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200120000000000000001 /* QuickRevealTests.swift */; };
 		0AB100080000000000000001 /* PredictionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200090000000000000001 /* PredictionServiceTests.swift */; };
 		0AB100090000000000000001 /* WordFinderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB2000A0000000000000001 /* WordFinderTests.swift */; };
 		0AB100010000000000000001 /* AACStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200010000000000000001 /* AACStoreTests.swift */; };
@@ -127,6 +129,7 @@
 		0A20004F0000000000000001 /* SignLearningCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignLearningCardView.swift; sourceTree = "<group>"; };
 		0A2000500000000000000001 /* PronunciationLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PronunciationLibraryView.swift; sourceTree = "<group>"; };
 		0A2000510000000000000001 /* WordArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordArtworkView.swift; sourceTree = "<group>"; };
+		0A2000520000000000000001 /* QuickRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRevealView.swift; sourceTree = "<group>"; };
 		0AB20000B000000000000001 /* WordFormsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsTests.swift; sourceTree = "<group>"; };
 		0AB20000C000000000000001 /* KeyboardPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageTests.swift; sourceTree = "<group>"; };
 		0AB20000D000000000000001 /* AARASAACServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AARASAACServiceTests.swift; sourceTree = "<group>"; };
@@ -134,6 +137,7 @@
 		0AB20000F000000000000001 /* BulkSignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkSignTests.swift; sourceTree = "<group>"; };
 		0AB200100000000000000001 /* SignLearningCardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignLearningCardTests.swift; sourceTree = "<group>"; };
 		0AB200110000000000000001 /* PronunciationLibraryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PronunciationLibraryTests.swift; sourceTree = "<group>"; };
+		0AB200120000000000000001 /* QuickRevealTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRevealTests.swift; sourceTree = "<group>"; };
 		0AB200090000000000000001 /* PredictionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionServiceTests.swift; sourceTree = "<group>"; };
 		0AB2000A0000000000000001 /* WordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
@@ -251,6 +255,7 @@
 				0AB20000F000000000000001 /* BulkSignTests.swift */,
 				0AB200100000000000000001 /* SignLearningCardTests.swift */,
 				0AB200110000000000000001 /* PronunciationLibraryTests.swift */,
+				0AB200120000000000000001 /* QuickRevealTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -341,6 +346,7 @@
 				0A20004F0000000000000001 /* SignLearningCardView.swift */,
 				0A2000500000000000000001 /* PronunciationLibraryView.swift */,
 				0A2000510000000000000001 /* WordArtworkView.swift */,
+				0A2000520000000000000001 /* QuickRevealView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -529,6 +535,7 @@
 				0A1000480000000000000001 /* SignLearningCardView.swift in Sources */,
 				0A1000490000000000000001 /* PronunciationLibraryView.swift in Sources */,
 				0A10004A0000000000000001 /* WordArtworkView.swift in Sources */,
+				0A10004B0000000000000001 /* QuickRevealView.swift in Sources */,
 				0A1000300000000000000001 /* DeviceID.swift in Sources */,
 				0A1000310000000000000001 /* CloudModels.swift in Sources */,
 				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
@@ -564,6 +571,7 @@
 				0AB10000E000000000000001 /* BulkSignTests.swift in Sources */,
 				0AB10000F000000000000001 /* SignLearningCardTests.swift in Sources */,
 				0AB100100000000000000001 /* PronunciationLibraryTests.swift in Sources */,
+				0AB100110000000000000001 /* QuickRevealTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
