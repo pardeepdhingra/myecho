@@ -90,7 +90,7 @@ Gaps to close, in value order:
 
 ## Later
 
-- [ ] Word finder for parents.
+- [x] Word finder for parents — `ParentWordFinderView` (magnifying glass in Words toolbar): shows artwork, label, full location badge ("📁 Food · 7 of 24"), and direct Edit button; auto-opens `EditWordView` without needing to scroll the flat list.
 - [x] Progressive reveal without changing learned tile positions — `QuickRevealView` (eye icon in Words toolbar): shows all words including hidden ones as a grid; tap to toggle visibility, position lock auto-enabled, Show All / Hide All, per-category filter.
 - [ ] Multiple child profiles.
 - [ ] Cloud sync, only if privacy and reliability are clear.

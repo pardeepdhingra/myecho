@@ -184,6 +184,7 @@ struct ParentModeView: View {
     @State private var visibilityFilter: VisibilityFilter = .all
     @State private var showingBulkSign = false
     @State private var showingQuickReveal = false
+    @State private var showingParentWordFinder = false
 
     private enum VisibilityFilter: String, CaseIterable {
         case all, visible, hidden
@@ -774,6 +775,13 @@ struct ParentModeView: View {
                     Label("Quick Reveal", systemImage: "eye")
                 }
             }
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showingParentWordFinder = true
+                } label: {
+                    Label("Find Word", systemImage: "magnifyingglass")
+                }
+            }
         }
         .sheet(isPresented: $showingBulkSign) {
             BulkSignView()
@@ -782,6 +790,12 @@ struct ParentModeView: View {
         .sheet(isPresented: $showingQuickReveal) {
             QuickRevealView()
                 .environmentObject(store)
+        }
+        .sheet(isPresented: $showingParentWordFinder) {
+            ParentWordFinderView { word in
+                editedWord = word
+            }
+            .environmentObject(store)
         }
     }
 

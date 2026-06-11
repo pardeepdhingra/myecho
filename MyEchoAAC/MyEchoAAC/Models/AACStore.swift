@@ -164,6 +164,18 @@ final class AACStore: ObservableObject {
             .sorted { $0.position < $1.position }
     }
 
+    struct WordLocationInfo {
+        let category: String
+        let rank: Int
+        let total: Int
+    }
+
+    func locationInfo(for word: AACWord) -> WordLocationInfo {
+        let peers = allWords(in: word.category)
+        let rank = (peers.firstIndex(where: { $0.id == word.id }) ?? 0) + 1
+        return WordLocationInfo(category: word.category, rank: rank, total: peers.count)
+    }
+
     func upsert(_ word: AACWord) {
         if let index = words.firstIndex(where: { $0.id == word.id }) {
             words[index] = word
