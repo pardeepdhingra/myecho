@@ -22,6 +22,12 @@ struct WordArtworkView: View {
                     .scaledToFill()
                     .frame(width: size, height: size)
                     .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
+            } else if let thumbFilename = word.signThumbnailPath, let thumb = ImageStore.load(thumbFilename) {
+                Image(uiImage: thumb)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
             } else if let signFilename = word.signVideoPath, SignVideoStore.exists(signFilename) {
                 SignVideoView(url: SignVideoStore.fileURL(for: signFilename),
                               videoGravity: .resizeAspectFill)

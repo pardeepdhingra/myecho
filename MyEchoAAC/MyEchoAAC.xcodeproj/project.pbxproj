@@ -76,7 +76,9 @@
 		0A1000520000000000000001 /* SceneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2000590000000000000001 /* SceneView.swift */; };
 		0A1000530000000000000001 /* SceneEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20005A0000000000000001 /* SceneEditorView.swift */; };
 		0A1000540000000000000001 /* SceneListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20005B0000000000000001 /* SceneListView.swift */; };
+		0A1000550000000000000001 /* SignThumbnailPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A20005C0000000000000001 /* SignThumbnailPickerView.swift */; };
 		0AB100140000000000000001 /* SceneStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200150000000000000001 /* SceneStoreTests.swift */; };
+		0AB100150000000000000001 /* SignThumbnailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB200160000000000000001 /* SignThumbnailTests.swift */; };
 		0AB10000A000000000000001 /* WordFormsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000B000000000000001 /* WordFormsTests.swift */; };
 		0AB10000B000000000000001 /* KeyboardPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000C000000000000001 /* KeyboardPageTests.swift */; };
 		0AB10000C000000000000001 /* AARASAACServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB20000D000000000000001 /* AARASAACServiceTests.swift */; };
@@ -151,6 +153,7 @@
 		0A2000590000000000000001 /* SceneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneView.swift; sourceTree = "<group>"; };
 		0A20005A0000000000000001 /* SceneEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneEditorView.swift; sourceTree = "<group>"; };
 		0A20005B0000000000000001 /* SceneListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneListView.swift; sourceTree = "<group>"; };
+		0A20005C0000000000000001 /* SignThumbnailPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignThumbnailPickerView.swift; sourceTree = "<group>"; };
 		0AB20000B000000000000001 /* WordFormsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFormsTests.swift; sourceTree = "<group>"; };
 		0AB20000C000000000000001 /* KeyboardPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardPageTests.swift; sourceTree = "<group>"; };
 		0AB20000D000000000000001 /* AARASAACServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AARASAACServiceTests.swift; sourceTree = "<group>"; };
@@ -162,6 +165,7 @@
 		0AB200130000000000000001 /* ParentWordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentWordFinderTests.swift; sourceTree = "<group>"; };
 		0AB200140000000000000001 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
 		0AB200150000000000000001 /* SceneStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneStoreTests.swift; sourceTree = "<group>"; };
+		0AB200160000000000000001 /* SignThumbnailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignThumbnailTests.swift; sourceTree = "<group>"; };
 		0AB200090000000000000001 /* PredictionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictionServiceTests.swift; sourceTree = "<group>"; };
 		0AB2000A0000000000000001 /* WordFinderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordFinderTests.swift; sourceTree = "<group>"; };
 		0AC200010000000000000001 /* KidModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KidModeUITests.swift; sourceTree = "<group>"; };
@@ -283,6 +287,7 @@
 				0AB200130000000000000001 /* ParentWordFinderTests.swift */,
 				0AB200140000000000000001 /* ProfileStoreTests.swift */,
 				0AB200150000000000000001 /* SceneStoreTests.swift */,
+				0AB200160000000000000001 /* SignThumbnailTests.swift */,
 			);
 			path = MyEchoAACTests;
 			sourceTree = "<group>";
@@ -383,6 +388,7 @@
 				0A2000590000000000000001 /* SceneView.swift */,
 				0A20005A0000000000000001 /* SceneEditorView.swift */,
 				0A20005B0000000000000001 /* SceneListView.swift */,
+				0A20005C0000000000000001 /* SignThumbnailPickerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -581,6 +587,7 @@
 				0A1000520000000000000001 /* SceneView.swift in Sources */,
 				0A1000530000000000000001 /* SceneEditorView.swift in Sources */,
 				0A1000540000000000000001 /* SceneListView.swift in Sources */,
+				0A1000550000000000000001 /* SignThumbnailPickerView.swift in Sources */,
 				0A1000300000000000000001 /* DeviceID.swift in Sources */,
 				0A1000310000000000000001 /* CloudModels.swift in Sources */,
 				0A1000320000000000000001 /* CloudBackend.swift in Sources */,
@@ -620,6 +627,7 @@
 				0AB100120000000000000001 /* ParentWordFinderTests.swift in Sources */,
 				0AB100130000000000000001 /* ProfileStoreTests.swift in Sources */,
 				0AB100140000000000000001 /* SceneStoreTests.swift in Sources */,
+				0AB100150000000000000001 /* SignThumbnailTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

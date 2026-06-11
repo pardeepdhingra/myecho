@@ -19,6 +19,9 @@ struct AACWord: Identifiable, Codable, Equatable {
     var favoritePosition: Int?
     var signVideoPath: String?
     var signLanguage: SignLanguage?
+    /// Still-frame thumbnail extracted from the sign video by the parent. When set it replaces the
+    /// looping video artwork with a static image (lighter weight, instant display).
+    var signThumbnailPath: String?
     /// Grammatical word type (Fitzgerald Key). Drives tile colour when the board's colour mode is
     /// `.byWordType`. Optional — untagged words fall back to their `colorName`.
     var partOfSpeech: PartOfSpeech?
@@ -34,7 +37,7 @@ struct AACWord: Identifiable, Codable, Equatable {
     var wordForms: [String]
 
     enum CodingKeys: String, CodingKey {
-        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, partOfSpeech, symbolName, colorOverride, wordForms
+        case id, label, phrase, symbol, category, colorName, position, isVisible, imagePath, isFavorite, sourcePackId, favoritePosition, signVideoPath, signLanguage, signThumbnailPath, partOfSpeech, symbolName, colorOverride, wordForms
     }
 
     init(
@@ -52,6 +55,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         favoritePosition: Int? = nil,
         signVideoPath: String? = nil,
         signLanguage: SignLanguage? = nil,
+        signThumbnailPath: String? = nil,
         partOfSpeech: PartOfSpeech? = nil,
         symbolName: String? = nil,
         colorOverride: TileColorName? = nil,
@@ -71,6 +75,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         self.favoritePosition = favoritePosition
         self.signVideoPath = signVideoPath
         self.signLanguage = signLanguage
+        self.signThumbnailPath = signThumbnailPath
         self.partOfSpeech = partOfSpeech
         self.symbolName = symbolName
         self.colorOverride = colorOverride
@@ -93,6 +98,7 @@ struct AACWord: Identifiable, Codable, Equatable {
         favoritePosition = try c.decodeIfPresent(Int.self, forKey: .favoritePosition)
         signVideoPath = try c.decodeIfPresent(String.self, forKey: .signVideoPath)
         signLanguage = try c.decodeIfPresent(SignLanguage.self, forKey: .signLanguage)
+        signThumbnailPath = try c.decodeIfPresent(String.self, forKey: .signThumbnailPath)
         // Lenient: older/cross-platform boards omit this key → nil (untagged).
         partOfSpeech = try c.decodeIfPresent(PartOfSpeech.self, forKey: .partOfSpeech)
         symbolName = try c.decodeIfPresent(String.self, forKey: .symbolName)

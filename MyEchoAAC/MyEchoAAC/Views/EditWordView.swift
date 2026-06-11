@@ -15,6 +15,7 @@ struct EditWordView: View {
     @State private var showingEmojiPicker = false
     @State private var showingSymbolPicker = false
     @State private var showingSignPicker = false
+    @State private var showingSignThumbnailPicker = false
     @State private var showCustomSymbol = false
     @State private var isAddingNewCategory = false
     @State private var newCategoryText: String = ""
@@ -186,6 +187,16 @@ struct EditWordView: View {
                     handlePickedSign(selection)
                 }
                 .presentationDetents([.large])
+            }
+            .sheet(isPresented: $showingSignThumbnailPicker) {
+                if let videoPath = draft.signVideoPath {
+                    SignThumbnailPickerView(
+                        videoPath: videoPath,
+                        currentThumbnailPath: draft.signThumbnailPath
+                    ) { newPath in
+                        draft.signThumbnailPath = newPath
+                    }
+                }
             }
         }
     }
@@ -497,6 +508,15 @@ struct EditWordView: View {
             }
 
             if draft.signVideoPath != nil {
+                Button {
+                    showingSignThumbnailPicker = true
+                } label: {
+                    Label(
+                        draft.signThumbnailPath == nil ? "Choose thumbnail frame" : "Change thumbnail frame",
+                        systemImage: "photo.badge.checkmark"
+                    )
+                }
+
                 Button(role: .destructive) {
                     removeSign()
                 } label: {
@@ -506,7 +526,7 @@ struct EditWordView: View {
         } header: {
             Text("Sign language")
         } footer: {
-            Text("Videos are downloaded once from public dictionaries and stored on this device.")
+            Text("Videos are downloaded once from public dictionaries and stored on this device. Pick a thumbnail frame to show a still instead of the looping video — uses less battery.")
         }
     }
 
@@ -585,8 +605,12 @@ struct EditWordView: View {
         if let filename = draft.signVideoPath, filename != originalSignVideoPath {
             SignVideoStore.delete(filename)
         }
+        if let thumbPath = draft.signThumbnailPath {
+            ImageStore.delete(thumbPath)
+        }
         draft.signVideoPath = nil
         draft.signLanguage = nil
+        draft.signThumbnailPath = nil
     }
 
     private func cancel() {
