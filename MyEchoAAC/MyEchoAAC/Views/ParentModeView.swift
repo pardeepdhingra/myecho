@@ -674,17 +674,11 @@ struct ParentModeView: View {
     }
 
     @ViewBuilder
-    private func wordRowThumbnail(for word: AACWord) -> some View {
-        if let filename = word.imagePath, let image = ImageStore.load(filename) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-        } else if let signFilename = word.signVideoPath, SignVideoStore.exists(signFilename) {
-            SignVideoView(url: SignVideoStore.fileURL(for: signFilename), videoGravity: .resizeAspectFill)
-                .allowsHitTesting(false)
-        } else {
-            Text(word.symbol)
-                .font(.largeTitle)
+    private func wordRowThumbnail(for word: AACWord, size: CGFloat = 46) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(store.tileColor(for: word))
+            WordArtworkView(word: word, size: size, cornerRadius: 8)
         }
     }
 
@@ -744,9 +738,8 @@ struct ParentModeView: View {
 
             ForEach(filteredWords) { word in
                 HStack(spacing: 12) {
-                    wordRowThumbnail(for: word)
+                    wordRowThumbnail(for: word, size: 46)
                         .frame(width: 46, height: 46)
-                        .background(store.tileColor(for: word))
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 3) {
@@ -982,9 +975,8 @@ struct ParentModeView: View {
             } else {
                 ForEach(store.favoritesOrdered) { word in
                     HStack(spacing: 12) {
-                        wordRowThumbnail(for: word)
+                        wordRowThumbnail(for: word, size: 38)
                             .frame(width: 38, height: 38)
-                            .background(store.tileColor(for: word))
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         Text(word.label)
                             .font(.headline)
