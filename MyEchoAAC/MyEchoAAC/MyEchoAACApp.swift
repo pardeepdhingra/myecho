@@ -5,6 +5,7 @@ struct MyEchoAACApp: App {
     @StateObject private var store: AACStore
     @StateObject private var speech = SpeechService()
     @StateObject private var history: UsageHistory
+    @StateObject private var predictions = PredictionService()
     @StateObject private var auth: AuthService
     @StateObject private var sync: CloudSyncService
 
@@ -39,6 +40,7 @@ struct MyEchoAACApp: App {
                 .environmentObject(store)
                 .environmentObject(speech)
                 .environmentObject(history)
+                .environmentObject(predictions)
                 .environmentObject(auth)
                 .environmentObject(sync)
                 .tint(.indigo)

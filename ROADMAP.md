@@ -50,6 +50,10 @@ Routine packs
 - [x] Routine boards added for food, bathroom, play, school, bedtime, feelings, and pain/body (`RoutinePacks`).
 
 Quality & testing
+- [x] Fixed: pressed buttons could briefly show another word's symbol — the folder board's fixed grid identified cells by position, so SwiftUI reused a pressed cell's view for different content on reflow. Cells now carry content identity (word id / folder name).
+- [x] Fixed: message-bar chips now show the same artwork as the tile (photo → picture symbol → emoji); they used to drop the picture symbol.
+- [x] Word suggestions strip (`PredictionService`): on-device bigram learning from the child's own taps, seeded cold start, parent toggle.
+- [x] UI tests run in landscape on iPads (primary AAC posture); verified on iPad (A16) simulator — closest available to iPad 9th gen.
 - [x] Unit-test target (`MyEchoAACTests`, Swift Testing) — 49 tests covering board logic (`AACStore`), message building (`MessageComposer`), pronunciation, usage history, and backup payload coding. Run with `xcodebuild test -scheme MyEchoAAC`.
 - [x] UI-test target (`MyEchoAACUITests`) — kid-mode journey: tap tiles → message bar → speak → delete → clear.
 - [x] `AACStore` / `UsageHistory` accept an injected `UserDefaults` so tests are isolated from real child data.
@@ -65,6 +69,19 @@ Quality & testing
 - [x] Multiple boards via **Board sets** (Home, School, Therapy) — save/load/rename/overwrite named full-board snapshots (`BoardSetStore`, Parent → Board → Board sets). Self-contained files with embedded photos; the live board remains the single synced board.
 - [ ] Per-profile cloud sync (each board set as its own cloud document) — needs a cross-platform contract revision in CLOUD_SYNC_PLAN.md first.
 - [x] Basic UI tests for kid-mode message building (`MyEchoAACUITests/KidModeUITests`).
+
+## TD Snap parity audit (2026-06-11)
+
+Already at parity: Motor Plan folder board with fixed positions ✓, core-word band ✓, Fitzgerald word-type colours ✓, grid sizes 30/40/66/custom ✓, message window with symbol chips ✓, quick fires (quick phrases + regulation bar) ✓, progressive reveal (hide words/folders without moving buttons) ✓, page sets (board sets) ✓, backup/share ✓, cloud sync ✓, usage stats ✓, next-word prediction ✓ (TD Snap doesn't even have this on the symbol board).
+
+Gaps to close, in value order:
+- [ ] **Word finder for the kid board** — search a word, show the path to it (folder + page) like TD Snap Search; therapists rely on this.
+- [ ] **Keyboard page** — type-to-speak page with word prediction for literate users.
+- [ ] **Bigger symbol library** — integrate an open symbol set (e.g. ARASAAC, license-permitting) with search + download; bundled set is small.
+- [ ] **Switch scanning** — row/column scanning with external-switch and full-screen-tap support (TD Snap's core accessibility feature).
+- [ ] **Partner window** — flip the spoken message to face the communication partner.
+- [ ] **Grammar support** — word forms/inflections (plurals, tenses) on long-press.
+- [ ] **Visual scene displays** — photo scenes with tappable hotspots (early-communicator support).
 
 ## Voice (next)
 

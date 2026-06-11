@@ -19,6 +19,7 @@ struct KidModeView: View {
     @EnvironmentObject private var store: AACStore
     @EnvironmentObject private var speech: SpeechService
     @EnvironmentObject private var history: UsageHistory
+    @EnvironmentObject private var predictions: PredictionService
 
     @StateObject private var composer = MessageComposer()
     @State private var selectedCategory: String?
@@ -121,6 +122,7 @@ struct KidModeView: View {
             }
             regulationBar
             quickPhraseStrip
+            suggestionStrip
             messageBar
             if store.settings.boardMode == .folders {
                 folderBoard
@@ -281,6 +283,8 @@ struct KidModeView: View {
         .accessibilityIdentifier("chip_\(word.label)")
     }
 
+    /// Chip artwork follows the same priority as the tile (photo → bundled picture symbol → emoji) so
+    /// the message bar shows the exact symbol the child just pressed.
     @ViewBuilder
     private func chipSymbol(for word: AACWord) -> some View {
         if let filename = word.imagePath, let image = ImageStore.load(filename) {
@@ -289,6 +293,11 @@ struct KidModeView: View {
                 .scaledToFill()
                 .frame(width: 32, height: 32)
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        } else if let symbolName = word.symbolName, SymbolLibrary.exists(symbolName) {
+            Image(symbolName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
         } else {
             Text(word.symbol)
                 .font(.system(size: 24))
@@ -373,6 +382,52 @@ struct KidModeView: View {
                     }
                     .padding(.horizontal, 2)
                 }
+            }
+        }
+    }
+
+    /// Next-word suggestions learned from the child's own tap patterns. Tapping a chip adds the word
+    /// exactly like tapping its board tile.
+    @ViewBuilder
+    private var suggestionStrip: some View {
+        if store.settings.showWordSuggestions {
+            let candidates = store.words.filter { $0.isVisible }
+            let suggested = predictions.suggestions(after: composer.words.last?.label, candidates: candidates)
+            if !suggested.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lightbulb.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.black.opacity(0.35))
+                            .accessibilityHidden(true)
+                        ForEach(suggested) { word in
+                            Button {
+                                addWord(word)
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Text(word.symbol)
+                                        .font(.system(size: 18))
+                                    Text(word.label)
+                                        .font(.system(.callout, design: .rounded, weight: .semibold))
+                                        .foregroundStyle(Color.black.opacity(0.82))
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(store.tileColor(for: word).opacity(0.45))
+                                .clipShape(Capsule())
+                                .overlay {
+                                    Capsule().stroke(store.tileColor(for: word).opacity(0.8), lineWidth: 1.5)
+                                }
+                            }
+                            .buttonStyle(PressableTileStyle())
+                            .accessibilityLabel(word.phrase)
+                            .accessibilityIdentifier("suggestion_\(word.label)")
+                        }
+                    }
+                    .padding(.horizontal, 2)
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Word suggestions")
             }
         }
     }
@@ -538,6 +593,19 @@ struct KidModeView: View {
         case folder(name: String, icon: String, color: Color)
         case favorites
         case back     // a "Home" tile shown first inside a folder
+
+        /// Stable identity so SwiftUI never reuses one cell's view for different content — without
+        /// this, the grid identifies cells by position and a pressed button can briefly show another
+        /// word's symbol when the board reflows.
+        var stableID: String {
+            switch self {
+            case .word(let word): "word_\(word.id.uuidString)"
+            case .blank: "blank"
+            case .folder(let name, _, _): "folder_\(name)"
+            case .favorites: "favorites"
+            case .back: "back"
+            }
+        }
     }
 
     /// Core words: the persistent left band, identical on every page, in stable position order.
@@ -785,13 +853,24 @@ struct KidModeView: View {
     }
 
     /// Renders `cells` row-major into a fixed `cols × rows` grid of `tile`-sized cells (no scrolling).
+    /// Cells carry content-based identity (word id / folder name), NOT positional identity — so when
+    /// the board reflows (folder opens, page flips), SwiftUI moves views instead of rewriting their
+    /// content in place. Positional identity caused a pressed button to show another word's symbol.
     private func fixedGrid(_ cells: [FringeCell], cols: Int, rows: Int, tile: CGFloat, scale: Double) -> some View {
-        VStack(spacing: Self.boardSpacing) {
+        let slots: [(id: String, cell: FringeCell?)] = (0 ..< rows * cols).map { idx in
+            if idx < cells.count {
+                let cell = cells[idx]
+                // Blanks need the slot index to stay unique, but keep it stable for a given layout.
+                let id = cell.stableID == "blank" ? "blank_\(idx)" : cell.stableID
+                return (id, cell)
+            }
+            return ("empty_\(idx)", nil)
+        }
+        return VStack(spacing: Self.boardSpacing) {
             ForEach(0 ..< rows, id: \.self) { r in
                 HStack(spacing: Self.boardSpacing) {
-                    ForEach(0 ..< cols, id: \.self) { c in
-                        let idx = r * cols + c
-                        cellView(idx < cells.count ? cells[idx] : nil, tile: tile, scale: scale)
+                    ForEach(slots[(r * cols) ..< min((r + 1) * cols, slots.count)], id: \.id) { slot in
+                        cellView(slot.cell, tile: tile, scale: scale)
                     }
                 }
             }
@@ -885,6 +964,7 @@ struct KidModeView: View {
     }
 
     private func addWord(_ word: AACWord) {
+        predictions.recordTransition(from: composer.words.last?.label, to: word.label)
         composer.append(word)
         speech.speak(word.phrase, settings: store.settings)
         history.record(wordId: word.id, label: word.label, enabled: store.settings.trackUsageHistory)

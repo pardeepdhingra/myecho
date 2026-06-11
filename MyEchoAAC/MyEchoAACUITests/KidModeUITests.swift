@@ -8,6 +8,10 @@ final class KidModeUITests: XCTestCase {
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
+        // iPads are used in landscape for AAC (mounted on wheelchairs/stands) — test that posture.
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCUIDevice.shared.orientation = .landscapeLeft
+        }
         app = XCUIApplication()
         app.launchArguments = ["--uitest"]
         app.launch()

@@ -134,6 +134,9 @@ struct AACSettings: Codable, Equatable {
     /// Folders (categories) the parent has hidden — they don't show on the kid board but their words are
     /// kept (re-show by un-hiding). Independent of per-word visibility.
     var hiddenCategories: [String]
+    /// Show the next-word suggestion strip in kid mode (learned from the child's own tap patterns).
+    /// Some learners find prediction distracting, so parents can turn it off.
+    var showWordSuggestions: Bool
 
     /// Back-compat convenience for the old boolean meaning ("tiles share their category colour").
     var colorTilesByCategory: Bool { colorMode == .byCategory }
@@ -179,7 +182,8 @@ struct AACSettings: Codable, Equatable {
         gridRows: 5,
         coreColumns: 2,
         categoryOrder: [],
-        hiddenCategories: []
+        hiddenCategories: [],
+        showWordSuggestions: true
     )
 
     enum CodingKeys: String, CodingKey {
@@ -191,6 +195,7 @@ struct AACSettings: Codable, Equatable {
         case freezeButtonPositions
         case boardMode
         case tileStyle, gridPreset, gridRows, coreColumns, categoryOrder, hiddenCategories
+        case showWordSuggestions
         /// Legacy key (pre-`colorMode`); read-only for migration.
         case colorTilesByCategory
     }
@@ -216,7 +221,8 @@ struct AACSettings: Codable, Equatable {
         gridRows: Int = 5,
         coreColumns: Int = 2,
         categoryOrder: [String] = [],
-        hiddenCategories: [String] = []
+        hiddenCategories: [String] = [],
+        showWordSuggestions: Bool = true
     ) {
         self.gridColumns = gridColumns
         self.voiceIdentifier = voiceIdentifier
@@ -239,6 +245,7 @@ struct AACSettings: Codable, Equatable {
         self.coreColumns = coreColumns
         self.categoryOrder = categoryOrder
         self.hiddenCategories = hiddenCategories
+        self.showWordSuggestions = showWordSuggestions
     }
 
     init(from decoder: Decoder) throws {
@@ -271,6 +278,7 @@ struct AACSettings: Codable, Equatable {
         coreColumns = try c.decodeIfPresent(Int.self, forKey: .coreColumns) ?? 2
         categoryOrder = try c.decodeIfPresent([String].self, forKey: .categoryOrder) ?? []
         hiddenCategories = try c.decodeIfPresent([String].self, forKey: .hiddenCategories) ?? []
+        showWordSuggestions = try c.decodeIfPresent(Bool.self, forKey: .showWordSuggestions) ?? true
     }
 
     /// Explicit encode so we write only real stored fields — never the legacy `colorTilesByCategory`
@@ -298,5 +306,6 @@ struct AACSettings: Codable, Equatable {
         try c.encode(coreColumns, forKey: .coreColumns)
         try c.encode(categoryOrder, forKey: .categoryOrder)
         try c.encode(hiddenCategories, forKey: .hiddenCategories)
+        try c.encode(showWordSuggestions, forKey: .showWordSuggestions)
     }
 }

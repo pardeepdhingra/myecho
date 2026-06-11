@@ -337,6 +337,7 @@ struct ParentModeView: View {
                 Toggle("Show quick phrases", isOn: $store.settings.showQuickPhrases)
                 Toggle("Show symbols in message bar", isOn: $store.settings.showSymbolsInMessageBar)
                 Toggle("Show regulation bar (Break / Help / Stop)", isOn: $store.settings.showRegulationBar)
+                Toggle("Word suggestions", isOn: $store.settings.showWordSuggestions)
             } header: {
                 Text("Grid")
             } footer: {
