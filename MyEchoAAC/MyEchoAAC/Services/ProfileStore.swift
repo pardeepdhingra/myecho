@@ -54,6 +54,8 @@ final class ProfileStore: ObservableObject {
 
     func deleteProfile(_ profile: ChildProfile) {
         guard !profile.isDefault else { return }
+        let suiteName = "vani.profile.\(profile.id.uuidString)"
+        UserDefaults.standard.removePersistentDomain(forName: suiteName)
         profiles.removeAll { $0.id == profile.id }
         if activeProfileId == profile.id {
             activeProfileId = profiles.first!.id

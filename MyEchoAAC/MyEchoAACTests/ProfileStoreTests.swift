@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 @testable import MyEchoAAC
 
 @MainActor @Suite("ProfileStore")
@@ -109,6 +110,24 @@ struct ProfileStoreTests {
         store.activate(toDelete)
         store.deleteProfile(toDelete)
         #expect(store.activeProfileId == store.profiles.first?.id)
+    }
+
+    @Test("deleteProfile removes the profile's UserDefaults suite")
+    func deleteProfileCleansUpSuite() {
+        let defaults = makeIsolatedDefaults()
+        let store = ProfileStore(defaults: defaults)
+        store.addProfile(name: "Temp", emoji: "🗑️")
+        let toDelete = store.profiles.last!
+
+        let suiteName = "vani.profile.\(toDelete.id.uuidString)"
+        let profileDefaults = UserDefaults(suiteName: suiteName)
+        profileDefaults?.set("hello", forKey: "test-sentinel")
+        profileDefaults?.synchronize()
+
+        store.deleteProfile(toDelete)
+
+        let afterDelete = UserDefaults(suiteName: suiteName)
+        #expect(afterDelete?.string(forKey: "test-sentinel") == nil)
     }
 
     // MARK: - Persistence
