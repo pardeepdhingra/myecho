@@ -62,7 +62,7 @@ Quality & testing
 ## Next (can work on now)
 
 - [ ] Polish first-run visual design and capture fresh simulator screenshots.
-- [ ] Sign language: bulk/"suggest sign for this word" flow so parents don't search one at a time.
+- [x] Sign language: bulk/"suggest sign for this word" flow so parents don't search one at a time.
 - [x] Sign language: handle/refresh download failures and offline gracefully — `SignDownloader` retries 3× with 1/2/3s backoff; `SignPickerView` shows "Try again" on search error and "Retry" button per result on download failure.
 - [ ] Sign language: let parents trim/choose a thumbnail frame for each saved sign.
 - [ ] Per-word sign learning card (tap to enlarge the sign + hear the word) for teaching moments.

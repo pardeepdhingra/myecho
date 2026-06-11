@@ -182,6 +182,7 @@ struct ParentModeView: View {
     @State private var starterMergeMessage: String?
     @State private var wordSearch: String = ""
     @State private var visibilityFilter: VisibilityFilter = .all
+    @State private var showingBulkSign = false
 
     private enum VisibilityFilter: String, CaseIterable {
         case all, visible, hidden
@@ -758,6 +759,17 @@ struct ParentModeView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 EditButton()
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingBulkSign = true
+                } label: {
+                    Label("Add Signs", systemImage: "hand.raised")
+                }
+            }
+        }
+        .sheet(isPresented: $showingBulkSign) {
+            BulkSignView()
+                .environmentObject(store)
         }
     }
 
