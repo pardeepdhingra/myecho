@@ -61,7 +61,7 @@ Quality & testing
 
 ## Next (can work on now)
 
-- [ ] Polish first-run visual design and capture fresh simulator screenshots.
+- [x] Polish first-run visual design — 4-page onboarding carousel (TabView pager): Welcome (logo), Tap a Tile, Make It Personal, Parent Settings; animated page-dot indicator; Next/Skip + Get Started controls.
 - [x] Sign language: bulk/"suggest sign for this word" flow so parents don't search one at a time.
 - [x] Sign language: handle/refresh download failures and offline gracefully — `SignDownloader` retries 3× with 1/2/3s backoff; `SignPickerView` shows "Try again" on search error and "Retry" button per result on download failure.
 - [ ] Sign language: let parents trim/choose a thumbnail frame for each saved sign.
