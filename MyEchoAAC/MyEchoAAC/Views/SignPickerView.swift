@@ -17,6 +17,7 @@ struct SignPickerView: View {
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var savingResultID: String?
+    @State private var failedResultID: String?
 
     private let search = SignSearchService()
     private let downloader = SignDownloader()
@@ -112,7 +113,7 @@ struct SignPickerView: View {
             ProgressView("Searching…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let errorMessage {
-            VStack(spacing: 10) {
+            VStack(spacing: 14) {
                 Image(systemName: "exclamationmark.triangle")
                     .font(.largeTitle)
                     .foregroundStyle(.secondary)
@@ -120,6 +121,11 @@ struct SignPickerView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
                     .font(.subheadline)
+                Button("Try again") {
+                    Task { await runSearch() }
+                }
+                .buttonStyle(.bordered)
+                .disabled(query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if results.isEmpty {
@@ -166,15 +172,19 @@ struct SignPickerView: View {
                 }
                 Spacer()
                 Button {
+                    failedResultID = nil
                     Task { await useResult(result) }
                 } label: {
                     if savingResultID == result.id {
                         ProgressView()
+                    } else if failedResultID == result.id {
+                        Label("Retry", systemImage: "arrow.clockwise")
                     } else {
                         Text("Use this sign")
                     }
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(failedResultID == result.id ? .orange : .accentColor)
                 .disabled(savingResultID != nil)
             }
         }
@@ -208,8 +218,10 @@ struct SignPickerView: View {
             onSelect(SignPickerSelection(filename: filename, language: result.language))
             dismiss()
         } catch let error as SignSearchError {
+            failedResultID = result.id
             errorMessage = error.errorDescription
         } catch {
+            failedResultID = result.id
             errorMessage = error.localizedDescription
         }
     }

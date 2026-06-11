@@ -63,7 +63,7 @@ Quality & testing
 
 - [ ] Polish first-run visual design and capture fresh simulator screenshots.
 - [ ] Sign language: bulk/"suggest sign for this word" flow so parents don't search one at a time.
-- [ ] Sign language: handle/refresh download failures and offline gracefully (retry + clearer errors).
+- [x] Sign language: handle/refresh download failures and offline gracefully — `SignDownloader` retries 3× with 1/2/3s backoff; `SignPickerView` shows "Try again" on search error and "Retry" button per result on download failure.
 - [ ] Sign language: let parents trim/choose a thumbnail frame for each saved sign.
 - [ ] Per-word sign learning card (tap to enlarge the sign + hear the word) for teaching moments.
 - [x] Multiple boards via **Board sets** (Home, School, Therapy) — save/load/rename/overwrite named full-board snapshots (`BoardSetStore`, Parent → Board → Board sets). Self-contained files with embedded photos; the live board remains the single synced board.
@@ -79,7 +79,7 @@ Gaps to close, in value order:
 - [ ] **Keyboard page** — type-to-speak page with word prediction for literate users.
 - [ ] **Bigger symbol library** — integrate an open symbol set (e.g. ARASAAC, license-permitting) with search + download; bundled set is small.
 - [ ] **Switch scanning** — row/column scanning with external-switch and full-screen-tap support (TD Snap's core accessibility feature).
-- [ ] **Partner window** — flip the spoken message to face the communication partner.
+- [x] **Partner window** — flip the spoken message to face the communication partner. ↕ button in message bar opens full-screen rotated large-text overlay; tap anywhere dismisses.
 - [ ] **Grammar support** — word forms/inflections (plurals, tenses) on long-press.
 - [ ] **Visual scene displays** — photo scenes with tappable hotspots (early-communicator support).
 

@@ -167,6 +167,22 @@ actor SignDownloader {
     }
 
     func download(_ url: URL) async throws -> String {
+        var lastError: Error = SignSearchError.network("Download failed.")
+        for attempt in 1...3 {
+            do {
+                return try await attemptDownload(url)
+            } catch {
+                lastError = error
+                if attempt < 3 {
+                    logger.warning("Download attempt \(attempt) failed, retrying: \(error.localizedDescription, privacy: .public)")
+                    try? await Task.sleep(nanoseconds: UInt64(attempt) * 1_000_000_000)
+                }
+            }
+        }
+        throw lastError
+    }
+
+    private func attemptDownload(_ url: URL) async throws -> String {
         let (data, response) = try await session.data(from: url)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             throw SignSearchError.network("Could not download sign video.")

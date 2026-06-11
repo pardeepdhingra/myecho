@@ -35,6 +35,7 @@ struct KidModeView: View {
     @State private var showingSentenceHistory = false
     @State private var showingAbout = false
     @State private var showingWordFinder = false
+    @State private var showingPartnerWindow = false
 
     private var columns: [GridItem] {
         return Array(
@@ -179,6 +180,11 @@ struct KidModeView: View {
                     .environmentObject(speech)
                     .environmentObject(history)
                     .presentationDetents([.large])
+            }
+            .fullScreenCover(isPresented: $showingPartnerWindow) {
+                PartnerWindowView(message: composer.phrase) {
+                    showingPartnerWindow = false
+                }
             }
             .sheet(isPresented: $showingWordFinder) {
                 WordFinderView(
@@ -496,6 +502,19 @@ struct KidModeView: View {
                 .tint(Color.accentColor)
                 .disabled(composer.isEmpty)
                 .accessibilityIdentifier("speakButton")
+
+                Button {
+                    showingPartnerWindow = true
+                } label: {
+                    Label("Partner view", systemImage: "arrow.up.arrow.down")
+                        .labelStyle(.iconOnly)
+                        .font(.title2)
+                        .frame(width: 54, height: 54)
+                }
+                .buttonStyle(.bordered)
+                .tint(Color.accentColor)
+                .disabled(composer.isEmpty)
+                .accessibilityLabel("Partner window")
             }
 
             HStack(spacing: 10) {
