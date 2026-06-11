@@ -87,6 +87,31 @@ struct UsageHistoryTests {
         #expect(history.spokenSentences.isEmpty)
     }
 
+    @Test("sessionReport includes child name, word counts, and sentences")
+    func sessionReport() {
+        let history = UsageHistory(defaults: makeIsolatedDefaults())
+        history.record(wordId: UUID(), label: "more", enabled: true)
+        history.record(wordId: UUID(), label: "more", enabled: true)
+        history.record(wordId: UUID(), label: "help", enabled: true)
+        history.recordSentence("I want juice", enabled: true)
+
+        let report = history.sessionReport(childName: "Alex")
+
+        #expect(report.contains("Alex"))
+        #expect(report.contains("more"))
+        #expect(report.contains("2"))
+        #expect(report.contains("I want juice"))
+        #expect(report.contains("Vani"))
+    }
+
+    @Test("sessionReport works without a child name")
+    func sessionReportNoName() {
+        let history = UsageHistory(defaults: makeIsolatedDefaults())
+        let report = history.sessionReport(childName: nil)
+        #expect(report.contains("Vani"))
+        #expect(!report.isEmpty)
+    }
+
     @Test("importAll replaces entries and sentences wholesale")
     func importAll() {
         let history = UsageHistory(defaults: makeIsolatedDefaults())

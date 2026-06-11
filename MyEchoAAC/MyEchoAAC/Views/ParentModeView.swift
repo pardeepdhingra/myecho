@@ -1128,6 +1128,17 @@ struct ParentModeView: View {
             }
 
             Section {
+                Button {
+                    let report = history.sessionReport(childName: profileStore.activeProfile?.name)
+                    exportURL = IdentifiableURL(url: shareReportFile(report))
+                } label: {
+                    Label("Share session report", systemImage: "square.and.arrow.up")
+                }
+            } footer: {
+                Text("Generates a plain-text summary of today's word usage and recent sentences — easy to paste into a therapy note or email to a therapist.")
+            }
+
+            Section {
                 Button("Clear tap history", role: .destructive) {
                     history.clear()
                 }
@@ -1136,6 +1147,15 @@ struct ParentModeView: View {
                 }
             }
         }
+    }
+
+    private func shareReportFile(_ text: String) -> URL {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let filename = "vani-session-\(formatter.string(from: Date())).txt"
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        try? text.write(to: url, atomically: true, encoding: .utf8)
+        return url
     }
 
     private var voiceSettings: some View {
