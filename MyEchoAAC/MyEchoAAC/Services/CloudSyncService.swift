@@ -179,7 +179,10 @@ final class CloudSyncService: ObservableObject {
             try? await Task.sleep(nanoseconds: self?.debounceNanos ?? 3_000_000_000)
             guard !Task.isCancelled, let self, let uid = self.auth.state.uid else { return }
             do { try await self.pushNow(uid: uid) }
-            catch { self.status = .error(error.localizedDescription) }
+            catch {
+                self.logger.error("Push sync failed: \(error.localizedDescription, privacy: .public)")
+                self.status = .error(error.localizedDescription)
+            }
         }
     }
 
@@ -219,7 +222,10 @@ final class CloudSyncService: ObservableObject {
         if remote.updatedAtClient <= lastUpdatedAtClient { return }
         Task {
             do { try await applyRemote(remote, uid: uid) }
-            catch { status = .error(error.localizedDescription) }
+            catch {
+                logger.error("Apply remote board failed: \(error.localizedDescription, privacy: .public)")
+                status = .error(error.localizedDescription)
+            }
         }
     }
 
@@ -284,10 +290,13 @@ final class CloudSyncService: ObservableObject {
         return out
     }
 
-    private func reconcileAssets(words: [AACWord], uid: String, backend: CloudBackend) async throws {
+    /// Internal (not private) so the asset-sync regression tests can drive it with a fake backend.
+    func reconcileAssets(words: [AACWord], uid: String, backend: CloudBackend) async throws {
         let local = referencedLocalAssets(words)
         let localNames = Set(local.map(\.filename))
-        let remote = (try? await backend.loadAssetIndex(uid: uid)) ?? []
+        // Must NOT default to [] on failure: an empty remote index would make the orphan-deletion loop
+        // below delete every cloud asset. Propagate so a transient query error aborts this sync pass.
+        let remote = try await backend.loadAssetIndex(uid: uid)
         let remoteNames = Set(remote.map(\.filename))
 
         for asset in local where !remoteNames.contains(asset.filename) {
@@ -304,8 +313,10 @@ final class CloudSyncService: ObservableObject {
         }
     }
 
-    private func downloadAssets(for words: [AACWord], uid: String, backend: CloudBackend) async throws {
-        let remote = (try? await backend.loadAssetIndex(uid: uid)) ?? []
+    func downloadAssets(for words: [AACWord], uid: String, backend: CloudBackend) async throws {
+        // Propagate failure rather than defaulting to []: a silent empty index would skip pulling all
+        // media (the child's photos/signs would silently go missing), masking a recoverable error.
+        let remote = try await backend.loadAssetIndex(uid: uid)
         var remoteByName: [String: CloudAsset] = [:]
         for asset in remote { remoteByName[asset.filename] = asset }
 

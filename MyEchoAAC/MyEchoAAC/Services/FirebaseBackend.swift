@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// Boots the cloud layer and builds the Firebase-backed implementations. Everything Firebase-specific
 /// is behind `#if canImport(...)`, so the project compiles with cloud `Disabled` until the Firebase SPM
@@ -67,6 +68,7 @@ struct FirebaseAuthBackend: AuthBackend {
 struct FirebaseCloudBackend: CloudBackend {
     private var db: Firestore { Firestore.firestore() }
     private var storage: StorageReference { Storage.storage().reference() }
+    private let logger = Logger(subsystem: "com.pardeepdhingra.vani", category: "FirebaseCloud")
 
     private func boardRef(_ uid: String) -> DocumentReference {
         db.collection(CloudSchema.usersCollection).document(uid)
@@ -105,7 +107,14 @@ struct FirebaseCloudBackend: CloudBackend {
     }
 
     func listenBoard(uid: String, onChange: @escaping @Sendable (RemoteBoard?) -> Void) -> CloudListenerToken {
-        let registration = boardRef(uid).addSnapshotListener { snap, _ in
+        let log = logger
+        let registration = boardRef(uid).addSnapshotListener { snap, error in
+            if let error {
+                // Previously swallowed: a failed listener silently stops delivering remote updates while
+                // the UI still reads "Synced". At least log it so the failure is diagnosable.
+                log.error("Board listener error: \(error.localizedDescription, privacy: .public)")
+                return
+            }
             onChange(snap.flatMap(Self.remoteBoard(from:)))
         }
         return CloudListenerToken { registration.remove() }
