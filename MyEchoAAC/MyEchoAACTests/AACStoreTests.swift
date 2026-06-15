@@ -128,14 +128,11 @@ struct AACStoreTests {
     }
 
     @Test("resetStarterBoard does not delete unrelated ImageStore files")
-    func resetStarterBoardSparesCoreImages() {
+    func resetStarterBoardSparesCoreImages() throws {
         // Simulate a "scene image" file in ImageStore that isn't a word photo
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4))
         let img = renderer.image { ctx in ctx.fill(CGRect(x: 0, y: 0, width: 4, height: 4)) }
-        guard let scenePath = ImageStore.save(img) else {
-            Issue.record("ImageStore.save returned nil")
-            return
-        }
+        let scenePath = try ImageStore.save(img)
         #expect(ImageStore.exists(scenePath))
 
         let store = makeStore()

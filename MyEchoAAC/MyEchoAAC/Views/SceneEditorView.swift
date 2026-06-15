@@ -16,6 +16,8 @@ struct SceneEditorView: View {
     @State private var editingHotspot: AACSceneHotspot?
     @State private var showingHotspotEditor = false
     @State private var pendingTapLocation: CGPoint?
+    /// Parent-facing message shown when the scene photo can't be loaded or saved.
+    @State private var photoErrorMessage: String?
 
     init(scene: AACScene, onSave: @escaping (AACScene) -> Void) {
         self.scene = scene
@@ -70,18 +72,38 @@ struct SceneEditorView: View {
             }
         }
         .onChange(of: pickerItem) { _, item in
-            Task {
-                if let data = try? await item?.loadTransferable(type: Data.self),
-                   let img = UIImage(data: data) {
-                    let previousDuringEdit = editedScene.imagePath
-                    editedScene.imagePath = ImageStore.save(img)
-                    image = img
-                    // Only delete intermediate edits, not the original (needed for cancel)
-                    if let previousDuringEdit, previousDuringEdit != originalImagePath {
-                        ImageStore.delete(previousDuringEdit)
-                    }
+            guard let item else { return }
+            Task { await loadSceneImage(item) }
+        }
+        .alert("Couldn't add photo",
+               isPresented: Binding(get: { photoErrorMessage != nil },
+                                    set: { if !$0 { photoErrorMessage = nil } })) {
+            Button("OK", role: .cancel) { photoErrorMessage = nil }
+        } message: {
+            Text(photoErrorMessage ?? "")
+        }
+    }
+
+    private func loadSceneImage(_ item: PhotosPickerItem) async {
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let img = UIImage(data: data) else {
+                await MainActor.run { photoErrorMessage = "That photo couldn't be opened. Please try another one." }
+                return
+            }
+            let filename = try ImageStore.save(img)
+            await MainActor.run {
+                guard pickerItem == item else { return }   // ignore a stale pick
+                let previousDuringEdit = editedScene.imagePath
+                editedScene.imagePath = filename
+                image = img
+                // Only delete intermediate edits, not the original (needed for cancel)
+                if let previousDuringEdit, previousDuringEdit != originalImagePath {
+                    ImageStore.delete(previousDuringEdit)
                 }
             }
+        } catch {
+            await MainActor.run { photoErrorMessage = error.localizedDescription }
         }
     }
 

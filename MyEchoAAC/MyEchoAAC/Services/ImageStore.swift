@@ -2,6 +2,21 @@ import Foundation
 import UIKit
 import os
 
+/// Why saving an image to disk failed, with a parent-friendly message for the UI.
+enum ImageStoreError: LocalizedError {
+    case encodingFailed
+    case writeFailed(Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .encodingFailed:
+            return "That photo couldn't be processed. Try a different image."
+        case .writeFailed(let error):
+            return "Couldn't save the photo to this device: \(error.localizedDescription)"
+        }
+    }
+}
+
 enum ImageStore {
     private static let directoryName = "word-images"
     private static let logger = Logger(subsystem: "com.pardeepdhingra.vani", category: "ImageStore")
@@ -15,11 +30,13 @@ enum ImageStore {
         return url
     }
 
-    static func save(_ image: UIImage) -> String? {
+    /// Save an image to disk and return its generated filename. Throws `ImageStoreError` when the image
+    /// can't be encoded or written, so callers can surface the failure instead of silently dropping it.
+    static func save(_ image: UIImage) throws -> String {
         let resized = resize(image, maxDimension: 800)
         guard let data = resized.jpegData(compressionQuality: 0.85) else {
             logger.error("Failed to encode image as JPEG")
-            return nil
+            throw ImageStoreError.encodingFailed
         }
         let filename = "\(UUID().uuidString).jpg"
         let url = directoryURL.appendingPathComponent(filename)
@@ -28,7 +45,7 @@ enum ImageStore {
             return filename
         } catch {
             logger.error("Failed to write image: \(error.localizedDescription, privacy: .public)")
-            return nil
+            throw ImageStoreError.writeFailed(error)
         }
     }
 

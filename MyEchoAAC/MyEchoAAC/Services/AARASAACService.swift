@@ -72,10 +72,7 @@ enum AARASAACService {
                 guard let uiImage = UIImage(data: data) else {
                     throw URLError(.cannotDecodeContentData)
                 }
-                guard let filename = ImageStore.save(uiImage) else {
-                    throw URLError(.cannotCreateFile)
-                }
-                return filename
+                return try ImageStore.save(uiImage)
             } catch {
                 lastError = error
                 if attempt < 3 {

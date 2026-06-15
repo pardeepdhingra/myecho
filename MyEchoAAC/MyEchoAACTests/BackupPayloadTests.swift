@@ -110,14 +110,11 @@ struct BackupPayloadTests {
 
     @Test("apply() does not delete images that are not referenced by any word")
     @MainActor
-    func applyDoesNotDeleteUnreferencedImages() {
+    func applyDoesNotDeleteUnreferencedImages() throws {
         // Simulate a "scene image" that lives in ImageStore but isn't in any word
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4))
         let img = renderer.image { ctx in ctx.fill(CGRect(x: 0, y: 0, width: 4, height: 4)) }
-        guard let scenePath = ImageStore.save(img) else {
-            Issue.record("ImageStore.save returned nil")
-            return
-        }
+        let scenePath = try ImageStore.save(img)
         #expect(ImageStore.exists(scenePath))
 
         let defaults = makeIsolatedDefaults()

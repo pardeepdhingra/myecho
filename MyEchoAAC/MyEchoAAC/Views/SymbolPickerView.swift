@@ -221,6 +221,7 @@ private struct AARASAACSearchTab: View {
             onSelectImage(path)
         } catch {
             downloadingID = nil
+            errorMessage = "Couldn't download that symbol. Check your connection and try again."
         }
     }
 }

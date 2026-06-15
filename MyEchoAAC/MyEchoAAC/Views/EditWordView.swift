@@ -24,6 +24,8 @@ struct EditWordView: View {
     /// Remembers the folder to return a word to when it's un-pinned from the home core band.
     @State private var lastFolder: String
     @State private var phraseFollowsLabel: Bool
+    /// Parent-facing message shown when attaching a photo fails (load or save error).
+    @State private var photoErrorMessage: String?
 
     init(word: AACWord) {
         _draft = State(initialValue: word)
@@ -140,6 +142,13 @@ struct EditWordView: View {
             .onChange(of: photoPickerItem) { _, newItem in
                 guard let newItem else { return }
                 Task { await loadPhotoPickerItem(newItem) }
+            }
+            .alert("Couldn't add photo",
+                   isPresented: Binding(get: { photoErrorMessage != nil },
+                                        set: { if !$0 { photoErrorMessage = nil } })) {
+                Button("OK", role: .cancel) { photoErrorMessage = nil }
+            } message: {
+                Text(photoErrorMessage ?? "")
             }
             .onChange(of: draft.label) { _, newValue in
                 if phraseFollowsLabel {
@@ -570,20 +579,32 @@ struct EditWordView: View {
     }
 
     private func loadPhotoPickerItem(_ item: PhotosPickerItem) async {
-        if let data = try? await item.loadTransferable(type: Data.self),
-           let image = UIImage(data: data) {
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let image = UIImage(data: data) else {
+                await MainActor.run { photoErrorMessage = "That photo couldn't be opened. Please try another one." }
+                return
+            }
             await MainActor.run {
+                // Ignore a stale load if the parent has since picked a different photo.
+                guard photoPickerItem == item else { return }
                 handlePicked(image: image)
             }
+        } catch {
+            await MainActor.run { photoErrorMessage = "Couldn't load the photo: \(error.localizedDescription)" }
         }
     }
 
     private func handlePicked(image: UIImage) {
         let previousDuringEdit = draft.imagePath
-        guard let filename = ImageStore.save(image) else { return }
-        draft.imagePath = filename
-        if let previousDuringEdit, previousDuringEdit != originalImagePath {
-            ImageStore.delete(previousDuringEdit)
+        do {
+            let filename = try ImageStore.save(image)
+            draft.imagePath = filename
+            if let previousDuringEdit, previousDuringEdit != originalImagePath {
+                ImageStore.delete(previousDuringEdit)
+            }
+        } catch {
+            photoErrorMessage = error.localizedDescription
         }
     }
 

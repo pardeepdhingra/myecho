@@ -13,6 +13,8 @@ struct SignThumbnailPickerView: View {
     @State private var duration: Double = 1
     @State private var previewImage: UIImage?
     @State private var isBusy = false
+    /// Parent-facing message shown when the chosen frame can't be saved.
+    @State private var saveErrorMessage: String?
 
     private var videoURL: URL { SignVideoStore.fileURL(for: videoPath) }
 
@@ -39,6 +41,13 @@ struct SignThumbnailPickerView: View {
                 }
             }
             .onAppear { loadDurationAndInitialFrame() }
+            .alert("Couldn't save frame",
+                   isPresented: Binding(get: { saveErrorMessage != nil },
+                                        set: { if !$0 { saveErrorMessage = nil } })) {
+                Button("OK", role: .cancel) { saveErrorMessage = nil }
+            } message: {
+                Text(saveErrorMessage ?? "")
+            }
         }
     }
 
@@ -149,10 +158,15 @@ struct SignThumbnailPickerView: View {
 
     private func saveCurrentFrame() {
         guard let img = previewImage else { return }
-        if let old = currentThumbnailPath { ImageStore.delete(old) }
-        let path = ImageStore.save(img)
-        onSave(path)
-        dismiss()
+        do {
+            let path = try ImageStore.save(img)
+            // Only drop the old thumbnail once the new one is safely written.
+            if let old = currentThumbnailPath { ImageStore.delete(old) }
+            onSave(path)
+            dismiss()
+        } catch {
+            saveErrorMessage = error.localizedDescription
+        }
     }
 
     private func formatTime(_ t: Double) -> String {

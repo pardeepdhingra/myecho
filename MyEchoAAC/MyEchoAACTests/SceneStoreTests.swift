@@ -44,7 +44,7 @@ struct SceneStoreTests {
     }
 
     @Test("deleteScene removes the scene image from ImageStore")
-    func deleteSceneRemovesImage() {
+    func deleteSceneRemovesImage() throws {
         let defaults = makeIsolatedDefaults()
         let store = SceneStore(defaults: defaults)
         store.addScene(name: "Kitchen")
@@ -52,10 +52,7 @@ struct SceneStoreTests {
         // Write a small placeholder image into ImageStore so we can verify deletion
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4))
         let img = renderer.image { ctx in ctx.fill(CGRect(x: 0, y: 0, width: 4, height: 4)) }
-        guard let savedPath = ImageStore.save(img) else {
-            Issue.record("ImageStore.save returned nil")
-            return
-        }
+        let savedPath = try ImageStore.save(img)
         #expect(ImageStore.exists(savedPath))
 
         var scene = store.scenes.first!
