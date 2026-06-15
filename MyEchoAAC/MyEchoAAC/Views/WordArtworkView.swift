@@ -43,18 +43,42 @@ struct WordArtworkView: View {
                     .frame(width: size, height: size)
                     .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
                     .allowsHitTesting(false)
-            } else if let symbolName = word.symbolName, SymbolLibrary.exists(symbolName) {
-                Image(symbolName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: size, height: size)
             } else {
-                Text(word.symbol)
-                    .font(.system(size: size * 0.65))
-                    .minimumScaleFactor(0.5)
-                    .frame(width: size, height: size)
-                    .multilineTextAlignment(.center)
+                // Picture symbol (if set) → emoji. Shared with FolderTileView via SymbolOrEmojiView so a
+                // word's symbol/emoji looks identical to a folder's icon everywhere in the app.
+                SymbolOrEmojiView(name: resolvedSymbolOrEmoji, size: size)
             }
+        }
+    }
+
+    /// The bundled picture-symbol asset name when one is set and present, otherwise the emoji string.
+    private var resolvedSymbolOrEmoji: String {
+        if let name = word.symbolName, SymbolLibrary.exists(name) { return name }
+        return word.symbol
+    }
+}
+
+/// Renders a single icon string: a bundled picture-symbol asset (`sym_…`) as its image, or any other
+/// string as emoji/text. This is the shared tail of `WordArtworkView` and `FolderTileView`, so symbols
+/// and emoji render consistently whether they sit on a word tile, a folder tile, or anywhere else.
+struct SymbolOrEmojiView: View {
+    let name: String
+    var size: CGFloat = 44
+    /// Emoji glyph size as a fraction of `size`. Tiles use ~0.65; folder tiles use a larger ratio.
+    var emojiFontRatio: CGFloat = 0.65
+
+    var body: some View {
+        if name.hasPrefix(SymbolLibrary.assetPrefix), SymbolLibrary.exists(name) {
+            Image(name)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+        } else {
+            Text(name)
+                .font(.system(size: size * emojiFontRatio))
+                .minimumScaleFactor(0.5)
+                .frame(width: size, height: size)
+                .multilineTextAlignment(.center)
         }
     }
 }

@@ -67,8 +67,7 @@ struct BulkSignView: View {
         let rowState = states[word.id] ?? .idle
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                Text(word.symbol)
-                    .font(.system(size: 28))
+                WordArtworkView(word: word, size: 28, cornerRadius: 6)
                 Text(word.label)
                     .font(.system(.body, design: .rounded, weight: .semibold))
                 Spacer()

@@ -78,15 +78,8 @@ struct FolderTileView: View {
 
     @ViewBuilder
     private var iconView: some View {
-        if icon.hasPrefix(SymbolLibrary.assetPrefix), SymbolLibrary.exists(icon) {
-            Image(icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 38 * clampedScale, height: 38 * clampedScale)
-        } else {
-            Text(icon)
-                .font(.system(size: 34 * clampedScale))
-                .minimumScaleFactor(0.5)
-        }
+        // Shared renderer so a folder's symbol/emoji matches a word's symbol/emoji exactly.
+        // emojiFontRatio ~0.89 reproduces the previous folder emoji size (34pt in a 38pt box).
+        SymbolOrEmojiView(name: icon, size: 38 * clampedScale, emojiFontRatio: 34.0 / 38.0)
     }
 }

@@ -84,11 +84,15 @@ struct SignLearningCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .padding(.horizontal, 24)
         } else {
-            // Fallback: word symbol in a large box
-            Text(word.symbol)
-                .font(.system(size: 120))
+            // Fallback (no sign video): show the word's actual artwork — photo / picture symbol / emoji —
+            // via the shared renderer, not just the emoji, so it matches what the child sees on the board.
+            WordArtworkView(word: word, size: 160, cornerRadius: 16)
+                .padding(24)
                 .frame(maxWidth: .infinity)
                 .frame(height: 200)
+                .background(Color.white.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .padding(.horizontal, 24)
         }
     }
 }
